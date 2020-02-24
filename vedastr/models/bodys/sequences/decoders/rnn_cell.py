@@ -20,7 +20,7 @@ class BaseCell(nn.Module):
                 self.cells.append(basic_cell(input_size=input_size, hidden_size=hidden_size, bias=bias))
             else:
                 self.cells.append(basic_cell(input_size=hidden_size, hidden_size=hidden_size, bias=bias))
-        init_weights(self.modules)
+        init_weights(self.modules())
 
 
     def init_hidden(self, batch_size, device=None, value=0):

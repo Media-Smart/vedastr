@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from vedastr.models.bodys import build_brick, build_sequence_decoder
 from vedastr.models.utils import build_torch_nn
+from vedastr.models.weight_init import init_weights
 from .registry import HEADS
 
 

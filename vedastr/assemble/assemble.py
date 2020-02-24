@@ -122,7 +122,7 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
     )
 
     if test_mode:
-        cfg['resume'] = dict(checkpoint=checkpoint, resume_optimizer=False, resume_lr=False, resume_epoch=False)
+        cfg['resume'] = dict(checkpoint=checkpoint, resume_optimizer=False)
 
     if cfg['resume']:
         runner.resume(**cfg['resume'])
