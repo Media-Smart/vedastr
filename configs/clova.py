@@ -54,7 +54,7 @@ transforms = [
     dict(type='ColorToGray', ),
     dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w), ),
     dict(type='ToTensor', ),
-    dict(type='TensorNormalize', mean=mean, std=std, )
+    dict(type='TensorNormalize', mean=mean, std=std, ),
 ]
 
 data = dict(
@@ -70,7 +70,7 @@ data = dict(
                 type='ConcatDatasets',
                 dataset_list=train_dataset_st,
                 **params,
-            )
+            ),
         ],
         loader=dict(
             type='BatchBalanceDataloader',
@@ -78,7 +78,7 @@ data = dict(
             each_batch_ratio=[0.5, 0.5],
             each_usage=[1.0, 1.0],
             shuffle=True,
-        )
+        ),
     ),
     val=dict(
         transforms=transforms,
@@ -88,7 +88,7 @@ data = dict(
             batch_size=batch_size,
             num_workers=4,
             shuffle=True,
-        )
+        ),
     ),
     test=dict(
         transforms=transforms,
@@ -98,8 +98,8 @@ data = dict(
             batch_size=batch_size,
             num_workers=4,
             shuffle=True,
-        )
-    )
+        ),
+    ),
 )
 
 # 3. model
@@ -267,7 +267,7 @@ converter = dict(
 criterion = dict(type='CrossEntropyLoss', ignore_tag=0)
 
 # 6. optim
-optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8, )
+optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8)
 
 # 7. runner
 max_iterations = 300000
