@@ -47,7 +47,7 @@ valid_dataset = [dict(type='LmdbDataset', root=valid_root, **params)]
 
 # test
 test_root = data_root + 'evaluation/'
-test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP', ]
+test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP']
 test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **params) for folder_name in test_folder_names]
 
 # transforms
