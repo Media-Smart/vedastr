@@ -45,12 +45,29 @@ pip install -r requirements.txt
 ```
 
 ## Prepare data
-Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark), which contains training data, validation data and evaluation data. Make directory data as follows. Put the download Lmdb data into this data directory. 
+Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark), which contains training data, validation data and evaluation data. Make directory data as follows. 
 
 ```shell
 cd ${vedastr_root}
 mkdir ${vedastr_root}/data
 ```
+
+Put the download Lmdb data into this data directory, the structure of data directory will look like as follows: 
+
+```shell
+data
+└── data_lmdb_release
+    ├── evaluation
+    ├── training
+    │   ├── MJ
+    │   │   ├── MJ_test
+    │   │   ├── MJ_train
+    │   │   └── MJ_valid
+    │   └── ST
+    └── validation
+```
+
+
 
 ## Train
 
