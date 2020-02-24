@@ -33,8 +33,9 @@ conda install pytorch torchvision -c pytorch
 c. Clone the vedastr repository.
 
 ```shell
-git clone https://github.com/Media-Smart/vedaseg.git
+git clone https://github.com/Media-Smart/vedastr.git
 cd vedastr
+vedastr_root=${PWD}
 ```
 
 d. Install dependencies.
@@ -44,9 +45,12 @@ pip install -r requirements.txt
 ```
 
 ## Prepare data
-Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark).
+Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark), which contains training data, validation data and evaluation data. Make directory data as follows. Put the download Lmdb data into this data directory. 
 
-
+```shell
+cd ${vedastr_root}
+mkdir ${vedastr_root}/data
+```
 
 ## Train
 
