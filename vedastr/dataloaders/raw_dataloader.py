@@ -1,5 +1,4 @@
 from torch.utils.data import DataLoader, Subset, ConcatDataset
-from torch._utils import _accumulate
 
 from .registry import DATALOADERS
 from .base import BaseDataloader

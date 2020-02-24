@@ -1,6 +1,4 @@
 # modify from clovaai
-import pdb
-import logging
 
 import torch
 from torch.utils.data import DataLoader, Subset

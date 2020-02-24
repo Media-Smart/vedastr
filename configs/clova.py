@@ -32,29 +32,31 @@ data_root = './data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'
-train_root_mj = [train_root + 'MJ/MJ_test', train_root + 'MJ/MJ_valid', train_root + 'MJ/MJ_train', ]
-train_root_st = [train_root + 'ST/', ]
+## MJ dataset
+train_root_mj = train_root + 'MJ/'
+mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
+## ST dataset
+train_root_st = train_root + 'ST/'
 
-train_dataset_mj = [dict(type='LmdbDataset', root=mj_root, ) for mj_root in train_root_mj]
-train_dataset_st = [dict(type='LmdbDataset', root=st_root, ) for st_root in train_root_st]
+train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name) for folder_name in mj_folder_names]
+train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset', root=valid_root, **params, )]
+valid_dataset = [dict(type='LmdbDataset', root=valid_root, **params)]
 
 # test
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP', ]
-test_dataset = [dict(type='LmdbDataset', root=test_root + f'{folder_name}', **params, ) for folder_name in
-                test_folder_names]
+test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **params) for folder_name in test_folder_names]
 
 # transforms
 transforms = [
-    dict(type='Sensitive', sensitive=sensitive, ),
-    dict(type='ColorToGray', ),
-    dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w), ),
-    dict(type='ToTensor', ),
-    dict(type='TensorNormalize', mean=mean, std=std, ),
+    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='ColorToGray'),
+    dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w)),
+    dict(type='ToTensor'),
+    dict(type='TensorNormalize', mean=mean, std=std),
 ]
 
 data = dict(
@@ -264,7 +266,7 @@ converter = dict(
 )
 
 # 5. criterion
-criterion = dict(type='CrossEntropyLoss', ignore_tag=0)
+criterion = dict(type='CrossEntropyLoss', ignore_index=0)
 
 # 6. optim
 optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8)
