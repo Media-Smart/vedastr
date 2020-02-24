@@ -38,7 +38,7 @@ class AttHead(nn.Module):
 
         self.register_buffer('embeddings', torch.diag(torch.ones(self.num_class)))
 
-        init_weights(self.modules)
+        init_weights(self.modules())
 
     @property
     def with_holistic_input(self):

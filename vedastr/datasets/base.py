@@ -11,7 +11,7 @@ from PIL import Image
 
 class BaseDataset(Dataset):
     def __init__(self, root, gt_txt=None, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 sensitive=False, batch_max_length=25, data_filter_off=False, cv_mode=False):
+                 batch_max_length=25, data_filter_off=False, cv_mode=False):
         assert type(root) == str
         if gt_txt is not None:
             assert os.path.isfile(gt_txt)
@@ -21,8 +21,6 @@ class BaseDataset(Dataset):
         self.batch_max_length = batch_max_length
         self.data_filter_off = data_filter_off
         self.cv_mode = cv_mode
-        if sensitive:
-            self.character = string.printable[:-6]
 
         if transform:
             self.transforms = transform

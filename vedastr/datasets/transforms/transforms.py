@@ -81,14 +81,14 @@ class ToTensor(object):
 
 @TRANSFORMS.register_module
 class Resize(object):
-    def __init__(self, canva_w, canva_h, img_size, keep_ratio=False, keep_long=False):
-        self.canva_w = canva_w
-        self.canva_h = canva_h
+    def __init__(self, canva_size, img_size, keep_ratio=False, keep_long=False):
+        self.canva_size = canva_size
         self.img_size = img_size
         self.keep_ratio = keep_ratio
         self.keep_long = keep_long
 
     def __call__(self, image, label):
+        canva_h, canva_w = self.canva_size
         if isinstance(image, np.ndarray) and self.keep_ratio:
             img_h, img_w, c = image.shape
             if self.keep_long:
@@ -98,7 +98,7 @@ class Resize(object):
                                    max_short_edge / min(img_h, img_w))
             else:
                 scale_factor = min(self.img_size[0]/img_h, self.img_size[1]/img_w)
-            canvas = np.zeros((self.canva_h, self.canva_w, c)).astype(np.float32)
+            canvas = np.zeros((canva_h, canva_w, c)).astype(np.float32)
 
             new_image = cv2.resize(image, (int(img_w * scale_factor), int(img_h * scale_factor)))
             if new_image.ndim == 2:

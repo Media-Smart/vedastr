@@ -8,10 +8,10 @@ from .registry import DATASETS
 class FolderDataset(BaseDataset):
     extension_names = ['.jpg', '.png', '.bmp', '.jpeg']
 
-    def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789', sensitive=False,
+    def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
                  batch_max_length=25, data_filter_off=False, cv_mode=False):
         super(FolderDataset, self).__init__(root, transform=transform, character=character,
-                                            sensitive=sensitive, batch_max_length=batch_max_length,
+                                            batch_max_length=batch_max_length,
                                             data_filter_off=data_filter_off, cv_mode=cv_mode)
 
     @staticmethod

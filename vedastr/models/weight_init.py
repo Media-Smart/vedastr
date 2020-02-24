@@ -33,22 +33,45 @@ def uniform_init(module, a=0, b=1, bias=0):
 
 def kaiming_init(module,
                  a=0,
+                 is_rnn=False,
                  mode='fan_in',
                  nonlinearity='leaky_relu',
                  bias=0,
                  distribution='normal'):
     assert distribution in ['uniform', 'normal']
     if distribution == 'uniform':
-        nn.init.kaiming_uniform_(module.weight,
-                                 a=a,
-                                 mode=mode,
-                                 nonlinearity=nonlinearity)
+        if is_rnn:
+            for name, param in module.named_parameters():
+                if 'bias' in name:
+                    nn.init.constant_(param, bias)
+                elif 'weight' in name:
+                    nn.init.kaiming_uniform_(param,
+                                             a=a,
+                                             mode=mode,
+                                             nonlinearity=nonlinearity)
+        else:
+            nn.init.kaiming_uniform_(module.weight,
+                                     a=a,
+                                     mode=mode,
+                                     nonlinearity=nonlinearity)
+
     else:
-        nn.init.kaiming_normal_(module.weight,
-                                a=a,
-                                mode=mode,
-                                nonlinearity=nonlinearity)
-    if hasattr(module, 'bias') and module.bias is not None:
+        if is_rnn:
+            for name, param in module.named_parameters():
+                if 'bias' in name:
+                    nn.init.constant_(param, bias)
+                elif 'weight' in name:
+                    nn.init.kaiming_normal_(param,
+                                            a=a,
+                                            mode=mode,
+                                            nonlinearity=nonlinearity)
+        else:
+            nn.init.kaiming_normal_(module.weight,
+                                    a=a,
+                                    mode=mode,
+                                    nonlinearity=nonlinearity)
+
+    if not is_rnn and hasattr(module, 'bias') and module.bias is not None:
         nn.init.constant_(module.bias, bias)
 
 
@@ -70,3 +93,5 @@ def init_weights(modules):
             constant_init(m, 1)
         elif isinstance(m, nn.Linear):
             kaiming_init(m)
+        elif isinstance(m, (nn.LSTM, nn.LSTMCell)):
+            kaiming_init(m, is_rnn=True)

@@ -26,7 +26,6 @@ class RNN(nn.Module):
     def forward(self, x):
         out = self.input_pool(x).squeeze(2)
         out = out.permute(0, 2, 1)
-        # pdb.set_trace()
         for layer_name, layer in self.layers.named_children():
 
             if 'rnn' in layer_name:

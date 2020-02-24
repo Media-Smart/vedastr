@@ -23,65 +23,53 @@ sensitive = False
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'  # need character
 
 # dataset params
-train_params = dict(
+params = dict(
     batch_max_length=batch_max_length,
     data_filter_off=data_filter_off,
-    sensitive=sensitive,
-)
-val_params = dict(
-    batch_max_length=batch_max_length,
-    data_filter_off=data_filter_off,
-    sensitive=sensitive,
-)
-test_params = dict(
-    batch_max_length=batch_max_length,
-    data_filter_off=data_filter_off,
-    sensitive=sensitive,
 )
 
-prefix = '/DATA7_DB7/data/sjun/deep-text-recognition-benchmark-master/Data/'
+data_root = './data/data_lmdb_release/'
 
 # train data
-train_prefix = prefix + 'training/'
-train_root_mj = [train_prefix + 'MJ/MJ_test/MJ_test', train_prefix + 'MJ/MJ_valid/MJ_valid',
-                 train_prefix + 'MJ/MJ_train/MJ_train', ]
-train_root_st = [train_prefix + 'ST/', ]
-train_folder_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', ]
+train_root = data_root + 'training/'
+train_root_mj = [train_root + 'MJ/MJ_test', train_root + 'MJ/MJ_valid', train_root + 'MJ/MJ_train', ]
+train_root_st = [train_root + 'ST/', ]
 
-train_dataset_mj = [dict(type='LmdbDataset', root=train_prefix + f'{folder_name}', ) for train_prefix in train_root_mj
-                    for folder_name in train_folder_names]
-train_dataset_st = [dict(type='LmdbDataset', root=train_prefix + f'ST{folder_name}', ) for train_prefix in train_root_st
-                    for folder_name in train_folder_names]
+train_dataset_mj = [dict(type='LmdbDataset', root=mj_root, ) for mj_root in train_root_mj]
+train_dataset_st = [dict(type='LmdbDataset', root=st_root, ) for st_root in train_root_st]
 
 # valid
-valid_prefix = prefix + 'validation/'
-valid_dataset = [dict(type='LmdbDataset', root=valid_prefix, **val_params, )]
+valid_root = data_root + 'validation/'
+valid_dataset = [dict(type='LmdbDataset', root=valid_root, **params, )]
 
 # test
-test_prefix = prefix + 'evaluation/'
+test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP', ]
-test_dataset = [dict(type='LmdbDataset', root=test_prefix + f'{folder_name}', **test_params, ) for folder_name in
+test_dataset = [dict(type='LmdbDataset', root=test_root + f'{folder_name}', **params, ) for folder_name in
                 test_folder_names]
+
+# transforms
+transforms = [
+    dict(type='Sensitive', sensitive=sensitive, ),
+    dict(type='ColorToGray', ),
+    dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w), ),
+    dict(type='ToTensor', ),
+    dict(type='TensorNormalize', mean=mean, std=std, )
+]
 
 data = dict(
     train=dict(
-        transforms=[
-            dict(type='Sensitive', sensitive=sensitive, ),
-            dict(type='ColorToGray', ),
-            dict(type='Resize', img_size=(img_height, img_width), canva_w=canva_w, canva_h=canva_h, ),
-            dict(type='ToTensor', ),
-            dict(type='TensorNormalize', mean=mean, std=std, )
-        ],
+        transforms=transforms,
         dataset=[
             dict(
                 type='ConcatDatasets',
                 dataset_list=train_dataset_mj,
-                **train_params,
+                **params,
             ),
             dict(
                 type='ConcatDatasets',
                 dataset_list=train_dataset_st,
-                **train_params,
+                **params,
             )
         ],
         loader=dict(
@@ -93,13 +81,7 @@ data = dict(
         )
     ),
     val=dict(
-        transforms=[
-            dict(type='Sensitive', sensitive=sensitive),
-            dict(type='ColorToGray'),
-            dict(type='Resize', img_size=(img_height, img_width), canva_w=canva_w, canva_h=canva_h, ),
-            dict(type='ToTensor'),
-            dict(type='TensorNormalize', mean=mean, std=std, )
-        ],
+        transforms=transforms,
         dataset=valid_dataset,
         loader=dict(
             type='RawDataloader',
@@ -109,13 +91,7 @@ data = dict(
         )
     ),
     test=dict(
-        transforms=[
-            dict(type='Sensitive', sensitive=sensitive),
-            dict(type='ColorToGray'),
-            dict(type='Resize', img_size=(img_height, img_width), canva_w=canva_w, canva_h=canva_h, ),
-            dict(type='ToTensor'),
-            dict(type='TensorNormalize', mean=mean, std=std, )
-        ],
+        transforms=transforms,
         dataset=test_dataset,
         loader=dict(
             type='RawDataloader',
@@ -288,7 +264,7 @@ converter = dict(
 )
 
 # 5. criterion
-criterion = dict(type='CrossEntropyLoss')
+criterion = dict(type='CrossEntropyLoss', ignore_tag=0)
 
 # 6. optim
 optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8, )

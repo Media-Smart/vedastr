@@ -16,10 +16,10 @@ from .registry import DATASETS
 @DATASETS.register_module
 class LmdbDataset(BaseDataset):
 
-    def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789', sensitive=False,
+    def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
                  batch_max_length=25, data_filter_off=False, cv_mode=False):
         self.env = lmdb.open(root, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
-        super(LmdbDataset, self).__init__(root=root, transform=transform, character=character, sensitive=sensitive,
+        super(LmdbDataset, self).__init__(root=root, transform=transform, character=character,
                                           batch_max_length=batch_max_length, data_filter_off=data_filter_off,
                                           cv_mode=cv_mode)
 
