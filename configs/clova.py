@@ -23,7 +23,7 @@ sensitive = False
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'  # need character
 
 # dataset params
-params = dict(
+dataset_params = dict(
     batch_max_length=batch_max_length,
     data_filter_off=data_filter_off,
 )
@@ -43,12 +43,12 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset', root=valid_root, **params)]
+valid_dataset = [dict(type='LmdbDataset', root=valid_root, **dataset_params)]
 
 # test
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP']
-test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **params) for folder_name in test_folder_names]
+test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **dataset_params) for folder_name in test_folder_names]
 
 # transforms
 transforms = [
@@ -66,12 +66,12 @@ data = dict(
             dict(
                 type='ConcatDatasets',
                 dataset_list=train_dataset_mj,
-                **params,
+                **dataset_params,
             ),
             dict(
                 type='ConcatDatasets',
                 dataset_list=train_dataset_st,
-                **params,
+                **dataset_params,
             ),
         ],
         loader=dict(
