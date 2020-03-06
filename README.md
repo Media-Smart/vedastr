@@ -1,6 +1,37 @@
 ## Introduction
 vedastr is an open source scene text recognition toolbox based on PyTorch.
 
+## Features
+- Modular Design\
+  \
+  We decompose the scene text recognition framework into different components. 
+  The flexible and extensible design make it easy to implement a customized 
+  scene text recognition project by combining different modules like building Lego.
+
+- Surpport of current classic frameworks\
+  \
+  The toolbox supports several popular scene text recognition framework, e.g., CRNN,
+   TPS-ResNet-BiLSTM-Attention, DAN, etc.
+
+## License
+This project is released under [Apache 2.0 license](https://github.com/Media-Smart/vedastr/blob/master/LICENSE).
+
+## Benchmark and model zoo
+Note: 
+- We test our model on [IIIT5K_3000](), [SVT](), [IC03_867](), [IC13_1015](),
+[IC15_2077](),[SVTP]().  The training data we used is [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
+ [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). You can find the 
+ datasets below.
+  
+| |case sensitive| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|MODEL|
+|:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|:----:|
+|TPS-ResNet-BiLSTM-Attention| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/drive/u/1/folders/1ooIOX5Aeu-0aHJYT1eZgzkSnZUvPi2by)|
+
+case sensitive: Character sensetive during training\
+AVERAGE: Average accuracy over all test datasets\
+TPS: [Spatial transformer network](https://arxiv.org/abs/1603.03915)
+
+
 ## Installation
 ### Requirements
 
@@ -24,7 +55,8 @@ conda create -n vedastr python=3.6 -y
 conda activate vedastr
 ```
 
-b. Install PyTorch and torchvision following the [official instructions](https://pytorch.org/), *e.g.*,
+b. Install PyTorch and torchvision following the [official instructions](https://pytorch.org/),
+ *e.g.*,
 
 ```shell
 conda install pytorch torchvision -c pytorch
@@ -45,7 +77,8 @@ pip install -r requirements.txt
 ```
 
 ## Prepare data
-a. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark), which contains training data, validation data and evaluation data. 
+a. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
+ which contains training data, validation data and evaluation data. 
 
 b. Make directory data as follows:
 
