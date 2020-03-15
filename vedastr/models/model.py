@@ -1,5 +1,3 @@
-import pdb
-
 import torch.nn as nn
 
 from .bodys import build_body
@@ -18,7 +16,6 @@ class GModel(nn.Module):
 
     def forward(self, img, text=None):
         x = self.body(img)
-        # pdb.set_trace()
         if self.need_text:
             out = self.head(x, text)
         else:

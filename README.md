@@ -23,13 +23,13 @@ Note:
  [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). You can find the 
  datasets below.
   
-| |case sensitive| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|MODEL|
+| |CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|MODEL|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|:----:|
 |TPS-ResNet-BiLSTM-Attention| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/drive/u/1/folders/1ooIOX5Aeu-0aHJYT1eZgzkSnZUvPi2by)|
 
-case sensitive: Character sensetive during training\
-AVERAGE: Average accuracy over all test datasets\
-TPS: [Spatial transformer network](https://arxiv.org/abs/1603.03915)
+CASE SENSITIVE :Whether or not sensitive to characters\
+AVERAGE : Average accuracy over all test datasets\
+TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
 
 ## Installation

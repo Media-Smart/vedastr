@@ -25,6 +25,7 @@ class GFPN(nn.Module):
         init_weights(self.modules())
 
     def forward(self, bottom_up):
+
         x = None
         feats = {}
         for ii, layer in enumerate(self.neck):
@@ -46,6 +47,9 @@ class GFPN(nn.Module):
 
             x = layer(td, ll)
             feats[layer.to_layer] = x
+            bottom_up[layer.to_layer] = x
+
         if self.fusion:
             x = self.fusion(feats)
-        return x
+            bottom_up['fusion'] = x
+        return bottom_up

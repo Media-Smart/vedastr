@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../vedastr'))
 
-from vedastr.assemble import assemble
+from vedastr.assembler import assemble
 
 
 def parse_args():

@@ -17,11 +17,11 @@ from .registry import DATASETS
 class LmdbDataset(BaseDataset):
 
     def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=25, data_filter_off=False, cv_mode=False):
+                 batch_max_length=25, data_filter_off=False, cv_mode=False, unknown=False):
         self.env = lmdb.open(root, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
         super(LmdbDataset, self).__init__(root=root, transform=transform, character=character,
                                           batch_max_length=batch_max_length, data_filter_off=data_filter_off,
-                                          cv_mode=cv_mode)
+                                          cv_mode=cv_mode, unknown=unknown)
 
     def get_name_list(self):
         with self.env.begin(write=False) as txn:
@@ -68,9 +68,12 @@ class LmdbDataset(BaseDataset):
             if self.cv_mode:
                 img = np.array(img)
             if self.transforms:
-                img, label = self.transforms(img, label)
-            # We only train and evaluate on alphanumerics (or pre-defined character set in train.py)
-            out_of_char = f'[^{self.character}]'
-            label = re.sub(out_of_char, '', label)
+                try:
+                    img, label = self.transforms(img, label)
+                except:
+                    return self.__getitem__(index + 1)
+            if not self.unknown:
+                out_of_char = f'[^{self.character}]'
+                label = re.sub(out_of_char, '', label)
 
         return (img, label)

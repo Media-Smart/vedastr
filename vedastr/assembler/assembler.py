@@ -43,27 +43,30 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
     logger.info('Assemble, Step 1, Build Dataset')
     # 2. data
     ## 2.1 dataset
-    train_tf = build_transform(cfg['data']['train']['transforms'])
-    train_dataset = build_datasets(cfg['data']['train']['dataset'], dict(transform=train_tf))
+    if not test_mode:
+        train_tf = build_transform(cfg['data']['train']['transforms'])
+        train_dataset = build_datasets(cfg['data']['train']['dataset'], dict(transform=train_tf))
 
-    if cfg['data'].get('val'):
+    if cfg['data'].get('val') and not test_mode:
         val_tf = build_transform(cfg['data']['val']['transforms'])
         val_dataset = build_datasets(cfg['data']['val']['dataset'], dict(transform=val_tf))
 
-    if cfg['data'].get('test'):
+    if cfg['data'].get('test') and test_mode:
         test_tf = build_transform(cfg['data']['test']['transforms'])
         test_dataset = build_datasets(cfg['data']['test']['dataset'], dict(transform=test_tf))
 
     logger.info('Assemble, Step 2, Build Dataloader')
     # 2.2 dataloader
-    train_loader = build_dataloader(cfg['data']['train']['loader'], dict(dataset=train_dataset))
+    loader = {}
+    if not test_mode:
+        train_loader = build_dataloader(cfg['data']['train']['loader'], dict(dataset=train_dataset))
+        loader['train'] = train_loader
 
-    loader = {'train': train_loader}
-    if cfg['data'].get('val'):
+    if cfg['data'].get('val') and not test_mode:
         val_loader = build_dataloader(cfg['data']['val']['loader'], dict(dataset=val_dataset))
         loader['val'] = val_loader
 
-    if cfg['data'].get('test'):
+    if cfg['data'].get('test') and test_mode:
         test_loader = build_dataloader(cfg['data']['test']['loader'], dict(dataset=test_dataset))
         loader['test'] = test_loader
 

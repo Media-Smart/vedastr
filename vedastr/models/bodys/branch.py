@@ -34,3 +34,9 @@ class RectificatorBranch(BaseBranch):
 class SequenceEncoderBranch(BaseBranch):
     def __init__(self, from_layer, to_layer, arch):
         super(SequenceEncoderBranch, self).__init__(from_layer, to_layer, build_sequence_encoder(arch))
+
+
+@BRANCHES.register_module
+class CollectBranch(BaseBranch):
+    def __init__(self, from_layer, to_layer, arch):
+        super(CollectBranch, self).__init__(from_layer, to_layer, build_brick(arch))

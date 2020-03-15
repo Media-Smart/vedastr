@@ -72,7 +72,7 @@ class ToTensor(object):
         if isinstance(image, np.ndarray):
             if image.ndim == 2:
                 image = np.expand_dims(image, -1)
-            image = torch.from_numpy(image).permute(2, 0, 1)
+            image = transforms.ToTensor()(image)
         elif isinstance(image, Image.Image):
             image = transforms.ToTensor()(image)
 

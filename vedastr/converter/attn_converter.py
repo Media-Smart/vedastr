@@ -40,7 +40,7 @@ class AttnConverter(BaseConverter):
         batch_size = text_index.shape[0]
         for index in range(batch_size):
             text = ''.join([self.character[i] for i in text_index[index, :]])
-            text = text[:text.find('[s]')] if text.find('[s]') != -1 else text
+            text = text[:text.find('[s]')]
             texts.append(text)
 
         return texts

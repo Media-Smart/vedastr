@@ -63,7 +63,6 @@ class Runner(object):
         if self.test_mode:
             self.test_epoch()
         else:
-            assert self.trainval_ratio > 0
             self.metric.reset()
             logger.info('Start train...')
             for iteration in range(self.iterations):

@@ -1,5 +1,3 @@
-import pdb
-
 import torch.nn as nn
 
 from vedastr.models.utils import build_torch_nn
@@ -12,7 +10,9 @@ class RNN(nn.Module):
     def __init__(self, input_pool, layers, keep_order=False):
         super(RNN, self).__init__()
         self.keep_order = keep_order
-        self.input_pool = build_torch_nn(input_pool)
+
+        if input_pool:
+            self.input_pool = build_torch_nn(input_pool)
 
         self.layers = nn.ModuleList()
         for i, (layer_name, layer_cfg) in enumerate(layers):
@@ -23,8 +23,16 @@ class RNN(nn.Module):
 
         init_weights(self.modules())
 
+    @property
+    def with_input_pool(self):
+        return hasattr(self, 'input_pool') and self.input_pool
+
     def forward(self, x):
-        out = self.input_pool(x).squeeze(2)
+        if self.with_input_pool:
+            out = self.input_pool(x).squeeze(2)
+        else:
+            out = x
+        # input order (B, C, T) -> (B, T, C)
         out = out.permute(0, 2, 1)
         for layer_name, layer in self.layers.named_children():
 

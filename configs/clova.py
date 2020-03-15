@@ -242,6 +242,7 @@ model = dict(
                 in_channels=256,
                 out_channels=1,
                 kernel_size=1,
+                bias=False,
                 activation='tanh',
                 order=('act', 'conv', 'norm'),
             ),
@@ -270,6 +271,9 @@ criterion = dict(type='CrossEntropyLoss', ignore_index=0)
 
 # 6. optim
 optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8)
+
+# 7. lr scheduler
+lr_scheduler = dict(type='StepLR', niter_per_epoch=100000, max_epochs=3, milestones=[150000, 250000])
 
 # 7. runner
 max_iterations = 300000

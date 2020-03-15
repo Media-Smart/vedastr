@@ -15,8 +15,10 @@ class FCModule(nn.Module):
                  bias=True,
                  activation='relu',
                  inplace=True,
-                 dropout=None):
+                 dropout=None,
+                 order=('fc', 'act')):
         super(FCModule, self).__init__()
+        self.order = order
         self.activation = activation
         self.inplace = inplace
 
@@ -40,10 +42,15 @@ class FCModule(nn.Module):
             self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x):
-        x = self.fc(x)
+        if self.order == ('fc', 'act'):
+            x = self.fc(x)
 
-        if self.with_activatation:
-            x = self.activate(x)
+            if self.with_activatation:
+                x = self.activate(x)
+        elif self.order == ('act', 'fc'):
+            if self.with_activatation:
+                x = self.activate(x)
+            x = self.fc(x)
 
         if self.with_dropout:
             x = self.dropout(x)

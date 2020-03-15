@@ -1,3 +1,5 @@
+import logging
+
 import torch
 import torch.nn as nn
 
@@ -5,6 +7,8 @@ from vedastr.models.bodys import build_brick, build_sequence_decoder
 from vedastr.models.utils import build_torch_nn
 from vedastr.models.weight_init import init_weights
 from .registry import HEADS
+
+logger = logging.getLogger()
 
 
 @HEADS.register_module
@@ -19,14 +23,15 @@ class AttHead(nn.Module):
                  text_transform=None,
                  holistic_input_from=None):
         super(AttHead, self).__init__()
+        # from vedastr import utils
+        # utils.set_random_seed(1)
+        if input_attention_block is not None:
+            self.input_attention_block = build_brick(input_attention_block)
 
         self.cell = build_sequence_decoder(cell)
         self.generator = build_torch_nn(generator)
         self.num_steps = num_steps
         self.num_class = num_class
-
-        if input_attention_block is not None:
-            self.input_attention_block = build_brick(input_attention_block)
 
         if output_attention_block is not None:
             self.output_attention_block = build_brick(output_attention_block)
@@ -38,7 +43,7 @@ class AttHead(nn.Module):
             self.holistic_input_from = holistic_input_from
 
         self.register_buffer('embeddings', torch.diag(torch.ones(self.num_class)))
-
+        logger.info('AttHead init weights')
         init_weights(self.modules())
 
     @property
@@ -89,7 +94,7 @@ class AttHead(nn.Module):
 
             if self.with_input_attention:
                 attention_feat = self.input_attention_block(feats, self.cell.get_output(hidden).unsqueeze(-1).unsqueeze(-1))
-                cell_input = torch.cat([text_feat, attention_feat], dim=1)
+                cell_input = torch.cat([attention_feat, text_feat], dim=1)
             else:
                 cell_input = text_feat
             hidden = self.cell(cell_input, hidden)

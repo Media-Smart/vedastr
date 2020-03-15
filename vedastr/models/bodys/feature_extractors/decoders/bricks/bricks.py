@@ -15,6 +15,7 @@ class JunctionBlock(nn.Module):
 
     Args:
     """
+
     def __init__(self, top_down, lateral, post, to_layer, fusion_method=None):
         super(JunctionBlock, self).__init__()
 
@@ -30,7 +31,8 @@ class JunctionBlock(nn.Module):
             self.from_layer['top_down'] = top_down_.pop('from_layer')
             if 'trans' in top_down_:
                 self.top_down_block.append(build_module(top_down_['trans']))
-            self.top_down_block.append(build_module(top_down_['upsample']))
+            if 'upsample' in top_down_:
+                self.top_down_block.append(build_module(top_down_['upsample']))
         self.top_down_block = nn.Sequential(*self.top_down_block)
 
         if lateral_:
@@ -82,6 +84,7 @@ class FusionBlock(nn.Module):
 
         Args:
     """
+
     def __init__(self,
                  method,
                  from_layers,
@@ -147,6 +150,7 @@ class CollectBlock(nn.Module):
 
         Args:
     """
+
     def __init__(self, from_layer, to_layer=None):
         super(CollectBlock, self).__init__()
 
@@ -154,10 +158,18 @@ class CollectBlock(nn.Module):
         self.to_layer = to_layer
 
     def forward(self, feats):
+
         if self.to_layer is None:
-            return feats[self.from_layer]
+            if isinstance(self.from_layer, str):
+                return feats[self.from_layer]
+            elif isinstance(self.from_layer, list):
+                return {f_layer: feats[f_layer] for f_layer in self.from_layer}
         else:
-            res[self.to_layer] = feats[self.from_layer]
+            if isinstance(self.from_layer, str):
+                feats[self.to_layer] = feats[self.from_layer]
+            elif isinstance(self.from_layer, list):
+                feats[self.to_layer] = {f_layer: feats[f_layer] for f_layer in self.from_layer}
+
 
 
 @BRICKS.register_module

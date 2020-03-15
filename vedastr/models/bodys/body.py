@@ -19,8 +19,6 @@ class GBody(nn.Module):
         if collect is not None:
             self.collect = build_brick(collect)
 
-        init_weights(self.modules())
-
     @property
     def with_collect(self):
         return hasattr(self, 'collect') and self.collect is not None
