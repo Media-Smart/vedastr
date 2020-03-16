@@ -33,7 +33,7 @@ Note:
 
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
-CASE SENSITIVE : If true, output is case sensitive and contain common characters.
+CASE SENSITIVE : If true, the output is case sensitive and contain common characters.
 If false, the output is not case sentive and contains only numbers and letters. 
 
 
