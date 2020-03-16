@@ -31,19 +31,12 @@ Note:
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|:----:|
 |TPS-ResNet-BiLSTM-Attention| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1Gr7UwSBrkmN0Ldgfbll3mdgSdI_k5o6O)|
 
-<<<<<<< HEAD
-=======
-CASE SENSITIVE : if true, the model is sensitive to the printable strings, eg., 
-&emsp; &emsp;``` 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ```
-. If false, the model only recognition alphametric and numetric, eg., 
-``` 0123456789abcdefghijklmnopqrstuvwxyz```\
->>>>>>> 5a496ca4a1a18ad3b182ddd2ce5ebce6b87da044
 AVERAGE : Average accuracy over all test datasets\
-TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
+TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
 CASE SENSITIVE : if true, the output results are case sensitive and the result characters are contained in 
 ``` 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ```
-&emsp;. If false, the output results are not case sensitive and the result characters contained in, 
-&ensp;&ensp;``` 0123456789abcdefghijklmnopqrstuvwxyz```\
+. If false, the output results are not case sensitive and the result characters contained in, 
+``` 0123456789abcdefghijklmnopqrstuvwxyz```\
 
 ## Installation
 ### Requirements
