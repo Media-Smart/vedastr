@@ -34,7 +34,7 @@ Note:
 CASE SENSITIVE : if true, the model is sensitive to the printable strings, eg., 
 &emsp; &emsp;``` 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ```
 . If false, the model only recognition alphametric and numetric, eg., 
-&ensp;&ensp;``` 0123456789abcdefghijklmnopqrstuvwxyz```\
+``` 0123456789abcdefghijklmnopqrstuvwxyz```\
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
