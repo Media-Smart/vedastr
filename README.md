@@ -31,7 +31,10 @@ Note:
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|:----:|
 |TPS-ResNet-BiLSTM-Attention| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1Gr7UwSBrkmN0Ldgfbll3mdgSdI_k5o6O)|
 
-CASE SENSITIVE :Whether or not sensitive to characters\
+CASE SENSITIVE : if true, the model is sensitive to the printable strings, eg., 
+&emsp; &emsp;``` 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ```
+&emsp;. If false, the model only recognition alphametric and numetric, eg., 
+&ensp;&ensp;``` 0123456789abcdefghijklmnopqrstuvwxyz```\
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
