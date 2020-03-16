@@ -33,10 +33,9 @@ Note:
 
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
-CASE SENSITIVE : If true, the output results are case sensitive and the result characters are contained in 
-``` 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ```
-. If false, the output results are not case sensitive and the result characters contained in, 
-``` 0123456789abcdefghijklmnopqrstuvwxyz```\
+CASE SENSITIVE : If true, output is case sensitive and contain common characters.
+If false, the output is not case sentive and contains only numbers and letters. 
+
 
 ## Installation
 ### Requirements
