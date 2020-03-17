@@ -45,15 +45,15 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
     ## 2.1 dataset
     if not test_mode:
         train_tf = build_transform(cfg['data']['train']['transforms'])
-        train_dataset = build_datasets(cfg['data']['train']['dataset'], dict(transform=train_tf))
+        train_dataset = build_datasets(cfg['data']['train']['datasets'], dict(transform=train_tf))
 
     if cfg['data'].get('val') and not test_mode:
         val_tf = build_transform(cfg['data']['val']['transforms'])
-        val_dataset = build_datasets(cfg['data']['val']['dataset'], dict(transform=val_tf))
+        val_dataset = build_datasets(cfg['data']['val']['datasets'], dict(transform=val_tf))
 
     if cfg['data'].get('test') and test_mode:
         test_tf = build_transform(cfg['data']['test']['transforms'])
-        test_dataset = build_datasets(cfg['data']['test']['dataset'], dict(transform=test_tf))
+        test_dataset = build_datasets(cfg['data']['test']['datasets'], dict(transform=test_tf))
 
     logger.info('Assemble, Step 2, Build Dataloader')
     # 2.2 dataloader

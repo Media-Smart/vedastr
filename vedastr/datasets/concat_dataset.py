@@ -7,9 +7,9 @@ from .builder import build_datasets
 @DATASETS.register_module
 class ConcatDatasets(ConcatDataset):
 
-    def __init__(self, dataset_list, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
+    def __init__(self, datasets, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
                  batch_max_length=25, data_filter_off=False):
-        assert isinstance(dataset_list, list)
+        assert isinstance(datasets, list)
         _params = dict(
             transform=transform,
             batch_max_length=batch_max_length,
@@ -17,5 +17,5 @@ class ConcatDatasets(ConcatDataset):
             character=character,
         )
 
-        datasets = build_datasets(dataset_list, default_args=_params)
+        datasets = build_datasets(datasets, default_args=_params)
         super(ConcatDatasets, self).__init__(datasets=datasets)

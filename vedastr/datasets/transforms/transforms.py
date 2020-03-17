@@ -130,11 +130,14 @@ class ColorToGray(object):
 
 @TRANSFORMS.register_module
 class Sensitive(object):
-    def __init__(self, sensitive):
+    def __init__(self, sensitive, character):
         self.sensitive = sensitive
+        self.character = character
 
     def __call__(self, image, label):
         if not self.sensitive:
             label = label.lower()
+        else:
+            assert self.character.islower(), 'if sensitive, character should contain all possible symbols'
 
         return image, label

@@ -48,11 +48,12 @@ valid_dataset = [dict(type='LmdbDataset', root=valid_root, **dataset_params)]
 # test
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP']
-test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **dataset_params) for folder_name in test_folder_names]
+test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **dataset_params) for folder_name in
+                test_folder_names]
 
 # transforms
 transforms = [
-    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='Sensitive', sensitive=sensitive, character=character),
     dict(type='ColorToGray'),
     dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w)),
     dict(type='ToTensor'),
@@ -62,15 +63,15 @@ transforms = [
 data = dict(
     train=dict(
         transforms=transforms,
-        dataset=[
+        datasets=[
             dict(
                 type='ConcatDatasets',
-                dataset_list=train_dataset_mj,
+                datasets=train_dataset_mj,
                 **dataset_params,
             ),
             dict(
                 type='ConcatDatasets',
-                dataset_list=train_dataset_st,
+                datasets=train_dataset_st,
                 **dataset_params,
             ),
         ],
@@ -84,7 +85,7 @@ data = dict(
     ),
     val=dict(
         transforms=transforms,
-        dataset=valid_dataset,
+        datasets=valid_dataset,
         loader=dict(
             type='RawDataloader',
             batch_size=batch_size,
@@ -94,7 +95,7 @@ data = dict(
     ),
     test=dict(
         transforms=transforms,
-        dataset=test_dataset,
+        datasets=test_dataset,
         loader=dict(
             type='RawDataloader',
             batch_size=batch_size,
@@ -104,7 +105,14 @@ data = dict(
     ),
 )
 
-# 3. model
+# 3. converter
+converter = dict(
+    type='AttnConverter',
+    character=character,
+    batch_max_length=batch_max_length,
+)
+
+# 4. model
 F = 20  # number of rectification points
 norm_cfg = dict(type='BN')
 num_class = 38
@@ -256,15 +264,8 @@ model = dict(
     ),
 )
 
-## 3.1 resume
+## 4.1 resume
 resume = None
-
-# 4. converter
-converter = dict(
-    type='AttnConverter',
-    character=character,
-    batch_max_length=batch_max_length,
-)
 
 # 5. criterion
 criterion = dict(type='CrossEntropyLoss', ignore_index=0)
