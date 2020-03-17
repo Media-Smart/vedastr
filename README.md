@@ -4,14 +4,29 @@ vedastr is an open source scene text recognition toolbox based on PyTorch.
 ## Features
 - Modular Design\
   \
-  We decompose the scene text recognition framework into different components. 
-  The flexible and extensible design make it easy to implement a customized 
-  scene text recognition project by combining different modules like building Lego.
+  This project is highly modularized, you can easily implement a customized scene text recognition model
+   by combining different modules like toy brick. Besides, you can create a new module because our system
+   can extend easily. \
+  We mainly decompose current model into two parts, the **body** and the **head**. 
+  - We decompose body into sub modules, such as **feature extraction module**, **rectification module**,
+   **sequence encoder module** and **collection module**. The collection module gives infinite 
+   possibilities to transfer features to different module of freedom. You can replace or change
+    component arbitrarily, e.g., switching from ResNet to VGG in feature extraction module,
+     using rectification module or not, using different encoder scheme such as RNN or CNN. 
+     Even more, you can create a new branch easily.
+   - We implement different head, e.g., attention head and fully connection head. You can switch from
+    attention head to fully connection head easily by changing few lines of config file. 
+    You can create a new head embedded in the current system. 
+ 
+ Also, you can configure any other modules in scene text recognition system, e.g., datasets, dataloader,
+  transformer, converter, optimizer and learning rate scheduler.  
+   
+    
 
-- Support of current classic frameworks\
+- Support of current classical frameworks\
   \
-  The toolbox supports several popular scene text recognition framework, e.g., CRNN,
-   TPS-ResNet-BiLSTM-Attention, DAN, etc.
+  The toolbox supports several popular scene text recognition framework, e.g., [CRNN](https://arxiv.org/abs/1507.05717),
+   [TPS-ResNet-BiLSTM-Attention](https://github.com/clovaai/deep-text-recognition-benchmark), etc.
 
 ## License
 This project is released under [Apache 2.0 license](https://github.com/Media-Smart/vedastr/blob/master/LICENSE).
