@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from vedastr.models.bodys import build_feature_extractor
+from vedastr.models.bodies import build_feature_extractor
 from vedastr.models.utils import build_torch_nn, build_module
 from .registry import RECTIFICATORS
 

@@ -1,32 +1,27 @@
 ## Introduction
-vedastr is an open source scene text recognition toolbox based on PyTorch.
+Vedastr is an open source scene text recognition toolbox based on PyTorch. It is designed to be flexible
+in order to support rapid implementation and evaluation for scene text recognition task.  
 
 ## Features
-- Modular Design\
-  \
-  This project is highly modularized, you can easily implement a customized scene text recognition model
-   by combining different modules like toy brick. Besides, you can create a new module because our system
-   can extend easily. \
-  We mainly decompose current model into two parts, the **body** and the **head**. 
-  - We decompose body into sub modules, such as **feature extraction module**, **rectification module**,
-   **sequence encoder module** and **collection module**. The collection module gives infinite 
-   possibilities to transfer features to different module of freedom. You can replace or change
-    component arbitrarily, e.g., switching from ResNet to VGG in feature extraction module,
-     using rectification module or not, using different encoder scheme such as RNN or CNN. 
-     Even more, you can create a new module easily.
-   - We implement different head, e.g., attention head and fully connection head. You can switch from
-    attention head to fully connection head easily by changing few lines of config file. 
-    You can create a new head embedded in the current system. 
- 
- Also, you can configure any other modules in scene text recognition system, e.g., datasets, dataloader,
-  transformer, converter, loss function, optimizer and learning rate scheduler.  
-   
-    
+- Modular design\
+  We decompose the scene text recognition framework into different components and one can 
+  easily construct a customized scene text recognition framework by combining different modules.
+  
+- Flexibility\
+  Vedastr is flexible enough to be able to easily change the components within a module.
 
-- Support of current classical frameworks\
-  \
+- Module expansibility\
+  It is easy to integrate a new module into the vedastr project. 
+
+- Support of multiple frameworks\
   The toolbox supports several popular scene text recognition framework, e.g., [CRNN](https://arxiv.org/abs/1507.05717),
    [TPS-ResNet-BiLSTM-Attention](https://github.com/clovaai/deep-text-recognition-benchmark), etc.
+
+- Good performance\
+  We re-implement the best model in  [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark)
+  and get better average accuracy. 
+  
+
 
 ## License
 This project is released under [Apache 2.0 license](https://github.com/Media-Smart/vedastr/blob/master/LICENSE).

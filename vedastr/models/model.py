@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from .bodys import build_body
+from .bodies import build_body
 from .heads import build_head
 from .registry import MODELS
 

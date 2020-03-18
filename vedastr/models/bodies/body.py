@@ -1,8 +1,7 @@
 import torch.nn as nn
 
-from vedastr.models.weight_init import init_weights
 from .registry import BODIES
-from .builder import build_branch
+from .builder import build_component
 from .feature_extractors import build_brick
 
 
@@ -12,9 +11,9 @@ class GBody(nn.Module):
         super(GBody, self).__init__()
 
         self.input_to_layer = 'input'
-        self.branches = nn.ModuleList()
-        for branch in pipelines:
-            self.branches.append(build_branch(branch))
+        self.components = nn.ModuleList()
+        for component in pipelines:
+            self.components.append(build_component(component))
 
         if collect is not None:
             self.collect = build_brick(collect)
@@ -26,11 +25,11 @@ class GBody(nn.Module):
     def forward(self, x):
         feats = {self.input_to_layer: x}
 
-        for branch in self.branches:
-            branch_from = branch.from_layer
-            branch_to = branch.to_layer
-            out = branch(feats[branch_from])
-            feats[branch_to] = out
+        for component in self.components:
+            component_from = component.from_layer
+            component_to = component.to_layer
+            out = component(feats[component_from])
+            feats[component_to] = out
 
         if self.with_collect:
             return self.collect(feats)

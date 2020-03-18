@@ -1,4 +1,4 @@
 from vedastr.utils import Registry
 
-BRANCHES = Registry('branch')
+COMPONENT = Registry('component')
 BODIES = Registry('body')

@@ -124,7 +124,7 @@ model = dict(
         type='GBody',
         pipelines=[
             dict(
-                type='RectificatorBranch',
+                type='RectificatorComponent',
                 from_layer='input',
                 to_layer='rect',
                 arch=dict(
@@ -163,7 +163,7 @@ model = dict(
                 ),
             ),
             dict(
-                type='FeatureExtractorBranch',
+                type='FeatureExtractorComponent',
                 from_layer='rect',
                 to_layer='cnn_feat',
                 arch=dict(
@@ -199,7 +199,7 @@ model = dict(
                 ),
             ),
             dict(
-                type='SequenceEncoderBranch',
+                type='SequenceEncoderComponent',
                 from_layer='cnn_feat',
                 to_layer='rnn_feat',
                 arch=dict(
@@ -276,7 +276,7 @@ optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8)
 # 7. lr scheduler
 lr_scheduler = dict(type='StepLR', niter_per_epoch=100000, max_epochs=3, milestones=[150000, 250000])
 
-# 7. runner
+# 8. runner
 max_iterations = 300000
 runner = dict(
     type='Runner',
@@ -286,5 +286,5 @@ runner = dict(
     grad_clip=5,
 )
 
-# 8. device
+# 9. device
 gpu_id = '0'
