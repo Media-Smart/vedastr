@@ -13,7 +13,7 @@ vedastr is an open source scene text recognition toolbox based on PyTorch.
    possibilities to transfer features to different module of freedom. You can replace or change
     component arbitrarily, e.g., switching from ResNet to VGG in feature extraction module,
      using rectification module or not, using different encoder scheme such as RNN or CNN. 
-     Even more, you can create a new branch easily.
+     Even more, you can create a new module easily.
    - We implement different head, e.g., attention head and fully connection head. You can switch from
     attention head to fully connection head easily by changing few lines of config file. 
     You can create a new head embedded in the current system. 
