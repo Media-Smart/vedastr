@@ -19,7 +19,7 @@ vedastr is an open source scene text recognition toolbox based on PyTorch.
     You can create a new head embedded in the current system. 
  
  Also, you can configure any other modules in scene text recognition system, e.g., datasets, dataloader,
-  transformer, converter, optimizer and learning rate scheduler.  
+  transformer, converter, loss function, optimizer and learning rate scheduler.  
    
     
 
