@@ -21,6 +21,7 @@ class FCHead(nn.Module):
                  out_channels,
                  num_class,
                  batch_max_length,
+                 from_layer,
                  inter_channels=None,
                  bias=True,
                  activation='relu',
@@ -31,6 +32,7 @@ class FCHead(nn.Module):
         super(FCHead, self).__init__()
         self.num_class = num_class
         self.batch_max_length = batch_max_length
+        self.from_layer = from_layer
 
         if num_fcs > 0:
             inter_fc = FCModules(in_channels, inter_channels, bias, activation, inplace, dropouts, num_fcs)
@@ -52,7 +54,8 @@ class FCHead(nn.Module):
     def with_pool(self):
         return hasattr(self, 'pool') and self.pool is not None
 
-    def forward(self, x):
+    def forward(self, x_input):
+        x = x_input[self.from_layer]
         batch_size = x.size(0)
 
         if self.with_pool:
@@ -63,4 +66,4 @@ class FCHead(nn.Module):
         out = self.inter_fc(x)
         out = self.fc(out)
 
-        return out.reshape(-1, self.batch_max_length, self.num_class)
+        return out.reshape(-1, self.batch_max_length+1, self.num_class)
