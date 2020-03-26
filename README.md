@@ -42,6 +42,7 @@ Note:
 |[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1U1NvNcCvw7QV_iTiKqO9xG43YFvXjo9N)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
 |[FC](https://drive.google.com/open?id=105kvjvSAwyxv_6VsCI0kWEmKkqQX8jul)| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
 
+FC : A single classification model.\
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
 CASE SENSITIVE : If true, the output is case sensitive and contain common characters.

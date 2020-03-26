@@ -30,8 +30,8 @@ class FCConverter(BaseConverter):
             text.append('[s]')
             text = [self.dict[char] for char in text]
             batch_text[i][:len(text)] = torch.LongTensor(text)
-        batch_text_input = batch_text[:, :-1]
-        batch_text_target = batch_text[:, 1:]
+        batch_text_input = batch_text
+        batch_text_target = batch_text
         return (batch_text_input, torch.IntTensor(length), batch_text_target)
 
     def train_encoder(self, *args, **kwargs):

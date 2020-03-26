@@ -112,9 +112,9 @@ converter = dict(
 )
 
 # 4. model
-norm_cfg = dict(type='BN')
-num_class = 37
 
+num_class = 37
+norm_cfg = dict(type='BN')
 model = dict(
     type='GModel',
     need_text=False,
@@ -163,9 +163,9 @@ model = dict(
         type='FCHead',
         in_channels=1024,
         out_channels=962,
-        num_class=37,
+        num_class=num_class,
         from_layer='cnn_feat',
-        batch_max_length=25,
+        batch_max_length=batch_max_length,
         activation=None,
         pool=dict(
             type='AdaptiveAvgPool2d',
@@ -193,7 +193,7 @@ runner = dict(
     iterations=max_iterations,
     trainval_ratio=2000,
     snapshot_interval=20000,
-    grad_clip=5,
+    grad_clip=0,
 )
 
 # 9. device
