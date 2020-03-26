@@ -19,7 +19,7 @@ in order to support rapid implementation and evaluation for scene text recogniti
 
 - **Good performance**\
   We re-implement the best model in  [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark)
-  and get better average accuracy. What's more, we implement a classification model(ResNet-FC)
+  and get better average accuracy. What's more, we implement a simple baseline(ResNet-FC)
    and the performance is acceptable.
   
 
