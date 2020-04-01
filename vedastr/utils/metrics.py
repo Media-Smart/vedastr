@@ -4,25 +4,23 @@ import torch.nn.functional as F
 from nltk.metrics.distance import edit_distance
 
 
-class StrMeters(object):
+class STRMeters(object):
 
     def __init__(self, converter):
         self.reset()
         self.converter = converter
         self.predict_example_log = None
-
         self.sample = []
 
-    def decode(self, pred, batch_size):
+    def decode(self, pred):
         preds_prob = F.softmax(pred, dim=2)
-        preds_max_prob, _ = preds_prob.max(dim=2)
+        preds_max_prob, pred_index = preds_prob.max(dim=2)
+        pred_str = self.converter.decode(pred_index)
 
-        pred_index = pred.max(2)[1]
-        pred_str = self.converter.train_decoder(pred_index, [pred.size(1)] * batch_size)
         return pred_str, preds_max_prob
 
     def measure(self, pred, gt, batch_size):
-        pred_str, preds_prob = self.decode(pred, batch_size)
+        pred_str, preds_prob = self.decode(pred)
         true_num = 0
         norm_ED = 0
         sample_list = []
@@ -77,12 +75,10 @@ class StrMeters(object):
         head = f'{"Ground Truth":25s} | {"Prediction":25s} | Confidence Score & T/F'
         self.predict_example_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
         for gt, pred, confidence in zip(labels[:5], preds[:5], confidence_score[:5]):
-            import pdb
-            # pdb.set_trace()
+
             self.predict_example_log += f'{gt:25s} | {pred:25s} | {confidence:0.4f}\t{str(pred == gt)}\n'
             count += 1
             if count > 4:
                 break
         self.predict_example_log += f'{dashed_line}'
         return self.predict_example_log
-

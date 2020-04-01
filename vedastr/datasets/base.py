@@ -2,16 +2,15 @@
 
 import os
 import re
-import string
+import logging
 
-import cv2
 from torch.utils.data import Dataset
 from PIL import Image
 
 
 class BaseDataset(Dataset):
     def __init__(self, root, gt_txt=None, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=25, data_filter_off=False, cv_mode=False, unknown=False):
+                 batch_max_length=25, data_filter_off=False, unknown=False):
         assert type(root) == str
         if gt_txt is not None:
             assert os.path.isfile(gt_txt)
@@ -20,7 +19,6 @@ class BaseDataset(Dataset):
         self.character = character
         self.batch_max_length = batch_max_length
         self.data_filter_off = data_filter_off
-        self.cv_mode = cv_mode
         self.unknown = unknown
 
         if transform:
@@ -29,6 +27,9 @@ class BaseDataset(Dataset):
         self.img_names = []
         self.gt_texts = []
         self.get_name_list()
+
+        self.logger = logging.getLogger()
+        self.logger.info(f'current dataset length is {self.samples} in {self.root}')
 
     def get_name_list(self):
         raise NotImplementedError
@@ -45,15 +46,14 @@ class BaseDataset(Dataset):
             return False
 
     def __getitem__(self, index):
-        if self.cv_mode:
-            img = cv2.imread(self.img_names[index])
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        else:
-            img = Image.open(self.img_names[index])
+        img = Image.open(self.img_names[index])
         label = self.gt_texts[index]
 
         if self.transforms:
             img, label = self.transforms(img, label)
+        if not self.unknown:
+            out_of_char = f'[^{self.character}]'
+            label = re.sub(out_of_char, '', label)
         return img, label
 
     def __len__(self):

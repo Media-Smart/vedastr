@@ -8,44 +8,34 @@ from .base_convert import BaseConverter
 
 @CONVERTERS.register_module
 class CTCConverter(BaseConverter):
-    def __init__(self, character, batch_max_length):
-        super(CTCConverter, self).__init__(character=character,
-                                           batch_max_length=batch_max_length)
-        self.character = ['[blank]'] + self.character
+    def __init__(self, character):
+        list_token = ['[blank]']
+        list_character = list(character)
+        super(CTCConverter, self).__init__(character=list_token + list_character)
 
-    def encoder(self, text):
+    def encode(self, text):
         length = [len(s) for s in text]
         text = ''.join(text)
         text = [self.dict[char] for char in text]
 
-        return (torch.IntTensor(text), torch.IntTensor(length), torch.IntTensor(text))
+        return torch.IntTensor(text), torch.IntTensor(length), torch.IntTensor(text)
 
-    def decoder(self, text_index, length):
-        text_index = text_index.view(-1)
+    def decode(self, text_index):
         texts = []
-        index = 0
-        for l in length:
-            t = text_index[index:index + l]
-
+        batch_size = text_index.shape[0]
+        length = text_index.shape[1]
+        for i in range(batch_size):
+            t = text_index[i]
             char_list = []
-            for idx in range(l):
+            for idx in range(length):
                 if t[idx] != 0 and (not (idx > 0 and t[idx - 1] == t[idx])):
                     char_list.append(self.character[t[idx]])
             text = ''.join(char_list)
-
             texts.append(text)
-            index += l
         return texts
 
-    def train_encoder(self, text):
-        return self.encoder(text)
+    def train_encode(self, text):
+        return self.encode(text)
 
-    def test_encoder(self, text):
-        return self.encoder(text)
-
-    def train_decoder(self, text_index, length):
-        return self.decoder(text_index, length)
-
-    def test_decoder(self, text_index, length):
-        return self.decoder(text_index, length)
-
+    def test_encode(self, text):
+        return self.encode(text)

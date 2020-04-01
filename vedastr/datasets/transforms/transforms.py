@@ -1,23 +1,13 @@
-import cv2
 import torch
 import numpy as np
 from PIL import Image
-import torchvision.transforms as transforms
 
 from .registry import TRANSFORMS
 
-CV2_MODE = {
-    'bilinear': cv2.INTER_LINEAR,
-    'nearest': cv2.INTER_NEAREST,
-    'cubic': cv2.INTER_CUBIC,
-    'area': cv2.INTER_AREA,
-}
-
-CV2_BORDER_MODE = {
-    'constant': cv2.BORDER_CONSTANT,
-    'reflect': cv2.BORDER_REFLECT,
-    'reflect101': cv2.BORDER_REFLECT101,
-    'replicate': cv2.BORDER_REPLICATE,
+PIL_MODE = {
+    'bilinear': Image.BILINEAR,
+    'nearest': Image.NEAREST,
+    'cubic': Image.CUBIC,
 }
 
 
@@ -33,111 +23,94 @@ class Compose(object):
 
 @TRANSFORMS.register_module
 class Normalize(object):
-    def __init__(self, mean=(123.675, 116.280, 103.530), std=(58.395, 57.120, 57.375)):
-        self.mean = mean
-        self.std = std
-
-    def __call__(self, image, label):
-        image = image.astype(np.float32)
-        mean = np.reshape(np.array(self.mean, dtype=image.dtype), [1, 1, 3])
-        std = np.reshape(np.array(self.std, dtype=image.dtype), [1, 1, 3])
-        denominator = np.reciprocal(std, dtype=image.dtype)
-
-        new_image = (image - mean) * denominator
-
-        return new_image, label
-
-
-@TRANSFORMS.register_module
-class TensorNormalize(object):
     def __init__(self, mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)):
         self.mean = mean
         self.std = std
 
     def __call__(self, image, label):
-        assert isinstance(image, torch.Tensor)
+        assert isinstance(image, torch.Tensor), 'ToTensor should be called before Normalize'
 
-        mean = torch.from_numpy(np.reshape(np.array(self.mean, dtype=np.float32),
-                                           (image.shape[0], 1, 1)))
-        std = torch.from_numpy(np.reshape(np.array(self.std, dtype=np.float32),
-                                          (image.shape[0], 1, 1)))
-        new_image = image.sub_(mean).div_(std)
+        mean = torch.as_tensor(self.mean, dtype=torch.float32, device=image.device).view(-1, 1, 1)
+        std = torch.as_tensor(self.std, dtype=torch.float32, device=image.device).view(-1, 1, 1)
 
-        return new_image, label
+        image.sub_(mean).div_(std)
+
+        return image, label
 
 
 @TRANSFORMS.register_module
 class ToTensor(object):
     def __call__(self, image, label):
-        if isinstance(image, np.ndarray):
-            if image.ndim == 2:
-                image = np.expand_dims(image, -1)
-            image = transforms.ToTensor()(image)
-        elif isinstance(image, Image.Image):
-            image = transforms.ToTensor()(image)
+        img = torch.ByteTensor(torch.ByteStorage.from_buffer(image.tobytes()))
 
-        return image, label
+        nchannel = len(image.mode)
+        img = img.view(image.size[1], image.size[0], nchannel)
+        img = img.transpose(0, 1).transpose(0, 2).contiguous()
+
+        return img.float().div(255), label
 
 
 @TRANSFORMS.register_module
 class Resize(object):
-    def __init__(self, canva_size, img_size, keep_ratio=False, keep_long=False):
-        self.canva_size = canva_size
-        self.img_size = img_size
+    def __init__(self, size, keep_ratio=False, keep_long=False, mode='cubic'):
+        self.size = size
         self.keep_ratio = keep_ratio
         self.keep_long = keep_long
+        self.mode = mode
 
     def __call__(self, image, label):
-        canva_h, canva_w = self.canva_size
-        if isinstance(image, np.ndarray) and self.keep_ratio:
-            img_h, img_w, c = image.shape
+        w, h = image.size
+        if self.keep_ratio:
             if self.keep_long:
-                max_long_edge = max(self.img_size)
-                max_short_edge = min(self.img_size)
-                scale_factor = min(max_long_edge / max(img_h, img_w),
-                                   max_short_edge / min(img_h, img_w))
+                long_edge, short_edge = max(self.size), min(self.size)
+                scale_factor = min(long_edge / max(h, w), short_edge / min(h, w))
             else:
-                scale_factor = min(self.img_size[0]/img_h, self.img_size[1]/img_w)
-            canvas = np.zeros((canva_h, canva_w, c)).astype(np.float32)
+                scale_factor = min(self.size[0] / h, self.size[1] / w)
+            target_size = (int(w * scale_factor), int(h * scale_factor))
+            assert 0 not in target_size, "resize shape cannot be 0"
+        else:
+            target_size = self.size[::-1]
+        new_image = image.resize(target_size, resample=PIL_MODE[self.mode])
 
-            new_image = cv2.resize(image, (int(img_w * scale_factor), int(img_h * scale_factor)))
-            if new_image.ndim == 2:
-                canvas[:int(img_h * scale_factor), :int(img_w * scale_factor), 0] = new_image
-            else:
-                canvas[:int(img_h * scale_factor), :int(img_w * scale_factor), :] = new_image
-
-        elif not self.keep_ratio:
-            if isinstance(image, np.ndarray):
-                canvas = cv2.resize(image, (self.img_size[1], self.img_size[0]), interpolation=CV2_MODE['cubic'])
-            elif isinstance(image, Image.Image):
-                canvas = image.resize((self.img_size[1], self.img_size[0]), Image.BICUBIC)
-
-        return canvas, label
+        return new_image, label
 
 
 @TRANSFORMS.register_module
 class ColorToGray(object):
     def __call__(self, image, label):
-        if isinstance(image, np.ndarray):
-            if image.shape[-1] == 3:
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-            if image.ndim == 2:
-                image = np.expand_dims(image, -1)
-        elif isinstance(image, Image.Image):
-            image = image.convert('L')
+        image = image.convert('L')
+
         return image, label
 
 
 @TRANSFORMS.register_module
 class Sensitive(object):
-    def __init__(self, sensitive, character):
+    def __init__(self, sensitive):
         self.sensitive = sensitive
-        self.character = character
 
     def __call__(self, image, label):
         if not self.sensitive:
             label = label.lower()
-        else:
-            assert self.character.islower(), 'if sensitive, character should contain all possible symbols'
 
         return image, label
+
+
+@TRANSFORMS.register_module
+class PadIfNeeded(object):
+    def __init__(self, height, width, pad_value=0):
+        self.height = height
+        self.width = width
+        self.pad_value = pad_value
+
+    def __call__(self, image, label):
+        w, h = image.size
+        assert h <= self.height and w <= self.width
+        assert image.mode in ['RGB', 'L']
+        value = self.pad_value
+        if image.mode == 'RGB' and isinstance(value, (int, float)):
+            value = [self.pad_value] * 3
+        value = tuple(value)
+        new_image = Image.new(mode=image.mode, size=(self.width, self.height), color=value)
+        new_image.paste(image, (0, 0, w, h))
+
+        return new_image, label

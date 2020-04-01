@@ -1,7 +1,6 @@
 import logging
 
 import torch.nn as nn
-nn.MaxPool2d
 
 from vedastr.models.weight_init import init_weights
 from vedastr.models.utils import build_torch_nn, build_module

@@ -8,10 +8,10 @@ from .registry import DATASETS
 class TxtDataset(BaseDataset):
 
     def __init__(self, root, gt_txt, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=25, data_filter_off=False, cv_mode=False, unknown=False):
+                 batch_max_length=25, data_filter_off=False, unknown=False):
         super(TxtDataset, self).__init__(root, gt_txt, transform, character=character,
                                          batch_max_length=batch_max_length,
-                                         data_filter_off=data_filter_off, cv_mode=cv_mode,
+                                         data_filter_off=data_filter_off,
                                          unknown=unknown)
 
     def get_name_list(self):

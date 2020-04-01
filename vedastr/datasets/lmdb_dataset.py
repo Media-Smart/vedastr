@@ -1,11 +1,10 @@
 # modify from clovaai
 
 import re
-import sys
 import six
-import lmdb
-import string
+import random
 
+import lmdb
 import numpy as np
 from PIL import Image
 
@@ -16,14 +15,11 @@ from .registry import DATASETS
 @DATASETS.register_module
 class LmdbDataset(BaseDataset):
 
-    def __init__(self, root, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=25, data_filter_off=False, cv_mode=False, unknown=False):
-        self.env = lmdb.open(root, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
-        super(LmdbDataset, self).__init__(root=root, transform=transform, character=character,
-                                          batch_max_length=batch_max_length, data_filter_off=data_filter_off,
-                                          cv_mode=cv_mode, unknown=unknown)
+    def __init__(self, *args, **kwargs):
+        super(LmdbDataset, self).__init__(*args, **kwargs)
 
     def get_name_list(self):
+        self.env = lmdb.open(self.root, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
         with self.env.begin(write=False) as txn:
             nSamples = int(txn.get('num-samples'.encode()))
 
@@ -64,9 +60,8 @@ class LmdbDataset(BaseDataset):
                 print(f'Corrupted image for {index}')
                 # make dummy image and dummy label for corrupted image.
                 img, label = self.__getitem__(random.choice(range(len(self))))
-                return (img, label)
-            if self.cv_mode:
-                img = np.array(img)
+                return img, label
+
             if self.transforms:
                 try:
                     img, label = self.transforms(img, label)
@@ -76,4 +71,4 @@ class LmdbDataset(BaseDataset):
                 out_of_char = f'[^{self.character}]'
                 label = re.sub(out_of_char, '', label)
 
-        return (img, label)
+        return img, label
