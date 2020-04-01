@@ -23,8 +23,7 @@ class AttHead(nn.Module):
                  text_transform=None,
                  holistic_input_from=None):
         super(AttHead, self).__init__()
-        # from vedastr import utils
-        # utils.set_random_seed(1)
+
         if input_attention_block is not None:
             self.input_attention_block = build_brick(input_attention_block)
 

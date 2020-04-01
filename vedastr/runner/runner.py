@@ -1,5 +1,3 @@
-import pdb
-
 import torch
 import logging
 import os.path as osp
@@ -80,7 +78,7 @@ class Runner(object):
                     self.validate_epoch()
                     self.metric.reset()
                 if iteration % self.snapshot_interval == 0:
-                    self.force_save(out_dir=self.workdir,
+                    self.save_model(out_dir=self.workdir,
                                     filename=f'iter{iteration}.pth',
                                     iteration=iteration,
                                     )
@@ -92,12 +90,12 @@ class Runner(object):
             self.validate_batch(img, label)
         if self.metric.avg['acc']['true'] >= self.best_acc:
             self.best_acc = self.metric.avg['acc']['true']
-            self.force_save(out_dir=self.workdir,
+            self.save_model(out_dir=self.workdir,
                             filename='best_acc.pth',
                             iteration=self.c_iter)
         if self.metric.avg['edit'] >= self.best_norm:
             self.best_norm = self.metric.avg['edit']
-            self.force_save(out_dir=self.workdir,
+            self.save_model(out_dir=self.workdir,
                             filename='best_norm.pth',
                             iteration=self.c_iter)
         logger.info('Validate, best_acc %.4f, best_edit %s' % (self.best_acc, self.best_norm))
@@ -120,7 +118,7 @@ class Runner(object):
 
         self.optim.zero_grad()
 
-        label_input, label_len, label_target = self.converter.train_encoder(label)
+        label_input, label_len, label_target = self.converter.train_encode(label)
         if self.gpu:
             img = img.cuda()
             label_input = label_input.cuda()
@@ -145,14 +143,12 @@ class Runner(object):
                 (self.c_iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
                  self.metric.avg['edit']))
 
-            logger.info(
-                f'\n{self.metric.predict_example_log}'
-            )
+            logger.info(f'\n{self.metric.predict_example_log}')
 
     def validate_batch(self, img, label):
         self.model.eval()
         with torch.no_grad():
-            label_input, label_length, label_target = self.converter.test_encoder(label)
+            label_input, label_length, label_target = self.converter.test_encode(label)
             if self.gpu:
                 img = img.cuda()
                 label_input = label_input.cuda()
@@ -166,7 +162,7 @@ class Runner(object):
     def test_batch(self, img, label):
         self.model.eval()
         with torch.no_grad():
-            label_input, label_length, label_target = self.converter.test_encoder(label)
+            label_input, label_length, label_target = self.converter.test_encode(label)
             if self.gpu:
                 img = img.cuda()
                 label_input = label_input.cuda()
@@ -177,7 +173,7 @@ class Runner(object):
                 pred = self.model(img)
             self.metric.measure(pred, label, pred.shape[0])
 
-    def force_save(self,
+    def save_model(self,
                    out_dir,
                    filename,
                    iteration,
