@@ -1,6 +1,5 @@
 # modify from mmcv and mmdetection
 
-import os
 import os.path as osp
 import pkgutil
 import time

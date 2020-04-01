@@ -44,4 +44,4 @@ class RNN(nn.Module):
         if not self.keep_order:
             out = out.permute(0, 2, 1).unsqueeze(2)
 
-        return out
+        return out.contiguous()

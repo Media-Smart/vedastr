@@ -13,7 +13,7 @@ from vedastr.converter import build_converter
 from vedastr.criteria import build_criterion
 from vedastr.optims import build_optim
 from vedastr.lr_schedulers import build_lr_scheduler
-from vedastr.utils import StrMeters
+from vedastr.utils import STRMeters
 from vedastr.runner import build_runner
 
 
@@ -96,7 +96,7 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
     # 6. optim
     optim = build_optim(cfg['optimizer'], dict(params=model.parameters()))
 
-    logger.info('Assemble, Step 7, Build Lr scheduler')
+    logger.info('Assemble, Step 7, Build LR scheduler')
     # 7. lr scheduler
     if cfg.get('lr_scheduler'):
         lr_scheduler = build_lr_scheduler(cfg['lr_scheduler'], dict(optimizer=optim))
@@ -113,7 +113,7 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
             converter=converter,
             criterion=criterion,
             lr_scheduler=lr_scheduler,
-            metric=StrMeters(converter),
+            metric=STRMeters(converter),
             optim=optim,
             workdir=cfg['workdir'],
             gpu=gpu,

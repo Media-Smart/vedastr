@@ -37,6 +37,6 @@ class SequenceEncoderComponent(BaseComponent):
 
 
 @COMPONENT.register_module
-class CollectComponent(BaseComponent):
+class BrickComponent(BaseComponent):
     def __init__(self, from_layer, to_layer, arch):
-        super(CollectComponent, self).__init__(from_layer, to_layer, build_brick(arch))
+        super(BrickComponent, self).__init__(from_layer, to_layer, build_brick(arch))

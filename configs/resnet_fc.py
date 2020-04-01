@@ -15,8 +15,7 @@ logger = dict(
 # 2. data
 batch_size = 192
 mean, std = 0.5, 0.5  # normalize mean and std
-img_width, img_height = 100, 32
-canva_w, canva_h = 100, 32
+size = (32, 100)
 batch_max_length = 25
 data_filter_off = False
 sensitive = False
@@ -53,11 +52,11 @@ test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **dataset
 
 # transforms
 transforms = [
-    dict(type='Sensitive', sensitive=sensitive, character=character),
+    dict(type='Sensitive', sensitive=sensitive),
     dict(type='ColorToGray'),
-    dict(type='Resize', img_size=(img_height, img_width), canva_size=(canva_h, canva_w)),
+    dict(type='Resize', size=size),
     dict(type='ToTensor'),
-    dict(type='TensorNormalize', mean=mean, std=std),
+    dict(type='Normalize', mean=mean, std=std),
 ]
 
 data = dict(
