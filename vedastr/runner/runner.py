@@ -237,10 +237,10 @@ class Runner(object):
             checkpoint = self.load_checkpoint(checkpoint, map_location=map_location)
         if 'optimizer' in checkpoint and resume_optimizer:
             self.optim.load_state_dict(checkpoint['optimizer'])
-        if resume_iters:
+        if 'meta' in checkpoint and resume_iters:
             self.iterations = checkpoint['meta']['iters']
             self.start_iters = checkpoint['meta']['iter']
             self.iter = checkpoint['meta']['iter']
             self.c_iter = self.start_iters + 1
-        if resume_lr:
+        if 'meta' in checkpoint and resume_lr:
             self.lr = checkpoint['meta']['lr']
