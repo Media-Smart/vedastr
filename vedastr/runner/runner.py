@@ -30,6 +30,7 @@ class Runner(object):
                  lr_scheduler,
                  iterations,
                  workdir,
+                 start_iters=0,
                  trainval_ratio=1,
                  snapshot_interval=1,
                  gpu=True,
@@ -44,6 +45,7 @@ class Runner(object):
         self.metric = metric
         self.optim = optim
         self.lr_scheduler = lr_scheduler
+        self.start_iters = start_iters
         self.iterations = iterations
         self.workdir = workdir
         self.trainval_ratio = trainval_ratio
@@ -63,23 +65,23 @@ class Runner(object):
         else:
             self.metric.reset()
             logger.info('Start train...')
-            for iteration in range(self.iterations):
+            for iteration in range(self.start_iters, self.iterations):
                 img, label = self.loader['train'].get_batch
                 self.train_batch(img, label)
                 if self.lr_scheduler:
                     self.lr_scheduler.step()
-                    self.c_iter = self.iter
+                    self.c_iter = self.iter + 1
                 else:
-                    self.c_iter = iteration
+                    self.c_iter = iteration + 1
 
                 if self.trainval_ratio > 0 \
                         and (iteration + 1) % self.trainval_ratio == 0 \
                         and self.loader.get('val'):
                     self.validate_epoch()
                     self.metric.reset()
-                if iteration % self.snapshot_interval == 0:
+                if (iteration + 1) % self.snapshot_interval == 0:
                     self.save_model(out_dir=self.workdir,
-                                    filename=f'iter{iteration}.pth',
+                                    filename=f'iter{iteration + 1}.pth',
                                     iteration=iteration,
                                     )
 
@@ -137,7 +139,7 @@ class Runner(object):
 
         self.metric.measure(pred, label, pred.shape[0])
 
-        if self.c_iter != 0 and self.c_iter % 10 == 0:
+        if self.c_iter % 10 == 0:
             logger.info(
                 'Train, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
                 (self.c_iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
@@ -180,9 +182,9 @@ class Runner(object):
                    save_optimizer=True,
                    meta=None):
         if meta is None:
-            meta = dict(iter=iteration, lr=self.lr)
+            meta = dict(iter=iteration + 1, lr=self.lr, iters=self.iterations)
         else:
-            meta.update(iter=iteration, lr=self.lr)
+            meta.update(iter=iteration + 1, lr=self.lr, iters=self.iterations)
 
         filepath = osp.join(out_dir, filename)
         optimizer = self.optim if save_optimizer else None
@@ -222,6 +224,8 @@ class Runner(object):
 
     def resume(self,
                checkpoint,
+               resume_lr=True,
+               resume_iters=True,
                resume_optimizer=False,
                map_location='default'):
         if map_location == 'default':
@@ -233,3 +237,10 @@ class Runner(object):
             checkpoint = self.load_checkpoint(checkpoint, map_location=map_location)
         if 'optimizer' in checkpoint and resume_optimizer:
             self.optim.load_state_dict(checkpoint['optimizer'])
+        if resume_iters:
+            self.iterations = checkpoint['meta']['iters']
+            self.start_iters = checkpoint['meta']['iter']
+            self.iter = checkpoint['meta']['iter']
+            self.c_iter = self.start_iters + 1
+        if resume_lr:
+            self.lr = checkpoint['meta']['lr']
