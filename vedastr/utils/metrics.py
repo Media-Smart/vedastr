@@ -19,21 +19,20 @@ class STRMeters(object):
 
         return pred_str, preds_max_prob
 
-    def measure(self, pred, gt, batch_size):
-        pred_str, preds_prob = self.decode(pred)
+    def measure(self, pred, gt, probs):
         true_num = 0
         norm_ED = 0
+        batch_size = len(gt)
         sample_list = []
         confidence_list = []
-        for pstr, gstr, pred_prob in zip(pred_str, gt, preds_prob):
+        for pstr, gstr, pred_prob in zip(pred, gt, probs):
             try:
-                confidence_score = pred_prob[:len(pstr)].cumprod(dim=0)[-1]
+                confidence_score = pred[:len(pstr)].cumprod(dim=0)[-1]
             except:
                 confidence_score = 0  # for empty pred case, when prune after "end of sentence" token ([s])
             sample_list.append([pstr, gstr, pred_prob])
             if pstr == gstr:
                 true_num += 1
-
             if len(pstr) == 0 or len(gstr) == 0:
                 norm_ED += 0
             elif len(gstr) > len(pstr):
@@ -41,7 +40,7 @@ class STRMeters(object):
             else:
                 norm_ED += 1 - edit_distance(pstr, gstr) / len(pstr)
             confidence_list.append(confidence_score)
-        self.show_example(pred_str, gt, confidence_list)
+        self.show_example(pred, gt, confidence_list)
         self.sample = sample_list
         self.all['acc']['true'] += true_num
         self.all['acc']['false'] += (batch_size - true_num)

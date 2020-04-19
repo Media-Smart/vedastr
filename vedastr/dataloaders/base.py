@@ -6,24 +6,14 @@ from torch._utils import _accumulate
 
 
 class BaseDataloader(object):
-    def __init__(self, dataset, each_batch_ratio, batch_size, each_usage, num_workers=4, shuffle=False):
-        assert isinstance(each_batch_ratio, list)
+    def __init__(self, dataset, batch_size, each_usage, num_workers=4, shuffle=False):
+        if isinstance(each_usage, (float, int)):
+            each_usage = [each_usage]
         assert isinstance(each_usage, list)
-        assert len(dataset) == len(each_batch_ratio) == len(each_usage)
+        assert len(dataset) == len(each_usage)
         self.dataloader_iter_list = []
         self.data_loader_list = []
-        dataset = self.divide_datasets(dataset, each_usage)
-
-        for i, br in enumerate(each_batch_ratio):
-            current_datasets = dataset[i]
-            current_batchsize = max(round(batch_size * float(br)), 1)
-            _dataloader = DataLoader(
-                current_datasets, batch_size=current_batchsize,
-                shuffle=shuffle, num_workers=num_workers,
-                pin_memory=True
-            )
-            self.data_loader_list.append(_dataloader)
-            self.dataloader_iter_list.append(iter(_dataloader))
+        self.dataset = self.divide_datasets(dataset, each_usage)
 
     @staticmethod
     def divide_datasets(dataset_list, eachusage):

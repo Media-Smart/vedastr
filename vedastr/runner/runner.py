@@ -137,7 +137,11 @@ class Runner(object):
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
         self.optim.step()
 
-        self.metric.measure(pred, label, pred.shape[0])
+        preds_prob = F.softmax(pred, dim=2)
+        preds_prob, pred_index = preds_prob.max(dim=2)
+        pred_str = self.converter.decode(pred_index)
+
+        self.metric.measure(pred_str, label, preds_prob)
 
         if self.c_iter % 10 == 0:
             logger.info(
@@ -158,8 +162,11 @@ class Runner(object):
                 pred = self.model(img, label_input)
             else:
                 pred = self.model(img)
+            preds_prob = F.softmax(pred, dim=2)
+            preds_prob, pred_index = preds_prob.max(dim=2)
+            pred_str = self.converter.decode(pred_index)
 
-            self.metric.measure(pred, label, pred.shape[0])
+            self.metric.measure(pred_str, label, preds_prob)
 
     def test_batch(self, img, label):
         self.model.eval()
@@ -173,7 +180,11 @@ class Runner(object):
                 pred = self.model(img, label_input)
             else:
                 pred = self.model(img)
-            self.metric.measure(pred, label, pred.shape[0])
+            preds_prob = F.softmax(pred, dim=2)
+            preds_prob, pred_index = preds_prob.max(dim=2)
+            pred_str = self.converter.decode(pred_index)
+
+            self.metric.measure(pred_str, label, preds_prob)
 
     def save_model(self,
                    out_dir,
