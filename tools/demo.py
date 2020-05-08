@@ -3,7 +3,6 @@
 import argparse
 import sys
 import os
-import pdb
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../vedastr'))
 
@@ -60,7 +59,6 @@ def main():
         text = ''  # you should change it based on your model
         image, text = transforms(image, text)
         image = image.unsqueeze(0)
-        pdb.set_trace()
         label_input, label_length, label_target = converter.test_encode([text])
         if torch.cuda.is_available():
             image = image.cuda()
