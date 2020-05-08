@@ -12,13 +12,6 @@ class STRMeters(object):
         self.predict_example_log = None
         self.sample = []
 
-    def decode(self, pred):
-        preds_prob = F.softmax(pred, dim=2)
-        preds_max_prob, pred_index = preds_prob.max(dim=2)
-        pred_str = self.converter.decode(pred_index)
-
-        return pred_str, preds_max_prob
-
     def measure(self, pred, gt, probs):
         true_num = 0
         norm_ED = 0
