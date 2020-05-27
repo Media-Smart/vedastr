@@ -113,7 +113,7 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
             converter=converter,
             criterion=criterion,
             lr_scheduler=lr_scheduler,
-            metric=STRMeters(converter),
+            metric=STRMeters(),
             optim=optim,
             workdir=cfg['workdir'],
             gpu=gpu,

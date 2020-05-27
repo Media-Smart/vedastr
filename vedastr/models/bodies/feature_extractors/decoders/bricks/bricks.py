@@ -171,7 +171,6 @@ class CollectBlock(nn.Module):
                 feats[self.to_layer] = {f_layer: feats[f_layer] for f_layer in self.from_layer}
 
 
-
 @BRICKS.register_module
 class CellAttentionBlock(nn.Module):
     def __init__(self, feat, hidden, fusion_method='add', post=None, post_activation='softmax'):

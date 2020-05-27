@@ -2,7 +2,7 @@ import torch.nn as nn
 
 from vedastr.models.utils import build_torch_nn
 from vedastr.models.weight_init import init_weights
-from .registry import SEQUENCE_ENCODERS
+from ..registry import SEQUENCE_ENCODERS
 
 
 @SEQUENCE_ENCODERS.register_module

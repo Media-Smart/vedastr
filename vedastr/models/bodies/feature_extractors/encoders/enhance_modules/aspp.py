@@ -37,7 +37,7 @@ class ASPPPooling(nn.Sequential):
     def forward(self, x):
         size = x.shape[-2:]
         x = super(ASPPPooling, self).forward(x)
-        return F.interpolate(x, size=size, mode='bilinear', align_corners=True)
+        return F.interpolate(x, size=size, mode='nearest')
 
 
 @ENHANCE_MODULES.register_module
@@ -66,7 +66,7 @@ class ASPP(nn.Module):
             nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
         self.with_dropout = dropout is not None
         if self.with_dropout:
-            self.dropout = nn.Dropout(dropout)
+            self.dropout = nn.Dropout(p=dropout)
 
         logger.info('ASPP init weights')
         init_weights(self.modules())

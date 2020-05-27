@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from vedastr.models.weight_init import init_weights
 
-from .registry import SEQUENCE_DECODERS
+from vedastr.models.weight_init import init_weights
+from ..registry import SEQUENCE_DECODERS
 
 
 class BaseCell(nn.Module):
@@ -21,7 +21,6 @@ class BaseCell(nn.Module):
             else:
                 self.cells.append(basic_cell(input_size=hidden_size, hidden_size=hidden_size, bias=bias))
         init_weights(self.modules())
-
 
     def init_hidden(self, batch_size, device=None, value=0):
         raise NotImplementedError()

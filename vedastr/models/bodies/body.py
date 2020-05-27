@@ -11,9 +11,7 @@ class GBody(nn.Module):
         super(GBody, self).__init__()
 
         self.input_to_layer = 'input'
-        self.components = nn.ModuleList()
-        for component in pipelines:
-            self.components.append(build_component(component))
+        self.components = nn.ModuleList([build_component(component) for component in pipelines])
 
         if collect is not None:
             self.collect = build_brick(collect)
@@ -28,7 +26,13 @@ class GBody(nn.Module):
         for component in self.components:
             component_from = component.from_layer
             component_to = component.to_layer
-            out = component(feats[component_from])
+
+            if isinstance(component_from, list):
+                inp = {key: feats[key] for key in component_from}
+                out = component(**inp)
+            else:
+                inp = feats[component_from]
+                out = component(inp)
             feats[component_to] = out
 
         if self.with_collect:

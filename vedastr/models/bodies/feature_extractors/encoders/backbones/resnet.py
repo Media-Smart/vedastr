@@ -31,6 +31,11 @@ MODEL_CFGS = {
         'layer': [3, 4, 6, 3],
         'weights_url': model_urls['resnet50'],
     },
+    'resnet34': {
+        'block': BasicBlock,
+        'layer': [3, 4, 6, 3],
+        'weights_url': model_urls['resnet34'],
+    },
     'resnet18': {
         'block': BasicBlock,
         'layer': [2, 2, 2, 2],
@@ -220,22 +225,8 @@ class GResNet(nn.Module):
             stage_layers.append(layer)
         self.layers.append(nn.Sequential(*stage_layers))
 
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')
-            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-
-        # Zero-initialize the last BN in each residual branch,
-        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
-        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
-        if zero_init_residual:
-            for m in self.modules():
-                if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
-                elif isinstance(m, BasicBlock):
-                    nn.init.constant_(m.bn2.weight, 0)
+        logger.info('GResNet init weights')
+        init_weights(self.modules())
 
     def _make_layer(self, block_name, planes, blocks, stride=1, dilate=False):
         norm_layer = self._norm_layer

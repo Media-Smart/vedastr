@@ -1,9 +1,11 @@
-import torch
 import logging
 import os.path as osp
-import torch.nn.functional as F
-import numpy as np
 from collections.abc import Iterable
+import re
+
+import numpy as np
+import torch
+from torch.nn import functional as F
 
 from vedastr.utils.checkpoint import load_checkpoint, save_checkpoint
 
@@ -30,7 +32,6 @@ class Runner(object):
                  lr_scheduler,
                  iterations,
                  workdir,
-                 start_iters=0,
                  trainval_ratio=1,
                  snapshot_interval=1,
                  gpu=True,
@@ -45,7 +46,6 @@ class Runner(object):
         self.metric = metric
         self.optim = optim
         self.lr_scheduler = lr_scheduler
-        self.start_iters = start_iters
         self.iterations = iterations
         self.workdir = workdir
         self.trainval_ratio = trainval_ratio
@@ -65,25 +65,22 @@ class Runner(object):
         else:
             self.metric.reset()
             logger.info('Start train...')
-            for iteration in range(self.start_iters, self.iterations):
+            for iteration in range(self.iterations):
                 img, label = self.loader['train'].get_batch
                 self.train_batch(img, label)
                 if self.lr_scheduler:
                     self.lr_scheduler.step()
-                    self.c_iter = self.iter + 1
+                    self.c_iter = self.iter
                 else:
-                    self.c_iter = iteration + 1
+                    self.c_iter = iteration
 
                 if self.trainval_ratio > 0 \
                         and (iteration + 1) % self.trainval_ratio == 0 \
                         and self.loader.get('val'):
                     self.validate_epoch()
                     self.metric.reset()
-                if (iteration + 1) % self.snapshot_interval == 0:
-                    self.save_model(out_dir=self.workdir,
-                                    filename=f'iter{iteration + 1}.pth',
-                                    iteration=iteration,
-                                    )
+                if (iteration+1) % self.snapshot_interval == 0:
+                    self.save_model(out_dir=self.workdir, filename=f'iter{iteration+1}.pth', iteration=iteration)
 
     def validate_epoch(self):
         logger.info('Iteration %d, Start validating' % self.c_iter)
@@ -92,17 +89,12 @@ class Runner(object):
             self.validate_batch(img, label)
         if self.metric.avg['acc']['true'] >= self.best_acc:
             self.best_acc = self.metric.avg['acc']['true']
-            self.save_model(out_dir=self.workdir,
-                            filename='best_acc.pth',
-                            iteration=self.c_iter)
+            self.save_model(out_dir=self.workdir, filename='best_acc.pth', iteration=self.c_iter)
         if self.metric.avg['edit'] >= self.best_norm:
             self.best_norm = self.metric.avg['edit']
-            self.save_model(out_dir=self.workdir,
-                            filename='best_norm.pth',
-                            iteration=self.c_iter)
+            self.save_model(out_dir=self.workdir, filename='best_norm.pth', iteration=self.c_iter)
         logger.info('Validate, best_acc %.4f, best_edit %s' % (self.best_acc, self.best_norm))
-        logger.info('Validate, acc %.4f, edit %s' % (self.metric.avg['acc']['true'],
-                                                     self.metric.avg['edit']))
+        logger.info('Validate, acc %.4f, edit %s' % (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         logger.info(f'\n{self.metric.predict_example_log}')
 
     def test_epoch(self):
@@ -114,6 +106,35 @@ class Runner(object):
 
         logger.info('Test, acc %.4f, edit %s' % (self.metric.avg['acc']['true'],
                                                  self.metric.avg['edit']))
+
+    def postprocess(self, preds, test_cfg=None):
+        if test_cfg is not None:
+            sensitive = test_cfg.get('sensitive', True)
+            character = test_cfg.get('character', '')
+        else:
+            sensitive = True
+            character = ''
+
+        probs = F.softmax(preds, dim=2)
+        max_probs, indexes = probs.max(dim=2)
+        preds_str = []
+        preds_prob = []
+        for i, pstr in enumerate(self.converter.decode(indexes)):
+            str_len = len(pstr)
+            if str_len == 0:
+                prob = 0
+            else:
+                prob = max_probs[i, :str_len].cumprod(dim=0)[-1]
+            preds_prob.append(prob)
+
+            if test_cfg:
+                if not sensitive:
+                    pstr = pstr.lower()
+                if character:
+                    pstr = re.sub('[^{}]'.format(character), '', pstr)
+            preds_str.append(pstr)
+
+        return preds_str, preds_prob
 
     def train_batch(self, img, label):
         self.model.train()
@@ -137,13 +158,11 @@ class Runner(object):
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
         self.optim.step()
 
-        preds_prob = F.softmax(pred, dim=2)
-        preds_prob, pred_index = preds_prob.max(dim=2)
-        pred_str = self.converter.decode(pred_index)
+        with torch.no_grad():
+            pred, prob = self.postprocess(pred)
+            self.metric.measure(pred, prob, label)
 
-        self.metric.measure(pred_str, label, preds_prob)
-
-        if self.c_iter % 10 == 0:
+        if self.c_iter != 0 and self.c_iter % 10 == 0:
             logger.info(
                 'Train, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
                 (self.c_iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
@@ -162,11 +181,9 @@ class Runner(object):
                 pred = self.model(img, label_input)
             else:
                 pred = self.model(img)
-            preds_prob = F.softmax(pred, dim=2)
-            preds_prob, pred_index = preds_prob.max(dim=2)
-            pred_str = self.converter.decode(pred_index)
 
-            self.metric.measure(pred_str, label, preds_prob)
+            pred, prob = self.postprocess(pred, self.test_cfg)
+            self.metric.measure(pred, prob, label)
 
     def test_batch(self, img, label):
         self.model.eval()
@@ -180,11 +197,9 @@ class Runner(object):
                 pred = self.model(img, label_input)
             else:
                 pred = self.model(img)
-            preds_prob = F.softmax(pred, dim=2)
-            preds_prob, pred_index = preds_prob.max(dim=2)
-            pred_str = self.converter.decode(pred_index)
 
-            self.metric.measure(pred_str, label, preds_prob)
+            pred, prob = self.postprocess(pred, self.test_cfg)
+            self.metric.measure(pred, prob, label)
 
     def save_model(self,
                    out_dir,
@@ -193,9 +208,9 @@ class Runner(object):
                    save_optimizer=True,
                    meta=None):
         if meta is None:
-            meta = dict(iter=iteration + 1, lr=self.lr, iters=self.iterations)
+            meta = dict(iter=iteration, lr=self.lr)
         else:
-            meta.update(iter=iteration + 1, lr=self.lr, iters=self.iterations)
+            meta.update(iter=iteration, lr=self.lr)
 
         filepath = osp.join(out_dir, filename)
         optimizer = self.optim if save_optimizer else None
@@ -235,8 +250,6 @@ class Runner(object):
 
     def resume(self,
                checkpoint,
-               resume_lr=True,
-               resume_iters=True,
                resume_optimizer=False,
                map_location='default'):
         if map_location == 'default':
@@ -248,10 +261,3 @@ class Runner(object):
             checkpoint = self.load_checkpoint(checkpoint, map_location=map_location)
         if 'optimizer' in checkpoint and resume_optimizer:
             self.optim.load_state_dict(checkpoint['optimizer'])
-        if 'meta' in checkpoint and resume_iters:
-            self.iterations = checkpoint['meta']['iters']
-            self.start_iters = checkpoint['meta']['iter']
-            self.iter = checkpoint['meta']['iter']
-            self.c_iter = self.start_iters + 1
-        if 'meta' in checkpoint and resume_lr:
-            self.lr = checkpoint['meta']['lr']
