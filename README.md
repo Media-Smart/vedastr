@@ -15,7 +15,7 @@ in order to support rapid implementation and evaluation for scene text recogniti
 
 - **Support of multiple frameworks**\
   The toolbox supports several popular scene text recognition framework, e.g., [CRNN](https://arxiv.org/abs/1507.05717),
-   [TPS-ResNet-BiLSTM-Attention](https://github.com/clovaai/deep-text-recognition-benchmark), etc.
+   [TPS-ResNet-BiLSTM-Attention](https://github.com/clovaai/deep-text-recognition-benchmark), Transformer, etc.
 
 - **Good performance**\
   We re-implement the best model in  [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark)
@@ -41,7 +41,7 @@ Note:
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
 |[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1b5ykMGwLFyt-tpoWBMyhgjABaqxKBxRU)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
 |[ResNet-FC](https://drive.google.com/open?id=105kvjvSAwyxv_6VsCI0kWEmKkqQX8jul)| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
-|[Small-SATRN]()| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
+|[Small-SATRN](https://drive.google.com/file/d/12VNCjqF0YDK5sD3YHuxvvt_7DYRlemzL/view?usp=sharing)| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
 
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
@@ -147,6 +147,13 @@ b. Run
 
 ```shell
 python tools/test.py configs/clova.py path_to_clova_weights
+```
+
+## Demo
+a. Run
+
+```shell
+python tools/demo.py config-path weight-path img-path
 ```
 
 ## Contact
