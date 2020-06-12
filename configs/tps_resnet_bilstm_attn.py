@@ -86,20 +86,20 @@ data = dict(
         transforms=transforms,
         datasets=valid_dataset,
         loader=dict(
-            type='TestDataloader',
+            type='RawDataloader',
             batch_size=batch_size,
             num_workers=4,
-            shuffle=False,
+            shuffle=True,
         ),
     ),
     test=dict(
         transforms=transforms,
         datasets=test_dataset,
         loader=dict(
-            type='TestDataloader',
+            type='RawDataloader',
             batch_size=batch_size,
             num_workers=4,
-            shuffle=False,
+            shuffle=True,
         ),
     ),
 )
@@ -273,7 +273,6 @@ criterion = dict(type='CrossEntropyLoss', ignore_index=0)
 optimizer = dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8)
 
 # 7. lr scheduler
-
 lr_scheduler = dict(type='StepLR', niter_per_epoch=100000, max_epochs=3, milestones=[150000, 250000])
 
 # 8. runner

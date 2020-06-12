@@ -22,7 +22,7 @@ class FCHead(nn.Module):
                  num_class,
                  batch_max_length,
                  from_layer,
-                 inter_channels=None,
+                 inner_channels=None,
                  bias=True,
                  activation='relu',
                  inplace=True,
@@ -30,13 +30,14 @@ class FCHead(nn.Module):
                  num_fcs=0,
                  pool=None):
         super(FCHead, self).__init__()
+
         self.num_class = num_class
         self.batch_max_length = batch_max_length
         self.from_layer = from_layer
 
         if num_fcs > 0:
-            inter_fc = FCModules(in_channels, inter_channels, bias, activation, inplace, dropouts, num_fcs)
-            fc = nn.Linear(inter_channels, out_channels)
+            inter_fc = FCModules(in_channels, inner_channels, bias, activation, inplace, dropouts, num_fcs)
+            fc = nn.Linear(inner_channels, out_channels)
         else:
             inter_fc = nn.Sequential()
             fc = nn.Linear(in_channels, out_channels)

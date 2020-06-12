@@ -41,9 +41,12 @@ Note:
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
 |[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1b5ykMGwLFyt-tpoWBMyhgjABaqxKBxRU)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
 |[ResNet-FC](https://drive.google.com/open?id=105kvjvSAwyxv_6VsCI0kWEmKkqQX8jul)| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
+|[Small-SATRN]()| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
 
 AVERAGE : Average accuracy over all test datasets\
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
+Small-SATRN: [On Recognizing Texts of Arbitrary Shapes with 2D Self-Attention](https://arxiv.org/abs/1910.04396), 
+training phase is case sensitive while testing phase is case insensitive. \
 CASE SENSITIVE : If true, the output is case sensitive and contain common characters.
 If false, the output is not case sentive and contains only numbers and letters. 
 

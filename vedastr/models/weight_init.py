@@ -92,6 +92,6 @@ def init_weights(modules):
         elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
             constant_init(m, 1)
         elif isinstance(m, nn.Linear):
-            kaiming_init(m)
+            xavier_init(m)
         elif isinstance(m, (nn.LSTM, nn.LSTMCell)):
             kaiming_init(m, is_rnn=True)

@@ -1,4 +1,5 @@
 from .registry import CONVERTERS
+import abc
 
 
 @CONVERTERS.register_module
@@ -10,11 +11,14 @@ class BaseConverter(object):
         for i, char in enumerate(self.character):
             self.dict[char] = i
 
-    def train_encode(self, *args):
-        raise NotImplementedError
+    @abc.abstractclassmethod
+    def train_encode(self, *args, **kwargs):
+        '''encode text in train phase'''
 
-    def test_encode(self, *args):
-        raise NotImplementedError
+    @abc.abstractclassmethod
+    def test_encode(self, *args, **kwargs):
+        '''encode text in test phase'''
 
+    @abc.abstractclassmethod
     def decode(self, *args, **kwargs):
-        raise NotImplementedError
+        '''decode label to text in train and test phase'''

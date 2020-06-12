@@ -86,20 +86,20 @@ data = dict(
         transforms=transforms,
         datasets=valid_dataset,
         loader=dict(
-            type='TestDataloader',
+            type='RawDataloader',
             batch_size=batch_size,
             num_workers=4,
-            shuffle=False,
+            shuffle=True,
         ),
     ),
     test=dict(
         transforms=transforms,
         datasets=test_dataset,
         loader=dict(
-            type='TestDataloader',
+            type='RawDataloader',
             batch_size=batch_size,
             num_workers=4,
-            shuffle=False,
+            shuffle=True,
         ),
     ),
 )

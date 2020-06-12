@@ -141,7 +141,7 @@ class ConvModule(nn.Module):
                 self.activate = nn.Tanh()
 
         if self.with_dropout:
-            self.dropout = nn.Dropout2d(p=dropout)
+            self.dropout = nn.Dropout(p=dropout)
 
     @property
     def norm(self):
