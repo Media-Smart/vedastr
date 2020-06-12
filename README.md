@@ -56,7 +56,7 @@ If false, the output is not case sentive and contains only numbers and letters.
 
 - Linux
 - Python 3.6+
-- PyTorch 1.1.0 or higher
+- PyTorch 1.2.0 or higher
 - CUDA 9.0 or higher
 
 We have tested the following versions of OS and softwares:
