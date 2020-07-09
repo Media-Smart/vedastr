@@ -1,4 +1,5 @@
 import os
+import pdb
 import random
 
 import torch
@@ -86,7 +87,9 @@ class Common(object):
 
     def _build_dataloader(self, cfg):
         transform = build_transform(cfg['transform'])
-        dataset = build_datasets(cfg['datasets'], dict(transform=transform))
+        pdb.set_trace()
+        dataset = build_datasets(cfg['dataset'], dict(transform=transform))
+        pdb.set_trace()
         dataloader = build_dataloader(cfg['dataloader'], dict(dataset=dataset))
 
         return dataloader

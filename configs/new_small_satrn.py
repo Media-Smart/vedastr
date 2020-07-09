@@ -1,5 +1,5 @@
 # 1. configuration for inference
-size = 256
+size = (32, 100)
 crop_size = 224
 padding_value = 127.5
 mean, std = 0.5, 0.5
@@ -10,8 +10,10 @@ train_character = '0123456789abcdefghijklmnopq' \
                   'TUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'  # need character
 test_sensitive = False
 test_character = '0123456789abcdefghijklmnopqrstuvwxyz'
-batch_size = 256
+batch_size = 32
 batch_max_length = 25
+fill = 0
+mode = 'nearest'
 
 dropout = 0.1
 n_e = 9
@@ -24,7 +26,7 @@ num_class = len(train_character) + 1
 num_steps = batch_max_length + 1
 
 deploy = dict(
-    gpu_id='0',
+    gpu_id='3',
     transform=[
         dict(type='Sensitive', sensitive=test_sensitive),
         dict(type='ColorToGray'),
@@ -32,12 +34,6 @@ deploy = dict(
         dict(type='ToTensor'),
         dict(type='Normalize', mean=mean, std=std),
     ],
-    converter=dict(
-        type='SATRNConverter',
-        character=train_character,
-        batch_max_length=batch_max_length,
-        go_last=True,
-    ),
     model=dict(
         type='GModel',
         need_text=True,
@@ -185,6 +181,12 @@ common = dict(
     ),
     cudnn_deterministic=False,
     cudnn_benchmark=True,
+    converter=dict(
+        type='SATRNConverter',
+        character=train_character,
+        batch_max_length=batch_max_length,
+        go_last=True,
+    ),
     metric=dict(type='Accuracy'),
 )
 
@@ -199,7 +201,7 @@ test_dataset_params = dict(
     data_filter_off=data_filter_off,
     character=test_character,
 )
-data_root = './data/data_lmdb_release/'
+data_root = '/DATA7_DB7/data/sjun/github/vedastr/data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'
@@ -238,10 +240,10 @@ test = dict(
         dataloader=dict(
             type='TestDataloader',
             batch_size=batch_size,
-            num_workers=4,
+            num_workers=0,
             shuffle=False,
         ),
-        datasets=test_dataset,
+        dataset=test_dataset,
         transform=deploy['transform'],
     ),
     postprocess_cfg=dict(
@@ -266,9 +268,9 @@ train = dict(
                 each_batch_ratio=[0.5, 0.5],
                 each_usage=[1.0, 1.0],
                 shuffle=True,
-                num_workers=4,
+                num_workers=0,
             ),
-            datasets=[
+            dataset=[
                 dict(
                     type='ConcatDatasets',
                     datasets=train_dataset_mj,
@@ -286,7 +288,7 @@ train = dict(
             dataloader=dict(
                 type='TestDataloader',
                 batch_size=batch_size,
-                num_workers=4,
+                num_workers=0,
                 shuffle=False,
             ),
             dataset=valid_dataset,

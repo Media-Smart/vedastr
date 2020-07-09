@@ -1,3 +1,4 @@
+import pdb
 import os.path as osp
 from collections import OrderedDict
 
@@ -16,7 +17,7 @@ class TrainRunner(DeployRunner):
 
         self.train_dataloader = self._build_dataloader(
             train_cfg['data']['train'])
-
+        pdb.set_trace()
         if 'val' in train_cfg['data']:
             self.val_dataloader = self._build_dataloader(
                 train_cfg['data']['val'])
@@ -42,13 +43,13 @@ class TrainRunner(DeployRunner):
             self.resume(**train_cfg['resume'])
 
     def _build_optimizer(self, cfg):
-        return build_optimizer(cfg, self.model.parameters())
+        return build_optimizer(cfg, dict(params=self.model.parameters()))
 
     def _build_criterion(self, cfg):
         return build_criterion(cfg)
 
     def _build_lr_scheduler(self, cfg):
-        return build_lr_scheduler(cfg, self.optimizer)
+        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer))
 
     def _validate_epoch(self):
         self.logger.info('Iteration %d, Start validating' % self.c_iter)
