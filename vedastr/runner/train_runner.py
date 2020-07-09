@@ -33,6 +33,7 @@ class TrainRunner(DeployRunner):
         self.snapshot_interval = train_cfg.get('snapshot_interval', -1)
         self.grad_clip = train_cfg.get('grad_clip', 5)
         self.save_best = train_cfg.get('save_best', True)
+        self.c_iter = 0
 
         assert self.workdir is not None
         assert self.log_interval > 0
