@@ -2,8 +2,11 @@
 
 from nltk.metrics.distance import edit_distance
 
+from .registry import METRICS
 
-class STRMeters(object):
+
+@METRICS.register_module
+class Accuracy(object):
 
     def __init__(self):
         self.reset()

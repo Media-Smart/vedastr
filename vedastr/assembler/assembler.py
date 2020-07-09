@@ -6,12 +6,12 @@ from torch import nn
 from vedastr import utils
 from vedastr.loggers import build_logger
 from vedastr.datasets import build_datasets
-from vedastr.datasets.transforms.builder import build_transform
+from vedastr.transforms.builder import build_transform
 from vedastr.dataloaders import build_dataloader
 from vedastr.models import build_model
 from vedastr.converter import build_converter
 from vedastr.criteria import build_criterion
-from vedastr.optims import build_optim
+from vedastr.optims import build_optimizers
 from vedastr.lr_schedulers import build_lr_scheduler
 from vedastr.utils import STRMeters
 from vedastr.runner import build_runner
@@ -94,7 +94,7 @@ def assemble(cfg_fp, checkpoint='', test_mode=False):
 
     logger.info('Assemble, Step 6, Build Optimizer')
     # 6. optim
-    optim = build_optim(cfg['optimizer'], dict(params=model.parameters()))
+    optim = build_optimizers(cfg['optimizer'], dict(params=model.parameters()))
 
     logger.info('Assemble, Step 7, Build LR scheduler')
     # 7. lr scheduler

@@ -13,7 +13,7 @@ from PIL import Image
 from vedastr.utils.config import Config
 from vedastr.utils.checkpoint import load_checkpoint
 from vedastr.models import build_model
-from vedastr.datasets.transforms import build_transform
+from vedastr.transforms import build_transform
 from vedastr.converter import build_converter
 
 
