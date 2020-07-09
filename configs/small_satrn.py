@@ -161,11 +161,14 @@ model = dict(
                         backbone=dict(
                             type='GResNet',
                             layers=[
-                                ('conv', dict(type='ConvModule', in_channels=1, out_channels=int(hidden_dim/2), kernel_size=3,
-                                              stride=1, padding=1, norm_cfg=batch_norm)),
+                                ('conv',
+                                 dict(type='ConvModule', in_channels=1, out_channels=int(hidden_dim / 2), kernel_size=3,
+                                      stride=1, padding=1, norm_cfg=batch_norm)),
                                 ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
-                                ('conv', dict(type='ConvModule', in_channels=int(hidden_dim/2), out_channels=hidden_dim, kernel_size=3,
-                                              stride=1, padding=1, norm_cfg=batch_norm)),
+                                ('conv',
+                                 dict(type='ConvModule', in_channels=int(hidden_dim / 2), out_channels=hidden_dim,
+                                      kernel_size=3,
+                                      stride=1, padding=1, norm_cfg=batch_norm)),
                                 ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
                             ],
                         ),
@@ -200,9 +203,11 @@ model = dict(
                         feedforward=dict(
                             type='Feedforward',
                             layers=[
-                                dict(type='ConvModule', in_channels=hidden_dim, out_channels=hidden_dim*4, kernel_size=3, padding=1,
+                                dict(type='ConvModule', in_channels=hidden_dim, out_channels=hidden_dim * 4,
+                                     kernel_size=3, padding=1,
                                      bias=True, norm_cfg=None, activation='relu', dropout=dropout),
-                                dict(type='ConvModule', in_channels=hidden_dim*4, out_channels=hidden_dim, kernel_size=3, padding=1,
+                                dict(type='ConvModule', in_channels=hidden_dim * 4, out_channels=hidden_dim,
+                                     kernel_size=3, padding=1,
                                      bias=True, norm_cfg=None, activation=None, dropout=dropout),
                             ],
                         ),
@@ -288,7 +293,13 @@ milestones = [2, 4]
 niter_per_epoch = int(55000 * 256 / batch_size)
 max_iterations = epochs * niter_per_epoch
 milestones = [niter_per_epoch * epoch for epoch in milestones]
-lr_scheduler = dict(type='StepLR', niter_per_epoch=niter_per_epoch, max_epochs=epochs, milestones=milestones, gamma=0.1, warmup_epochs=0.1)
+lr_scheduler = dict(type='StepLR',
+                    niter_per_epoch=niter_per_epoch,
+                    max_epochs=epochs,
+                    milestones=milestones,
+                    gamma=0.1,
+                    warmup_epochs=0.1,
+                    )
 
 # 8. runner
 runner = dict(
