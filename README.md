@@ -127,12 +127,12 @@ data
 
 a. Config
 
-Modify some configuration accordingly in the config file like `configs/clova.py`
+Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py`
 
 b. Run
 
 ```shell
-python tools/trainval.py configs/clova.py
+python tools/trainval.py configs/tps_resnet_bilstm_attn.py 
 ```
 
 Snapshots and logs will be generated at `vedastr/workdir`.
@@ -141,12 +141,12 @@ Snapshots and logs will be generated at `vedastr/workdir`.
 
 a. Config
 
-Modify some configuration accordingly in the config file like `configs/clova.py`
+Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py `
 
 b. Run
 
 ```shell
-python tools/test.py configs/clova.py path_to_clova_weights
+python tools/test.py configs/tps_resnet_bilstm_attn.py path_to_tps_resnet_bilstm_attn_weights
 ```
 
 ## Demo
