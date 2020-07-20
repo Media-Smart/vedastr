@@ -57,10 +57,10 @@ class TrainRunner(DeployRunner):
         self.metric.reset()
         for img, label in self.val_dataloader:
             self._validate_batch(img, label)
-        if self.metric.avg['acc']['true'] >= self.best_acc:
+        if self.metric.avg['acc']['true'] >= self.best_acc and self.save_best:
             self.best_acc = self.metric.avg['acc']['true']
             self.save_model(out_dir=self.workdir, filename='best_acc.pth', iteration=self.c_iter)
-        if self.metric.avg['edit'] >= self.best_norm:
+        if self.metric.avg['edit'] >= self.best_norm and self.save_best:
             self.best_norm = self.metric.avg['edit']
             self.save_model(out_dir=self.workdir, filename='best_norm.pth', iteration=self.c_iter)
         self.logger.info('Validate, best_acc %.4f, best_edit %s' % (self.best_acc, self.best_norm))
