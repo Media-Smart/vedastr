@@ -13,10 +13,13 @@ class CTCLoss(nn.Module):
                                     blank=blank,
                                     reduction=reduction)
 
-    def forward(self, pred, target, length, batch_size):
+    def forward(self, pred, target, target_length, batch_size):
         pred = pred.log_softmax(2)
-        preds_size = torch.IntTensor([pred.size(1)] * batch_size)
+        input_lengths = torch.full(size=(batch_size,), fill_value=pred.size(1), dtype=torch.long)
         pred_ = pred.permute(1, 0, 2)
-        cost = self.criterion(pred_, target, preds_size, length)
+        cost = self.criterion(log_probs=pred_,
+                              targets=target.to(pred.device),
+                              input_lengths=input_lengths.to(pred.device),
+                              target_lengths=target_length.to(pred.device))
 
         return cost
