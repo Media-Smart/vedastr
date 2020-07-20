@@ -1,10 +1,11 @@
 import os
 import sys
 import argparse
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
-from vedacls.runner import TestRunner
-from vedacls.utils import Config
+from vedastr.runner import TestRunner
+from vedastr.utils import Config
 
 
 def parse_args():

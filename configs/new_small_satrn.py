@@ -1,4 +1,7 @@
-# 1. configuration for inference
+# work directory
+root_workdir = 'workdir'
+
+###############################################################################
 size = (32, 100)
 crop_size = 224
 padding_value = 127.5
@@ -25,6 +28,7 @@ layer_norm = dict(type='LayerNorm', normalized_shape=hidden_dim)
 num_class = len(train_character) + 1
 num_steps = batch_max_length + 1
 
+# 1. deploy
 deploy = dict(
     gpu_id='3',
     transform=[
@@ -168,8 +172,8 @@ deploy = dict(
     ),
 )
 
-# 2. configuration for train/test
-root_workdir = 'workdir'
+###############################################################################
+# 2.common
 
 common = dict(
     seed=1111,
@@ -189,7 +193,7 @@ common = dict(
     ),
     metric=dict(type='Accuracy'),
 )
-
+###############################################################################
 data_filter_off = False
 train_dataset_params = dict(
     batch_max_length=batch_max_length,
@@ -211,30 +215,37 @@ mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
 ## ST dataset
 train_root_st = train_root + 'ST/'
 
-train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name) for folder_name in mj_folder_names]
+train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name)
+                    for folder_name in mj_folder_names]
 train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset', root=valid_root, **test_dataset_params)]
+valid_dataset = [dict(type='LmdbDataset',
+                      root=valid_root,
+                      **test_dataset_params)
+                 ]
 
 # test
 test_root = data_root + 'evaluation/'
-test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077', 'IIIT5k_3000', 'SVT', 'SVTP']
-test_dataset = [dict(type='LmdbDataset', root=test_root + folder_name, **test_dataset_params) for folder_name in
-                test_folder_names]
+test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
+                     'IIIT5k_3000', 'SVT', 'SVTP']
+test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
+                     **test_dataset_params) for f_name in test_folder_names]
 
 # transforms
 train_transforms = [
     dict(type='Sensitive', sensitive=train_sensitive),
     dict(type='ColorToGray'),
-    dict(type='RandomNormalRotation', mean=0, std=34, expand=True, center=None, fill=fill, mode=mode, p=0.5),
+    dict(type='RandomNormalRotation', mean=0, std=34, expand=True,
+         center=None, fill=fill, mode=mode, p=0.5),
     dict(type='Resize', size=size),
     dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
 ]
 
-## 2.1 configuration for test
+###############################################################################
+# 3. test
 test = dict(
     data=dict(
         dataloader=dict(
@@ -252,13 +263,14 @@ test = dict(
     ),
 )
 
-## 2.2 configuration for train
+###############################################################################
 epochs = 6
 milestones = [2, 4]
 niter_per_epoch = int(55000 * 256 / batch_size)
 max_iterations = epochs * niter_per_epoch
 milestones = [niter_per_epoch * epoch for epoch in milestones]
 
+# 4. train
 train = dict(
     data=dict(
         train=dict(
