@@ -88,9 +88,9 @@ class DeployRunner(Common):
                 label_input = label_input.cuda()
 
             if self.need_text:
-                pred = self.model(image, label_input)
+                pred = self.model((image, label_input))
             else:
-                pred = self.model(image)
+                pred = self.model((image,))
 
             pred, prob = self.postprocess(pred, self.postprocess_cfg)
 

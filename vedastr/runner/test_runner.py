@@ -19,9 +19,9 @@ class TestRunner(DeployRunner):
                 label_input = label_input.cuda()
 
             if self.need_text:
-                pred = self.model(img, label_input)
+                pred = self.model((img, label_input))
             else:
-                pred = self.model(img)
+                pred = self.model((img,))
 
             pred, prob = self.postprocess(pred, self.postprocess_cfg)
             self.metric.measure(pred, prob, label)

@@ -33,6 +33,8 @@ class TrainRunner(DeployRunner):
         self.snapshot_interval = train_cfg.get('snapshot_interval', -1)
         self.grad_clip = train_cfg.get('grad_clip', 5)
         self.save_best = train_cfg.get('save_best', True)
+        self.best_acc = -1
+        self.best_norm = -1
         self.c_iter = 0
 
         assert self.workdir is not None
@@ -79,9 +81,9 @@ class TrainRunner(DeployRunner):
             label_target = label_target
             label_len = label_len
         if self.need_text:
-            pred = self.model(img, label_input)
+            pred = self.model((img, label_input))
         else:
-            pred = self.model(img)
+            pred = self.model((img, ))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
 
         loss.backward()
@@ -109,11 +111,11 @@ class TrainRunner(DeployRunner):
                 img = img.cuda()
                 label_input = label_input.cuda()
             if self.need_text:
-                pred = self.model(img, label_input)
+                pred = self.model((img, label_input))
             else:
-                pred = self.model(img)
+                pred = self.model((img, ))
 
-            pred, prob = self.postprocess(pred, self.postprocess_cfg)
+            pred, prob = self.postprocess(pred)
             self.metric.measure(pred, prob, label)
 
     def __call__(self):

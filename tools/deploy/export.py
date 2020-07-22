@@ -53,9 +53,9 @@ def main():
 
     image = Image.open(args.image)
 
-    image = runner.transform(image=image, label='')['image']
-
-    dummy_input = image.unsqueeze(0).cuda()
+    image, label = runner.transform(image=image, label='')
+    image = image.unsqueeze(0).cuda()
+    dummy_input = (image, runner.converter.test_encode(['']))
     model = runner.model.cuda().eval()
 
     if args.onnx:
@@ -73,7 +73,7 @@ def main():
                 runner.logger.info('Use calibration with mode {} and data {}'
                                    .format(args.calibration_mode,
                                            args.calibration_images))
-                dataset = CalibDataset(args.calibration_images,
+                dataset = CalibDataset(args.calibration_images, runner.converter,
                                        runner.transform)
                 int8_calibrator = CALIBRATORS[args.calibration_mode](
                     dataset=dataset)

@@ -1,14 +1,16 @@
 import os
 import sys
 import argparse
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
 import cv2
+from PIL import Image
 from volksdep.benchmark import benchmark
 
-from vedacls.runner import TestRunner
-from vedacls.utils import Config
-from tools.deploy.utils import CALIBRATORS, CalibDataset, Metric
+from vedastr.runner import TestRunner
+from vedastr.utils import Config
+from tools.deploy.utils import CALIBRATORS, CalibDataset, CalibDataset2, Metric
 
 
 def parse_args():
@@ -46,23 +48,24 @@ def main():
     assert runner.use_gpu, 'Please use gpu for benchmark.'
     runner.load_checkpoint(args.checkpoint)
 
-    image = cv2.imread(args.image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = runner.transform(image=image)['image'].unsqueeze(0)
-
+    image = Image.open(args.image)
+    image, dummy_label = runner.transform(image, '')
+    image = image.unsqueeze(0)
+    input_len = runner.converter.test_encode(1)[0]
     model = runner.model
-    shape = tuple(image.shape)
+    shape = tuple(image.shape), tuple(input_len.shape)
 
     dtypes = args.dtypes
     iters = args.iters
     int8_calibrator = None
     if args.calibration_images:
-        calib_dataset = CalibDataset(args.calibration_images,
+        calib_dataset = CalibDataset(args.calibration_images, runner.converter,
                                      runner.transform)
         int8_calibrator = [CALIBRATORS[mode](dataset=calib_dataset)
                            for mode in args.calibration_modes]
     dataset = runner.test_dataloader.dataset
-    metric = Metric(runner.metric)
+    dataset = CalibDataset2(dataset, runner.converter)
+    metric = Metric(runner.metric, runner.converter)
     benchmark(model, shape, dtypes=dtypes, iters=iters,
               int8_calibrator=int8_calibrator, dataset=dataset, metric=metric)
 

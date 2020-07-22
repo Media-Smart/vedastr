@@ -130,7 +130,7 @@ test_cfg = dict(
 
 # 3. converter
 converter = dict(
-    type='SATRNConverter',
+    type='AttnConverter',
     character=train_character,
     batch_max_length=batch_max_length,
     go_last=True,

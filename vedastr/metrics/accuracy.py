@@ -12,6 +12,14 @@ class Accuracy(object):
         self.reset()
         self.predict_example_log = None
 
+    @property
+    def result(self):
+        res = {
+            'acc': self.avg['acc']['true'],
+            'edit_distance': self.avg['edit'],
+        }
+        return res
+
     def measure(self, preds, preds_prob, gts):
         batch_size = len(gts)
         true_num = 0
@@ -26,7 +34,8 @@ class Accuracy(object):
                 norm_ED += 1 - edit_distance(pstr, gstr) / len(gstr)
             else:
                 norm_ED += 1 - edit_distance(pstr, gstr) / len(pstr)
-        self.show_example(preds, preds_prob, gts)
+        if preds_prob is not None:
+            self.show_example(preds, preds_prob, gts)
         self.all['acc']['true'] += true_num
         self.all['acc']['false'] += (batch_size - true_num)
         self.all['edit'] += norm_ED

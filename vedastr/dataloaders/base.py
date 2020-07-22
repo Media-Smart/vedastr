@@ -6,7 +6,7 @@ from torch._utils import _accumulate
 
 
 class BaseDataloader(object):
-    def __init__(self, dataset, batch_size, each_usage, num_workers=4, shuffle=False):
+    def __init__(self, dataset, each_usage):
         if isinstance(each_usage, (float, int)):
             each_usage = [each_usage]
         assert isinstance(each_usage, list)

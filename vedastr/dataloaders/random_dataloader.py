@@ -13,9 +13,6 @@ class BatchRandomDataloader(BaseDataloader):
         dataset = [ConcatDataset(dataset)]
 
         super(BatchRandomDataloader, self).__init__(dataset=dataset,
-                                                    batch_size=batch_size,
-                                                    num_workers=num_workers,
-                                                    shuffle=shuffle,
                                                     each_usage=each_usage)
 
         _dataloader = DataLoader(
