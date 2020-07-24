@@ -5,12 +5,9 @@ from torch.optim import Optimizer
 
 
 class _Iter_LRScheduler(object):
-    """
-    """
 
-    _iter_based = True
-
-    def __init__(self, optimizer, niter_per_epoch, last_iter=-1):
+    def __init__(self, optimizer, niter_per_epoch, last_iter=-1, iter_based=True):
+        self._iter_based = iter_based
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(
                 type(optimizer).__name__))
@@ -81,7 +78,7 @@ class _Iter_LRScheduler(object):
     def get_lr(self):
         raise NotImplementedError
 
-    def step(self, iter_=None):
+    def iter_(self, iter_=None):
         # Raise a warning if old pattern is detected
         # https://github.com/pytorch/pytorch/issues/20124
         if self._step_count == 1:
@@ -105,5 +102,7 @@ class _Iter_LRScheduler(object):
             iter_ = self.last_iter + 1
         self.last_iter = iter_
         self.last_epoch = int(iter_ / self.niter_per_epoch)
+
+    def step(self):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr

@@ -7,6 +7,7 @@ import numpy as np
 
 from ..logger import build_logger
 from ..dataloaders import build_dataloader
+from ..dataloaders.samplers import build_sampler
 from ..datasets import build_datasets
 from ..transforms import build_transform
 from ..metrics import build_metric
@@ -87,6 +88,7 @@ class Common(object):
     def _build_dataloader(self, cfg):
         transform = build_transform(cfg['transform'])
         dataset = build_datasets(cfg['dataset'], dict(transform=transform))
-        dataloader = build_dataloader(cfg['dataloader'], dict(dataset=dataset))
+        sampler = build_sampler(cfg['sampler']) if cfg.get('sampler', False) else None
+        dataloader = build_dataloader(cfg['dataloader'], dict(dataset=dataset, sampler=sampler))
 
         return dataloader

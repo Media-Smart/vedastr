@@ -2,6 +2,7 @@ import os.path as osp
 from collections import OrderedDict
 
 import torch
+import numpy as np
 
 from .deploy_runner import DeployRunner
 from ..criteria import build_criterion
@@ -25,7 +26,12 @@ class TrainRunner(DeployRunner):
         self.optimizer = self._build_optimizer(train_cfg['optimizer'])
         self.criterion = self._build_criterion(train_cfg['criterion'])
         self.lr_scheduler = self._build_lr_scheduler(train_cfg['lr_scheduler'])
-        self.max_iterations = train_cfg['max_iterations']
+        self.max_iterations = train_cfg.get('max_iterations', False)
+        self.max_epochs = train_cfg.get('max_epochs', False)
+        assert self.max_epochs ^ self.max_iterations, \
+            'max_epochs and max_iterations are mutual exclusion'
+        if not self.max_iterations:
+            self.max_iterations = len(self.train_dataloader) * self.max_epochs
         self.log_interval = train_cfg.get('log_interval', 10)
         self.trainval_ratio = train_cfg.get('trainval_ratio', -1)
         self.snapshot_interval = train_cfg.get('snapshot_interval', -1)
@@ -33,7 +39,6 @@ class TrainRunner(DeployRunner):
         self.save_best = train_cfg.get('save_best', True)
         self.best_acc = -1
         self.best_norm = -1
-        self.c_iter = 0
 
         assert self.workdir is not None
         assert self.log_interval > 0
@@ -53,16 +58,16 @@ class TrainRunner(DeployRunner):
         return build_lr_scheduler(cfg, dict(optimizer=self.optimizer))
 
     def _validate_epoch(self):
-        self.logger.info('Iteration %d, Start validating' % self.c_iter)
+        self.logger.info('Iteration %d, Start validating' % self.iter)
         self.metric.reset()
         for img, label in self.val_dataloader:
             self._validate_batch(img, label)
         if self.metric.avg['acc']['true'] >= self.best_acc and self.save_best:
             self.best_acc = self.metric.avg['acc']['true']
-            self.save_model(out_dir=self.workdir, filename='best_acc.pth', iteration=self.c_iter)
+            self.save_model(out_dir=self.workdir, filename='best_acc.pth')
         if self.metric.avg['edit'] >= self.best_norm and self.save_best:
             self.best_norm = self.metric.avg['edit']
-            self.save_model(out_dir=self.workdir, filename='best_norm.pth', iteration=self.c_iter)
+            self.save_model(out_dir=self.workdir, filename='best_norm.pth')
         self.logger.info('Validate, best_acc %.4f, best_edit %s' % (self.best_acc, self.best_norm))
         self.logger.info('Validate, acc %.4f, edit %s' % (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         self.logger.info(f'\n{self.metric.predict_example_log}')
@@ -93,10 +98,10 @@ class TrainRunner(DeployRunner):
             pred, prob = self.postprocess(pred)
             self.metric.measure(pred, prob, label)
 
-        if self.c_iter != 0 and self.c_iter % self.log_interval == 0:
+        if self.iter != 0 and self.iter % self.log_interval == 0:
             self.logger.info(
-                'Train, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
-                (self.c_iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
+                'Train, Epoch %d, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
+                (self.epoch, self.iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
                  self.metric.avg['edit']))
 
             self.logger.info(f'\n{self.metric.predict_example_log}')
@@ -119,26 +124,32 @@ class TrainRunner(DeployRunner):
     def __call__(self):
         self.metric.reset()
         self.logger.info('Start train...')
-        for iteration in range(self.max_iterations):
-            img, label = self.train_dataloader.get_batch
-            self._train_batch(img, label)
-            if self.lr_scheduler:
+        iter_based = hasattr(self.lr_scheduler, 'iter_based')
+        while True:
+            for img, label in self.train_dataloader:
+                self._train_batch(img, label)
+                self.lr_scheduler.iter_()  # update steps
+                if iter_based:
+                    self.lr_scheduler.step()
+                if self.trainval_ratio > 0 \
+                        and (self.iter + 1) % self.trainval_ratio == 0 \
+                        and self.val_dataloader:
+                    self._validate_epoch()
+                    self.metric.reset()
+                if (self.iter + 1) % self.snapshot_interval == 0:
+                    self.save_model(out_dir=self.workdir, filename=f'iter{self.iter + 1}.pth')
+                if self.iter > self.max_iterations:
+                    break
+            if not iter_based:
                 self.lr_scheduler.step()
-                self.c_iter = self.iter
-            else:
-                self.c_iter = iteration
-
-            if self.trainval_ratio > 0 \
-                    and (iteration + 1) % self.trainval_ratio == 0 \
-                    and self.val_dataloader:
-                self._validate_epoch()
-                self.metric.reset()
-            if (iteration + 1) % self.snapshot_interval == 0:
-                self.save_model(out_dir=self.workdir, filename=f'iter{iteration + 1}.pth', iteration=iteration)
 
     @property
     def epoch(self):
         return self.lr_scheduler.last_epoch
+
+    @epoch.setter
+    def epoch(self, val):
+        self.lr_scheduler.last_epoch = val
 
     @property
     def iter(self):
@@ -157,13 +168,12 @@ class TrainRunner(DeployRunner):
     def save_model(self,
                    out_dir,
                    filename,
-                   iteration,
                    save_optimizer=True,
                    meta=None):
         if meta is None:
-            meta = dict(iter=iteration, lr=self.lr)
+            meta = dict(epoch=self.epoch, iter=self.iter, lr=self.lr)
         else:
-            meta.update(iter=iteration, lr=self.lr)
+            meta.update(epoch=self.epoch, iter=self.iter, lr=self.lr)
 
         filepath = osp.join(out_dir, filename)
         optimizer = self.optimizer if save_optimizer else None
@@ -188,3 +198,5 @@ class TrainRunner(DeployRunner):
         if resume_meta and 'meta' in checkpoint:
             self.logger.info('Resume meta data')
             self.best = checkpoint['meta']['best']
+            self.iter = checkpoint['meta']['iter']
+            self.epoch = checkpoint['meta']['iter']

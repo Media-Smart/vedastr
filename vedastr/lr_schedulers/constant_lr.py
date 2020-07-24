@@ -6,9 +6,11 @@ from .registry import LR_SCHEDULERS
 class ConstantLR(_Iter_LRScheduler):
     """ConstantLR
     """
-    def __init__(self, optimizer, niter_per_epoch, last_iter=-1, warmup_epochs=0):
+
+    def __init__(self, optimizer, niter_per_epoch, last_iter=-1, warmup_epochs=0,
+                 iter_based=True):
         self.warmup_iters = niter_per_epoch * warmup_epochs
-        super().__init__(optimizer, niter_per_epoch, last_iter)
+        super().__init__(optimizer, niter_per_epoch, last_iter, iter_based)
 
     def get_lr(self):
         if self.last_iter < self.warmup_iters:
