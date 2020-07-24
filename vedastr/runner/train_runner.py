@@ -1,4 +1,3 @@
-import pdb
 import os.path as osp
 from collections import OrderedDict
 
@@ -17,7 +16,6 @@ class TrainRunner(DeployRunner):
 
         self.train_dataloader = self._build_dataloader(
             train_cfg['data']['train'])
-        pdb.set_trace()
         if 'val' in train_cfg['data']:
             self.val_dataloader = self._build_dataloader(
                 train_cfg['data']['val'])
@@ -83,7 +81,7 @@ class TrainRunner(DeployRunner):
         if self.need_text:
             pred = self.model((img, label_input))
         else:
-            pred = self.model((img, ))
+            pred = self.model((img,))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
 
         loss.backward()
@@ -95,7 +93,7 @@ class TrainRunner(DeployRunner):
             pred, prob = self.postprocess(pred)
             self.metric.measure(pred, prob, label)
 
-        if self.c_iter != 0 and self.c_iter % 10 == 0:
+        if self.c_iter != 0 and self.c_iter % self.log_interval == 0:
             self.logger.info(
                 'Train, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
                 (self.c_iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
@@ -113,7 +111,7 @@ class TrainRunner(DeployRunner):
             if self.need_text:
                 pred = self.model((img, label_input))
             else:
-                pred = self.model((img, ))
+                pred = self.model((img,))
 
             pred, prob = self.postprocess(pred)
             self.metric.measure(pred, prob, label)
