@@ -115,7 +115,7 @@ test_dataset_params = dict(
     data_filter_off=data_filter_off,
     character=test_character,
 )
-data_root = './data/data_lmdb_release/'
+data_root = '../../../dataset/str/data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'

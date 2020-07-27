@@ -1,4 +1,5 @@
 import random
+import copy
 from torch.utils.data import Sampler
 
 from .registry import SAMPLER
@@ -79,10 +80,16 @@ class BalanceSampler(Sampler):
         max_len = max([len(index) for index in indices])
         result_indices = []
         for idx, index in enumerate(indices):
-            need_num = max_len - len(index)
-            total_nums = need_num // len(index)
-            mod_nums = need_num // len(index)
-            index += index * max(0, total_nums - 1)
+            current_nums = len(index)
+            need_num = max_len - current_nums
+            total_nums = need_num // current_nums
+            mod_nums = need_num // current_nums
+            for _ in range(max(0, total_nums-1)):
+                new_index = copy.copy(index)
+                if self.shuffle:
+                    random.shuffle(new_index)
+                index += new_index
+
             index += random.sample(index, mod_nums)
             result_indices.append(index)
         self._num_samples = max_len * len(indices)

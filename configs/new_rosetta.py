@@ -18,7 +18,7 @@ num_class = len(train_character) + 1
 # 1. deploy
 
 deploy = dict(
-    gpu_id='3',
+    gpu_id='2',
     transform=[
         dict(type='Sensitive', sensitive=train_sensitive),
         dict(type='ColorToGray'),
@@ -115,7 +115,7 @@ test_dataset_params = dict(
     data_filter_off=data_filter_off,
     character=test_character,
 )
-data_root = './data/data_lmdb_release/'
+data_root = '../../../dataset/str/data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'
@@ -145,13 +145,13 @@ test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
 test = dict(
     data=dict(
         dataloader=dict(
-            type='Dataloader',
+            type='DataLoader',
             batch_size=batch_size,
             num_workers=4,
             shuffle=False,
         ),
         dataset=dict(
-            type='ConcatDataset',
+            type='ConcatDatasets',
             datasets=test_dataset,
         ),
         transform=deploy['transform'],
@@ -181,9 +181,8 @@ train = dict(
     data=dict(
         train=dict(
             dataloader=dict(
-                type='Dataloader',
+                type='DataLoader',
                 batch_size=batch_size,
-                shuffle=True,
                 num_workers=4,
             ),
             sampler=dict(
@@ -195,16 +194,23 @@ train = dict(
             dataset=dict(
                 type='ConcatDatasets',
                 datasets=[
-                    train_dataset_mj,
-                    train_dataset_st,
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_mj,
+                    ),
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_st,
+                    )
                 ],
-                **train_dataset_params,
+            batch_ratio=[0.5, 0.5],
+            **train_dataset_params,
             ),
             transform=train_transforms,
         ),
         val=dict(
             dataloader=dict(
-                type='Dataloader',
+                type='DataLoader',
                 batch_size=batch_size,
                 num_workers=4,
                 shuffle=False,

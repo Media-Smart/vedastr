@@ -2,6 +2,7 @@ from vedastr.dataloaders import build_dataloader
 from vedastr.dataloaders.samplers import build_sampler
 from vedastr.datasets import build_datasets
 from vedastr.transforms import build_transform
+import configs.new_rosetta as nr
 
 
 def main():
@@ -58,12 +59,12 @@ def main():
 
     # build trans
     transform = build_transform(trans_cfg)
-    datasets = build_datasets(data_cfg, dict(transform=transform))
-    sampler = build_sampler(sampler_cfg, dict(dataset=datasets))
-    print(len(sampler))
-    # dataloader = build_dataloader(loader_cfg, dict(dataset=datasets, sampler=sampler))
-    # for img in dataloader:
-    #     print('yes')
+    datasets = build_datasets(nr.train['data']['train']['dataset'], dict(transform=transform))
+    sampler = build_sampler(nr.train['data']['train']['sampler'], dict(dataset=datasets))
+    # print(len(sampler))
+    dataloader = build_dataloader(nr.train['data']['train']['dataloader'], dict(dataset=datasets, sampler=sampler))
+    for img in dataloader:
+        print('yes')
 
 
 if __name__ == '__main__':
