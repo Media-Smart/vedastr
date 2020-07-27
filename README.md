@@ -149,12 +149,21 @@ b. Run
 python tools/test.py configs/clova.py path_to_clova_weights
 ```
 
-## Demo
+## Inference
 a. Run
 
 ```shell
 python tools/demo.py config-path weight-path img-path
 ```
+
+## Deploy
+| framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |       accuracy       |
+|   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |        :---:         |
+|  pytorch   |   1.5.1    | ((1, 1, 32, 100), (1, 25)) |           fp32            |         158          |       8.3       | acc: 0.8040, edit_distance: 0.9247 |
+|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |           fp32            |         432          |      2.56       | acc: 0.8040, edit_distance: 0.9247 |
+|  pytorch   |   1.5.1    | ((1, 1, 32, 100), (1, 25)) |           fp16            |         172          |      5.56       | acc: 0.8034, edit_distance: 0.9245 |
+|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |           fp16            |         419          |      2.66       | acc: 0.8041, edit_distance: 0.9247 |
+|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |      int8(entropy_2)      |         401          |      4.25       | acc: 0.5070, edit_distance: 0.7442 |
 
 ## Contact
 
