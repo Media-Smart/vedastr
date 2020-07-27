@@ -150,7 +150,7 @@ test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
 test = dict(
     data=dict(
         dataloader=dict(
-            type='Dataloader',
+            type='DataLoader',
             batch_size=batch_size,
             num_workers=4,
             shuffle=False,
@@ -214,7 +214,7 @@ train = dict(
         ),
         val=dict(
             dataloader=dict(
-                type='Dataloader',
+                type='DataLoader',
                 batch_size=batch_size,
                 num_workers=4,
                 shuffle=False,

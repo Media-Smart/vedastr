@@ -304,7 +304,7 @@ train = dict(
         ),
         val=dict(
             dataloader=dict(
-                type='TestDataloader',
+                type='TestDataLoader',
                 batch_size=batch_size,
                 num_workers=0,
                 shuffle=False,
