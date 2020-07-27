@@ -23,6 +23,15 @@ class TrainRunner(DeployRunner):
         else:
             self.val_dataloader = None
 
+        self.max_iterations = train_cfg.get('max_iterations', False)
+        self.max_epochs = train_cfg.get('max_epochs', False)
+        assert self.max_epochs ^ self.max_iterations, \
+            'max_epochs and max_iterations are mutual exclusion'
+        if not self.max_iterations:
+            self.max_iterations = len(self.train_dataloader) * self.max_epochs
+        if not self.max_epochs:
+            self.max_epochs = self.max_iterations // len(self.train_dataloader)
+
         self.optimizer = self._build_optimizer(train_cfg['optimizer'])
         self.criterion = self._build_criterion(train_cfg['criterion'])
         self.lr_scheduler = self._build_lr_scheduler(train_cfg['lr_scheduler'])
@@ -130,7 +139,7 @@ class TrainRunner(DeployRunner):
     def __call__(self):
         self.metric.reset()
         self.logger.info('Start train...')
-        iter_based = hasattr(self.lr_scheduler, 'iter_based')
+        iter_based = self.lr_scheduler.iter_based
         while True:
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)

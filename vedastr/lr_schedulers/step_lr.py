@@ -1,5 +1,5 @@
 from collections import Counter
-
+import numpy as np
 from .base import _Iter_LRScheduler
 from .registry import LR_SCHEDULERS
 
@@ -17,7 +17,9 @@ class StepLR(_Iter_LRScheduler):
                                      last_iter, iter_based)
 
     def get_lr(self):
-        if self.last_iter in self.milestones:
+        if self._iter_based and self.last_iter in self.milestones:
+            self.count += 1
+        elif not self._iter_based and self.last_epoch in self.milestones:
             self.count += 1
 
         if self.last_iter < self.warmup_iters:

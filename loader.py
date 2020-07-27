@@ -1,8 +1,12 @@
+import torch
+import torchvision.models as tm
 from torch.utils.data import ConcatDataset as _ConcatDataset
 from vedastr.dataloaders import build_dataloader
 from vedastr.dataloaders.samplers import build_sampler
 from vedastr.datasets import build_datasets
 from vedastr.transforms import build_transform
+from vedastr.lr_schedulers import build_lr_scheduler
+from vedastr.optimizers import build_optimizer
 import configs.new_rosetta as nr
 
 
@@ -15,6 +19,9 @@ class Dataset1:
 
 
 class Dataset2:
+    def __init__(self):
+        self.a = 1
+
     def __getitem__(self, item):
         return item
 
@@ -35,6 +42,29 @@ class ConcatDatasets(_ConcatDataset):
 
 
 def main():
+    model = tm.resnet18(False).cuda()
+    op_cfg = dict(type='Adam', lr=1.0, params=model.parameters())
+    lr_scheduler = dict(type='StepLR',
+                        iter_based=False,
+                        milestones=[3, 5],
+                        )
+    opt = build_optimizer(op_cfg)
+    lrs = build_lr_scheduler(lr_scheduler, dict(
+        max_epochs=20,
+        niter_per_epoch=2,
+        optimizer=opt
+    ))
+    iter_based = lrs._iter_based
+    # for j in range(10):
+    #
+    #     for i in range(3):
+    #         opt.step()
+    #         lrs.iter_nums()
+    #     if not iter_based:
+    #         lrs.step()
+    #     for param_group in opt.param_groups:
+    #         print(param_group['lr'])
+
     size = (32, 100)
     mean, std = 0.5, 0.5
 
@@ -73,8 +103,6 @@ def main():
     )
     datasets = ConcatDatasets(datasets=[Dataset2(), Dataset1()], batch_ratio=[0.5, 0.5])
 
-
-
     sampler_cfg = dict(
         type='BalanceSampler',
         batch_size=batch_size,
@@ -91,13 +119,15 @@ def main():
 
     # build trans
     transform = build_transform(trans_cfg)
-
-    datasets = build_datasets(nr.train['data']['train']['dataset'], dict(transform=transform))
-    sampler = build_sampler(nr.train['data']['train']['sampler'], dict(dataset=datasets))
+    # datasets = build_datasets(data_cfg, dict(transform=transform))
+    sampler = build_sampler(sampler_cfg, dict(dataset=datasets))
     # print(len(sampler))
-    dataloader = build_dataloader(nr.train['data']['train']['dataloader'], dict(dataset=datasets, sampler=sampler))
+    dataloader = build_dataloader(loader_cfg, dict(dataset=datasets, sampler=sampler))
+
+    count = 0
     for img in dataloader:
-        print('yes')
+        count += 1
+        print('yes %s %s' % (count, len(dataloader)))
 
 
 if __name__ == '__main__':

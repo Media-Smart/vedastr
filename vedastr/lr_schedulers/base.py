@@ -107,3 +107,4 @@ class _Iter_LRScheduler(object):
     def step(self):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr
+
