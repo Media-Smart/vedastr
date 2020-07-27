@@ -32,6 +32,8 @@ class TrainRunner(DeployRunner):
             'max_epochs and max_iterations are mutual exclusion'
         if not self.max_iterations:
             self.max_iterations = len(self.train_dataloader) * self.max_epochs
+        if not self.max_epochs:
+            self.max_epochs = self.max_iterations // len(self.train_dataloader)
         self.log_interval = train_cfg.get('log_interval', 10)
         self.trainval_ratio = train_cfg.get('trainval_ratio', -1)
         self.snapshot_interval = train_cfg.get('snapshot_interval', -1)
@@ -55,7 +57,11 @@ class TrainRunner(DeployRunner):
         return build_criterion(cfg)
 
     def _build_lr_scheduler(self, cfg):
-        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer, niter_per_epoch=len(self.train_dataloader)))
+
+        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer,
+                                            niter_per_epoch=len(self.train_dataloader),
+                                            max_epochs=self.max_epochs,
+                                            ))
 
     def _validate_epoch(self):
         self.logger.info('Iteration %d, Start validating' % self.iter)
