@@ -36,12 +36,12 @@ class AttnConverter(BaseConverter):
         return batch_text_input, torch.IntTensor(length), batch_text_target
 
     def test_encode(self, text):
-        if isinstance(text, list):
+        if isinstance(text, (list, tuple)):
             num = len(text)
         elif isinstance(text, int):
             num = text
         else:
-            raise TypeError(f'Type of text should in (list, int) but got {type(text)}')
+            raise TypeError(f'Type of text should in (list, tuple, int) but got {type(text)}')
         batch_text = torch.LongTensor(num, 1).fill_(self.ignore_id)
         length = [1 for i in range(num)]
 

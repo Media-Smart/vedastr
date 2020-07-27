@@ -138,7 +138,7 @@ class TrainRunner(DeployRunner):
     def __call__(self):
         self.metric.reset()
         self.logger.info('Start train...')
-        iter_based = self.lr_scheduler.iter_based
+        iter_based = self.lr_scheduler._iter_based
         while True:
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)
