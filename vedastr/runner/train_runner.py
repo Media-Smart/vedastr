@@ -55,7 +55,7 @@ class TrainRunner(DeployRunner):
         return build_criterion(cfg)
 
     def _build_lr_scheduler(self, cfg):
-        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer))
+        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer, niter_per_epoch=len(self.train_dataloader)))
 
     def _validate_epoch(self):
         self.logger.info('Iteration %d, Start validating' % self.iter)
