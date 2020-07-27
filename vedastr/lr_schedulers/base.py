@@ -56,7 +56,8 @@ class _Iter_LRScheduler(object):
         self.optimizer.step = with_counter(self.optimizer.step)
         self.optimizer._step_count = 0
         self._step_count = 0
-        self.step(last_iter)
+        self.iter_nums(last_iter)
+        self.step()
 
     def state_dict(self):
         """Returns the state of the scheduler as a :class:`dict`.
@@ -78,7 +79,7 @@ class _Iter_LRScheduler(object):
     def get_lr(self):
         raise NotImplementedError
 
-    def iter_(self, iter_=None):
+    def iter_nums(self, iter_=None):
         # Raise a warning if old pattern is detected
         # https://github.com/pytorch/pytorch/issues/20124
         if self._step_count == 1:

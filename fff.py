@@ -46,8 +46,8 @@ def main():
     converter = build_converter(rs.common['converter'])
     input_args = [torch.Tensor(1, 1, 32, 100).cuda(), torch.Tensor(1, ).cuda()]
     model(input_args)
-    print('done')
 
+    print('done')
 
 if __name__ == '__main__':
     main()

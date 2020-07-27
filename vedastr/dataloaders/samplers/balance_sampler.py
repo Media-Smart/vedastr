@@ -1,3 +1,4 @@
+import copy
 import random
 from torch.utils.data import Sampler
 
@@ -66,7 +67,7 @@ class BalanceSampler(Sampler):
         indices_ = self._generate_indices_()
         total_nums = len(self) // self.batch_size
         sizes = [int(self.batch_size * br) for br in self.batch_ratio]
-        final_index = [total_nums * size - 1 for size in sizes]
+        final_index = [total_nums * size for size in sizes]
         indices = []
         for idx2 in range(total_nums):
             for idx3, size in enumerate(sizes):
@@ -79,10 +80,15 @@ class BalanceSampler(Sampler):
         max_len = max([len(index) for index in indices])
         result_indices = []
         for idx, index in enumerate(indices):
-            need_num = max_len - len(index)
-            total_nums = need_num // len(index)
-            mod_nums = need_num // len(index)
-            index += index * max(0, total_nums - 1)
+            current_len = len(index)
+            need_num = max_len - current_len
+            total_nums = need_num // current_len
+            mod_nums = need_num % current_len
+            for _ in range(total_nums):
+                new_index = copy.copy(index)
+                if self.shuffle:
+                    random.shuffle(new_index)
+                index += new_index
             index += random.sample(index, mod_nums)
             result_indices.append(index)
         self._num_samples = max_len * len(indices)
