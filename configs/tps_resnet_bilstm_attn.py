@@ -15,7 +15,7 @@ batch_max_length = 25
 F = 20
 hidden_dim = 256
 norm_cfg = dict(type='BN')
-num_class = len(train_character) + 1
+num_class = len(train_character) + 2
 num_steps = batch_max_length + 1
 
 # 1. deploy
