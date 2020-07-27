@@ -11,14 +11,14 @@ class BaseConverter(object):
         for i, char in enumerate(self.character):
             self.dict[char] = i
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def train_encode(self, *args, **kwargs):
         '''encode text in train phase'''
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def test_encode(self, *args, **kwargs):
         '''encode text in test phase'''
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def decode(self, *args, **kwargs):
         '''decode label to text in train and test phase'''

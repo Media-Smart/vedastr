@@ -66,7 +66,8 @@ class LmdbDataset(BaseDataset):
                 try:
                     img, label = self.transforms(img, label)
                 except:
-                    return self.__getitem__(index + 1)
+                    return self.__getitem__(random.choice(range(len(self))))
+
             if not self.unknown:
                 out_of_char = f'[^{self.character}]'
                 label = re.sub(out_of_char, '', label)

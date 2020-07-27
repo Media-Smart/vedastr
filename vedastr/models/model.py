@@ -14,10 +14,12 @@ class GModel(nn.Module):
         self.head = build_head(head)
         self.need_text = need_text
 
-    def forward(self, img, text=None):
-        x = self.body(img)
+    def forward(self, inputs):
+        if not isinstance(inputs, (tuple, list)):
+            inputs = [inputs]
+        x = self.body(inputs[0])
         if self.need_text:
-            out = self.head(x, text)
+            out = self.head(x, inputs[1])
         else:
             out = self.head(x)
 

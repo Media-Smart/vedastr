@@ -1,18 +1,15 @@
 import os
 import sys
 import argparse
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
-from vedastr.runner import TestRunner
+from vedastr.runner import TrainRunner
 from vedastr.utils import Config
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Train a classification model')
+    parser = argparse.ArgumentParser(description='Train a classification model')
     parser.add_argument('config', type=str, help='config file path')
-    parser.add_argument('checkpoint', type=str, help='checkpoint file path')
     args = parser.parse_args()
 
     return args
@@ -31,15 +28,15 @@ def main():
     workdir = os.path.join(root_workdir, fname)
     os.makedirs(workdir, exist_ok=True)
 
-    test_cfg = cfg['test']
+    train_cfg = cfg['train']
     deploy_cfg = cfg['deploy']
     common_cfg = cfg['common']
     common_cfg['workdir'] = workdir
 
-    runner = TestRunner(test_cfg, deploy_cfg, common_cfg)
-    runner.load_checkpoint(args.checkpoint)
+    runner = TrainRunner(train_cfg, deploy_cfg, common_cfg)
     runner()
 
 
 if __name__ == '__main__':
     main()
+

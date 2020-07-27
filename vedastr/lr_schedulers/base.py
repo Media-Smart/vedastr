@@ -1,16 +1,15 @@
-from functools import wraps
 import warnings
 import weakref
+from functools import wraps
+
+import numpy as np
 from torch.optim import Optimizer
 
 
 class _Iter_LRScheduler(object):
-    """
-    """
 
-    _iter_based = True
-
-    def __init__(self, optimizer, niter_per_epoch, last_iter=-1):
+    def __init__(self, optimizer, niter_per_epoch, last_iter=-1, iter_based=True):
+        self._iter_based = iter_based
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(
                 type(optimizer).__name__))
@@ -59,7 +58,8 @@ class _Iter_LRScheduler(object):
         self.optimizer.step = with_counter(self.optimizer.step)
         self.optimizer._step_count = 0
         self._step_count = 0
-        self.step(last_iter)
+        self.iter_nums(last_iter)
+        self.step()
 
     def state_dict(self):
         """Returns the state of the scheduler as a :class:`dict`.
@@ -81,7 +81,7 @@ class _Iter_LRScheduler(object):
     def get_lr(self):
         raise NotImplementedError
 
-    def step(self, iter_=None):
+    def iter_nums(self, iter_=None):
         # Raise a warning if old pattern is detected
         # https://github.com/pytorch/pytorch/issues/20124
         if self._step_count == 1:
@@ -104,6 +104,8 @@ class _Iter_LRScheduler(object):
         if iter_ is None:
             iter_ = self.last_iter + 1
         self.last_iter = iter_
-        self.last_epoch = int(iter_ / self.niter_per_epoch)
+        self.last_epoch = np.ceil(iter_ / self.niter_per_epoch)
+
+    def step(self):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr

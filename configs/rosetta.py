@@ -12,16 +12,13 @@ test_character = 'abcdefghijklmnopqrstuvwxyz0123456789'
 batch_size = 192
 batch_max_length = 25
 
-F = 20
-hidden_dim = 256
 norm_cfg = dict(type='BN')
-num_class = len(train_character) + 2
-num_steps = batch_max_length + 1
+num_class = len(train_character) + 1
 
 # 1. deploy
 
 deploy = dict(
-    gpu_id='3',
+    gpu_id='2',
     transform=[
         dict(type='Sensitive', sensitive=train_sensitive),
         dict(type='ColorToGray'),
@@ -31,52 +28,13 @@ deploy = dict(
     ],
     model=dict(
         type='GModel',
-        need_text=True,
+        need_text=False,
         body=dict(
             type='GBody',
             pipelines=[
                 dict(
-                    type='RectificatorComponent',
-                    from_layer='input',
-                    to_layer='rect',
-                    arch=dict(
-                        type='TPS_STN',
-                        F=F,
-                        input_size=size,
-                        output_size=size,
-                        stn=dict(
-                            feature_extractor=dict(
-                                encoder=dict(
-                                    backbone=dict(
-                                        type='GVGG',
-                                        layers=[
-                                            ('conv', dict(type='ConvModule', in_channels=1, out_channels=64,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=64, out_channels=128,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=128, out_channels=256,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=256, out_channels=512,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                        ],
-                                    ),
-                                ),
-                                collect=dict(type='CollectBlock', from_layer='c3')
-                            ),
-                            pool=dict(type='AdaptiveAvgPool2d', output_size=1),
-                            head=[
-                                dict(type='FCModule', in_channels=512, out_channels=256),
-                                dict(type='FCModule', in_channels=256, out_channels=F * 2, activation=None)
-                            ],
-                        ),
-                    ),
-                ),
-                dict(
                     type='FeatureExtractorComponent',
-                    from_layer='rect',
+                    from_layer='input',
                     to_layer='cnn_feat',
                     arch=dict(
                         encoder=dict(
@@ -110,68 +68,16 @@ deploy = dict(
                         collect=dict(type='CollectBlock', from_layer='c4'),
                     ),
                 ),
-                dict(
-                    type='SequenceEncoderComponent',
-                    from_layer='cnn_feat',
-                    to_layer='rnn_feat',
-                    arch=dict(
-                        type='RNN',
-                        input_pool=dict(type='AdaptiveAvgPool2d', output_size=(1, None)),
-                        layers=[
-                            ('rnn',
-                             dict(type='LSTM', input_size=512, hidden_size=256, bidirectional=True, batch_first=True)),
-                            ('fc', dict(type='Linear', in_features=512, out_features=256)),
-                            ('rnn',
-                             dict(type='LSTM', input_size=256, hidden_size=256, bidirectional=True, batch_first=True)),
-                            ('fc', dict(type='Linear', in_features=512, out_features=256)),
-                        ],
-                    ),
-                ),
             ],
         ),
         head=dict(
-            type='AttHead',
+            type='CTCHead',
+            from_layer='cnn_feat',
             num_class=num_class,
-            num_steps=num_steps,
-            cell=dict(
-                type='LSTMCell',
-                input_size=256 + num_class,
-                hidden_size=256,
-            ),
-            input_attention_block=dict(
-                type='CellAttentionBlock',
-                feat=dict(
-                    from_layer='rnn_feat',
-                    type='ConvModule',
-                    in_channels=256,
-                    out_channels=256,
-                    kernel_size=1,
-                    bias=False,
-                    activation=None,
-                ),
-                hidden=dict(
-                    type='ConvModule',
-                    in_channels=256,
-                    out_channels=256,
-                    kernel_size=1,
-                    activation=None,
-                ),
-                fusion_method='add',
-                post=dict(
-                    type='ConvModule',
-                    in_channels=256,
-                    out_channels=1,
-                    kernel_size=1,
-                    bias=False,
-                    activation='tanh',
-                    order=('act', 'conv', 'norm'),
-                ),
-                post_activation='softmax',
-            ),
-            generator=dict(
-                type='Linear',
-                in_features=256,
-                out_features=num_class,
+            in_channels=512,
+            pool=dict(
+                type='AdaptiveAvgPool2d',
+                output_size=(1, None),
             ),
         ),
     ),
@@ -191,7 +97,7 @@ common = dict(
     cudnn_deterministic=False,
     cudnn_benchmark=True,
     converter=dict(
-        type='AttnConverter',
+        type='CTCConverter',
         character=train_character,
         batch_max_length=batch_max_length,
     ),
@@ -215,7 +121,7 @@ data_root = './data/data_lmdb_release/'
 train_root = data_root + 'training/'
 ## MJ dataset
 train_root_mj = train_root + 'MJ/'
-mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
+mj_folder_names = ['MJ_test', 'MJ_valid', 'MJ_train']
 ## ST dataset
 train_root_st = train_root + 'ST/'
 
@@ -225,10 +131,7 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset',
-                      root=valid_root,
-                      **test_dataset_params)
-                 ]
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 # test dataset
 test_root = data_root + 'evaluation/'
@@ -299,8 +202,8 @@ train = dict(
                         datasets=train_dataset_st,
                     )
                 ],
-                batch_ratio=[0.5, 0.5],
-                **train_dataset_params,
+            batch_ratio=[0.5, 0.5],
+            **train_dataset_params,
             ),
             transform=train_transforms,
         ),
@@ -316,8 +219,9 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='CrossEntropyLoss', ignore_index=0),
+    criterion=dict(type='CTCLoss'),
     lr_scheduler=dict(type='StepLR',
+                      iter_based=True,
                       milestones=milestones,
                       ),
     max_iterations=max_iterations,

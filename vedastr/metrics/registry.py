@@ -1,3 +1,3 @@
 from vedastr.utils import Registry
 
-DATASETS = Registry('datasets')
+METRICS = Registry('metrics')
