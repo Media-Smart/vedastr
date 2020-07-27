@@ -88,7 +88,7 @@ class Common(object):
     def _build_dataloader(self, cfg):
         transform = build_transform(cfg['transform'])
         dataset = build_datasets(cfg['dataset'], dict(transform=transform))
-        sampler = build_sampler(cfg['sampler']) if cfg.get('sampler', False) else None
+        sampler = build_sampler(cfg['sampler'], dict(dataset=dataset)) if cfg.get('sampler', False) else None
         dataloader = build_dataloader(cfg['dataloader'], dict(dataset=dataset, sampler=sampler))
 
         return dataloader

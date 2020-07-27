@@ -128,7 +128,7 @@ class TrainRunner(DeployRunner):
         while True:
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)
-                self.lr_scheduler.iter_()  # update steps
+                self.lr_scheduler.iter_nums()  # update steps
                 if iter_based:
                     self.lr_scheduler.step()
                 if self.trainval_ratio > 0 \
