@@ -119,3 +119,7 @@ workdir/
 
 # Pytorch
 *.pth
+
+# local file
+fff.py
+loader.py

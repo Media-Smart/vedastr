@@ -2,7 +2,6 @@ import os.path as osp
 from collections import OrderedDict
 
 import torch
-import numpy as np
 
 from .deploy_runner import DeployRunner
 from ..criteria import build_criterion
@@ -212,6 +211,7 @@ class TrainRunner(DeployRunner):
             self.lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
         if resume_meta and 'meta' in checkpoint:
             self.logger.info('Resume meta data')
-            self.best = checkpoint['meta']['best']
-            self.iter = checkpoint['meta']['iter']
-            self.epoch = checkpoint['meta']['iter']
+            meta = checkpoint['meta']
+            self.best = meta.get('best', -1)
+            self.iter = meta.get('iter', 0)
+            self.epoch = meta.get('epoch', 0)

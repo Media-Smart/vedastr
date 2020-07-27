@@ -1,6 +1,8 @@
-from functools import wraps
 import warnings
 import weakref
+from functools import wraps
+
+import numpy as np
 from torch.optim import Optimizer
 
 
@@ -102,9 +104,8 @@ class _Iter_LRScheduler(object):
         if iter_ is None:
             iter_ = self.last_iter + 1
         self.last_iter = iter_
-        self.last_epoch = int(iter_ / self.niter_per_epoch)
+        self.last_epoch = np.ceil(iter_ / self.niter_per_epoch)
 
     def step(self):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr
-

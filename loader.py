@@ -7,7 +7,7 @@ from vedastr.datasets import build_datasets
 from vedastr.transforms import build_transform
 from vedastr.lr_schedulers import build_lr_scheduler
 from vedastr.optimizers import build_optimizer
-import configs.new_rosetta as nr
+import configs.rosetta as nr
 
 
 class Dataset1:

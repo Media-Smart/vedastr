@@ -18,7 +18,7 @@ num_class = len(train_character) + 1
 # 1. deploy
 
 deploy = dict(
-    gpu_id='3',
+    gpu_id='2',
     transform=[
         dict(type='Sensitive', sensitive=train_sensitive),
         dict(type='ColorToGray'),
@@ -115,7 +115,7 @@ test_dataset_params = dict(
     data_filter_off=data_filter_off,
     character=test_character,
 )
-data_root = '../../../dataset/str/data/data_lmdb_release/'
+data_root = './data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'
@@ -131,10 +131,7 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset',
-                      root=valid_root,
-                      **test_dataset_params)
-                 ]
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 # test dataset
 test_root = data_root + 'evaluation/'
@@ -148,12 +145,15 @@ test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
 test = dict(
     data=dict(
         dataloader=dict(
-            type='TestDataloader',
+            type='DataLoader',
             batch_size=batch_size,
             num_workers=4,
             shuffle=False,
         ),
-        dataset=test_dataset,
+        dataset=dict(
+            type='ConcatDatasets',
+            datasets=test_dataset,
+        ),
         transform=deploy['transform'],
     ),
     postprocess_cfg=dict(
@@ -172,7 +172,6 @@ train_transforms = [
     dict(type='Normalize', mean=mean, std=std),
 ]
 
-niter_per_epoch = int(55000 * 256 / batch_size)
 max_iterations = 300000
 milestones = [150000, 250000]
 
@@ -181,30 +180,36 @@ train = dict(
     data=dict(
         train=dict(
             dataloader=dict(
-                type='BatchBalanceDataloader',
+                type='DataLoader',
                 batch_size=batch_size,
-                each_batch_ratio=[0.5, 0.5],
-                each_usage=[1.0, 1.0],
-                shuffle=True,
                 num_workers=4,
             ),
-            dataset=[
-                dict(
-                    type='ConcatDatasets',
-                    datasets=train_dataset_mj,
-                    **train_dataset_params,
-                ),
-                dict(
-                    type='ConcatDatasets',
-                    datasets=train_dataset_st,
-                    **train_dataset_params,
-                ),
-            ],
+            sampler=dict(
+                type='BalanceSampler',
+                batch_size=batch_size,
+                shuffle=True,
+                oversample=True,
+            ),
+            dataset=dict(
+                type='ConcatDatasets',
+                datasets=[
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_mj,
+                    ),
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_st,
+                    )
+                ],
+            batch_ratio=[0.5, 0.5],
+            **train_dataset_params,
+            ),
             transform=train_transforms,
         ),
         val=dict(
             dataloader=dict(
-                type='TestDataloader',
+                type='DataLoader',
                 batch_size=batch_size,
                 num_workers=4,
                 shuffle=False,
@@ -216,8 +221,7 @@ train = dict(
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
     criterion=dict(type='CTCLoss'),
     lr_scheduler=dict(type='StepLR',
-                      niter_per_epoch=100000,
-                      max_epochs=3,
+                      iter_based=True,
                       milestones=milestones,
                       ),
     max_iterations=max_iterations,

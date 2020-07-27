@@ -54,5 +54,5 @@ train = dict(
     trainval_ratio=int,
     snapshot_interval=int,
     save_best=bool,
-    resume=(str, None),
+    resume=dict(),
 )

@@ -1,8 +1,6 @@
 import logging
-import pdb
 
 from vedastr.utils import build_from_cfg
-
 from .registry import DATASETS
 
 logger = logging.getLogger()
@@ -10,7 +8,6 @@ logger = logging.getLogger()
 
 def build_datasets(cfg, default_args=None):
     if isinstance(cfg, list):
-        pdb.set_trace()
         datasets = []
         for icfg in cfg:
             ds = build_from_cfg(icfg, DATASETS, default_args)
