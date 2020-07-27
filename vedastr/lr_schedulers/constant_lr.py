@@ -8,7 +8,7 @@ class ConstantLR(_Iter_LRScheduler):
     """
 
     def __init__(self, optimizer, niter_per_epoch, last_iter=-1, warmup_epochs=0,
-                 iter_based=True):
+                 iter_based=True, **kwargs):
         self.warmup_iters = niter_per_epoch * warmup_epochs
         super().__init__(optimizer, niter_per_epoch, last_iter, iter_based)
 
