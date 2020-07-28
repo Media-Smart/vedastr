@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 
 from .base import Common
+from ..converter import build_converter
 from ..models import build_model
 from ..utils import load_checkpoint
 
@@ -18,6 +19,8 @@ class DeployRunner(Common):
 
         # build test transform
         self.transform = self._build_transform(deploy_cfg['transform'])
+        # build converter
+        self.converter = self._build_converter(deploy_cfg['converter'])
         # build model
         self.model = self._build_model(deploy_cfg['model'])
         self.postprocess_cfg = deploy_cfg.get('postprocess_cfg', None)
@@ -34,6 +37,9 @@ class DeployRunner(Common):
             model.cuda()
 
         return model
+
+    def _build_converter(self, cfg):
+        return build_converter(cfg)
 
     def load_checkpoint(self, filename, map_location='default', strict=True):
         self.logger.info('Load checkpoint from {}'.format(filename))

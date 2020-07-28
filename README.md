@@ -32,7 +32,7 @@ Note:
  [SVT](http://vision.ucsd.edu/~kai/svt/),
   [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php?title=ICDAR_2003_Robust_Reading_Competitions), 
   [IC13_1015](http://dagdata.cvc.uab.es/icdar2013competition/?ch=2&com=downloads),
-[IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads),SVTP,
+[IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads), SVTP,
 [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html).  The training data we used is [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
  [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). You can find the 
  datasets below.
@@ -131,11 +131,11 @@ data
 
 ## Train
 
-a. Config
+1.Config
 
 Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py`
 
-b. Run
+2.Run
 
 ```shell
 python tools/train.py configs/tps_resnet_bilstm_attn.py 
@@ -145,44 +145,48 @@ Snapshots and logs will be generated at `vedastr/workdir` by default.
 
 ## Test
 
-a. Config
+1.Config
 
 Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py `
 
-b. Run
+2.Run
 
 ```shell
 python tools/test.py configs/tps_resnet_bilstm_attn.py path_to_tps_resnet_bilstm_attn_weights
 ```
 
 ## Inference
-a. Run
+1.Run
 
 ```shell
-python tools/demo.py config-path weight-path img-path
+python tools/inference.py config-path weight-path img-path
 ```
 
 ## Deploy
-a. Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
+1.Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
 [official instructions](https://github.com/Media-Smart/volksdep#installation)
 
-b. Benchmark (optional)
+2.Benchmark (optional)
 ```python
-python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_path
+python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_path
+
 ```
 More available arguments are detailed in [tools/deploy/benchmark.py]().
 
-The result of rosetta is as follows:
+The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVTP）:
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |       accuracy       |
 |   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |        :---:         |
-|  pytorch   |   1.5.1    | ((1, 1, 32, 100), (1, 25)) |           fp32            |         158          |       8.3       | acc: 0.8040, edit_distance: 0.9247 |
-|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |           fp32            |         432          |      2.56       | acc: 0.8040, edit_distance: 0.9247 |
-|  pytorch   |   1.5.1    | ((1, 1, 32, 100), (1, 25)) |           fp16            |         172          |      5.56       | acc: 0.8034, edit_distance: 0.9245 |
-|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |           fp16            |         419          |      2.66       | acc: 0.8041, edit_distance: 0.9247 |
-|  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |      int8(entropy_2)      |         401          |      4.25       | acc: 0.5070, edit_distance: 0.7442 |
+|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp32            |         160          |      6.16       | acc: 0.7194, edit_distance: 0.8936 |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp32            |         390          |      2.57       | acc: 0.7194, edit_distance: 0.8936 |
+|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp16            |         144          |      6.48       | acc: 0.7178, edit_distance: 0.8934 |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp16            |         377          |       2.6       | acc: 0.7194, edit_distance: 0.8936 |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(entropy)       |         640          |      1.65       | acc: 0.7178, edit_distance: 0.8944 |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |      int8(entropy_2)      |         607          |      1.75       | acc: 0.7194, edit_distance: 0.8943 |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(minmax)        |         606          |      1.72       | acc: 0.7209, edit_distance: 0.8948 |
 
-c. Export model
+
+3.Export model
 
 ```python
 python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path

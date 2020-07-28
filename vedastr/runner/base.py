@@ -5,7 +5,6 @@ import numpy as np
 import torch
 from torch.backends import cudnn
 
-from ..converter import build_converter
 from ..dataloaders import build_dataloader
 from ..dataloaders.samplers import build_sampler
 from ..datasets import build_datasets
@@ -41,17 +40,11 @@ class Common(object):
         if 'metric' in cfg:
             self.metric = self._build_metric(cfg['metric'])
 
-        # build converter
-        self.converter = self._build_converter(cfg['converter'])
-
         # set need_text
         self.need_text = False
 
     def _build_logger(self, cfg):
         return build_logger(cfg, dict(workdir=self.workdir))
-
-    def _build_converter(self, cfg):
-        return build_converter(cfg)
 
     def _set_device(self, gpu_id):
         os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
