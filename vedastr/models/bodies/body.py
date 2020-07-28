@@ -1,8 +1,8 @@
 import torch.nn as nn
 
-from .registry import BODIES
 from .builder import build_component
 from .feature_extractors import build_brick
+from .registry import BODIES
 
 
 @BODIES.register_module

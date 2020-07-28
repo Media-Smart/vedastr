@@ -2,8 +2,8 @@ import torch.nn as nn
 
 from .feature_extractors import build_feature_extractor, build_brick
 from .rectificators import build_rectificator
-from .sequences import build_sequence_encoder
 from .registry import COMPONENT
+from .sequences import build_sequence_encoder
 
 
 class BaseComponent(nn.Module):

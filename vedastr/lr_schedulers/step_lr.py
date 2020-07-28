@@ -1,5 +1,3 @@
-from collections import Counter
-import numpy as np
 from .base import _Iter_LRScheduler
 from .registry import LR_SCHEDULERS
 

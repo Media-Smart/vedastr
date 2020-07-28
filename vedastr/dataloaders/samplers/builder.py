@@ -1,5 +1,5 @@
-from .registry import SAMPLER
 from vedastr.utils import build_from_cfg
+from .registry import SAMPLER
 
 
 def build_sampler(cfg, default_args=None):

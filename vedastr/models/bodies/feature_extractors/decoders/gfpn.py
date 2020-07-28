@@ -1,5 +1,6 @@
-import torch.nn as nn
 import logging
+
+import torch.nn as nn
 
 from vedastr.models.weight_init import init_weights
 from .bricks import build_brick, build_bricks
@@ -14,6 +15,7 @@ class GFPN(nn.Module):
 
     Args:
     """
+
     def __init__(self, neck, fusion=None):
         super().__init__()
         self.neck = build_bricks(neck)

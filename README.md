@@ -39,31 +39,37 @@ Note:
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1b5ykMGwLFyt-tpoWBMyhgjABaqxKBxRU)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
+|[Rosetta](https://drive.google.com/file/d/1_CJ0C3dqi1X1xE4vzs6_2Wr-4yIbauZ-/view?usp=sharing)| False|84.30 | 82.84 | 93.31 | 89.16|67.64|71.94|68.64|80.40|
 |[ResNet-FC](https://drive.google.com/open?id=105kvjvSAwyxv_6VsCI0kWEmKkqQX8jul)| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1b5ykMGwLFyt-tpoWBMyhgjABaqxKBxRU)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
 |[Small-SATRN](https://drive.google.com/file/d/12VNCjqF0YDK5sD3YHuxvvt_7DYRlemzL/view?usp=sharing)| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
 
-AVERAGE : Average accuracy over all test datasets\
-TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)\
+TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
+
 Small-SATRN: [On Recognizing Texts of Arbitrary Shapes with 2D Self-Attention](https://arxiv.org/abs/1910.04396), 
-training phase is case sensitive while testing phase is case insensitive. \
+training phase is case sensitive while testing phase is case insensitive.
+
+Rosetta: [Rosetta: Large scale system for text detection and recognition in images](https://arxiv.org/abs/1910.05085).
+
+AVERAGE : Average accuracy over all test datasets
+
 CASE SENSITIVE : If true, the output is case sensitive and contain common characters.
 If false, the output is not case sentive and contains only numbers and letters. 
-
 
 ## Installation
 ### Requirements
 
 - Linux
 - Python 3.6+
-- PyTorch 1.2.0 or higher
+- PyTorch 1.4.0 or higher
 - CUDA 9.0 or higher
 
 We have tested the following versions of OS and softwares:
 
 - OS: Ubuntu 16.04.6 LTS
-- CUDA: 9.0
+- CUDA: 10.2
 - Python 3.6.9
+- Pytorch: 1.5.1
 
 ### Install vedastr
 
@@ -132,10 +138,10 @@ Modify some configuration accordingly in the config file like `configs/tps_resne
 b. Run
 
 ```shell
-python tools/trainval.py configs/tps_resnet_bilstm_attn.py 
+python tools/train.py configs/tps_resnet_bilstm_attn.py 
 ```
 
-Snapshots and logs will be generated at `vedastr/workdir`.
+Snapshots and logs will be generated at `vedastr/workdir` by default.
 
 ## Test
 
@@ -157,6 +163,17 @@ python tools/demo.py config-path weight-path img-path
 ```
 
 ## Deploy
+a. Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
+[official instructions](https://github.com/Media-Smart/volksdep#installation)
+
+b. Benchmark (optional)
+```python
+python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_path
+```
+More available arguments are detailed in [tools/deploy/benchmark.py]().
+
+The result of rosetta is as follows:
+
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |       accuracy       |
 |   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |        :---:         |
 |  pytorch   |   1.5.1    | ((1, 1, 32, 100), (1, 25)) |           fp32            |         158          |       8.3       | acc: 0.8040, edit_distance: 0.9247 |
@@ -165,6 +182,13 @@ python tools/demo.py config-path weight-path img-path
 |  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |           fp16            |         419          |      2.66       | acc: 0.8041, edit_distance: 0.9247 |
 |  tensorrt  |  7.1.3.4   | ((1, 1, 32, 100), (1, 25)) |      int8(entropy_2)      |         401          |      4.25       | acc: 0.5070, edit_distance: 0.7442 |
 
+c. Export model
+
+```python
+python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path
+```
+
+More available arguments are detailed in [tools/deploy/export.py]().
 ## Contact
 
 This repository is currently maintained by  Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).

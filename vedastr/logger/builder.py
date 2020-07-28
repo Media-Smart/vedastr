@@ -1,7 +1,7 @@
 import logging
-import time
-import sys
 import os
+import sys
+import time
 
 
 def build_logger(cfg, default_args):

@@ -2,8 +2,8 @@
 
 import torch
 
-from .registry import CONVERTERS
 from .base_convert import BaseConverter
+from .registry import CONVERTERS
 
 
 @CONVERTERS.register_module

@@ -193,6 +193,7 @@ common = dict(
     ),
     metric=dict(type='Accuracy'),
 )
+
 ###############################################################################
 data_filter_off = False
 train_dataset_params = dict(
@@ -221,10 +222,7 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset',
-                      root=valid_root,
-                      **test_dataset_params)
-                 ]
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 # test
 test_root = data_root + 'evaluation/'
@@ -265,7 +263,6 @@ train_transforms = [
     dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
 ]
-
 
 max_epochs = 6
 milestones = [2, 4]

@@ -1,7 +1,7 @@
+from math import cos, pi
+
 from .base import _Iter_LRScheduler
 from .registry import LR_SCHEDULERS
-
-from math import cos, pi
 
 
 @LR_SCHEDULERS.register_module

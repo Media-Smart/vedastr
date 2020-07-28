@@ -1,5 +1,5 @@
-import random
 import numbers
+import random
 
 import numpy as np
 import torch
@@ -110,7 +110,7 @@ class PadIfNeeded(object):
         nh, nw = self.size
         assert h <= nh and w <= nw
 
-        image = ImageOps.expand(image, (0, 0, nw-w, nh-h), self.fill)
+        image = ImageOps.expand(image, (0, 0, nw - w, nh - h), self.fill)
 
         return image, label
 
@@ -141,7 +141,7 @@ class RandomVerticalFlip(object):
 
 @TRANSFORMS.register_module
 class RandomRotate90(object):
-    def __init__(self, degrees=(90,180,270), p=0.5):
+    def __init__(self, degrees=(90, 180, 270), p=0.5):
         self.degrees = degrees
         self.p = p
 
@@ -164,7 +164,8 @@ class RandomRotate90(object):
 @TRANSFORMS.register_module
 class RandomPerspective(object):
     def __init__(self, distortion_scale=0.5, p=0.5, mode='cubic'):
-        self.transform = torchvision.transforms.RandomPerspective(distortion_scale=distortion_scale, p=p, interpolation=PIL_MODE[mode])
+        self.transform = torchvision.transforms.RandomPerspective(distortion_scale=distortion_scale, p=p,
+                                                                  interpolation=PIL_MODE[mode])
 
     def __call__(self, image, label):
         image = self.transform(image)
@@ -221,14 +222,14 @@ class MotionBlur(object):
 
     def __call__(self, image, label):
         if random.random() < self.p:
-            ksize = int(random.choice(np.arange(3, self.blur_limit+1, 2)))
+            ksize = int(random.choice(np.arange(3, self.blur_limit + 1, 2)))
             kernel = Image.new('L', (ksize, ksize), 0)
             draw_kernel = ImageDraw.Draw(kernel)
-            xs, xe = random.randint(0, ksize-1), random.randint(0, ksize-1)
+            xs, xe = random.randint(0, ksize - 1), random.randint(0, ksize - 1)
             if xs == xe:
                 ys, ye = random.sample(range(ksize), 2)
             else:
-                ys, ye = random.randint(0, ksize-1), random.randint(0, ksize-1)
+                ys, ye = random.randint(0, ksize - 1), random.randint(0, ksize - 1)
             draw_kernel.line((xs, ys, xe, ye), 1)
             kernel = np.asarray(kernel).flatten().tolist()
             kernel = ImageFilter.Kernel((ksize, ksize), kernel)
@@ -248,7 +249,7 @@ class GaussianNoise(object):
         if random.random() < self.p:
             var = random.uniform(self.var_limit[0], self.var_limit[1])
             sigma = var ** 0.5
-            random_state = np.random.RandomState(random.randint(0, 2**32 - 1))
+            random_state = np.random.RandomState(random.randint(0, 2 ** 32 - 1))
 
             image = np.asarray(image, dtype=np.float)
             gauss_image = random_state.normal(self.mean, sigma, image.shape)

@@ -14,7 +14,6 @@ from .registry import BACKBONES
 
 logger = logging.getLogger()
 
-
 BLOCKS = {
     'BasicBlock': BasicBlock,
     'Bottleneck': Bottleneck,
@@ -74,7 +73,8 @@ class ResNetCls(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2], multi_grid=multi_grid)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2],
+                                       multi_grid=multi_grid)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -116,11 +116,11 @@ class ResNetCls(nn.Module):
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation*multi_grid[0]))
+                            self.base_width, previous_dilation * multi_grid[0]))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, groups=self.groups,
-                                base_width=self.base_width, dilation=self.dilation*multi_grid[i],
+                                base_width=self.base_width, dilation=self.dilation * multi_grid[i],
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
@@ -150,6 +150,7 @@ class ResNet(ResNetCls):
     Args:
         pretrain(bool)
     """
+
     def __init__(self, arch, replace_stride_with_dilation=None, multi_grid=None, pretrain=True):
         cfg = MODEL_CFGS[arch]
         super().__init__(

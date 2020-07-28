@@ -1,5 +1,6 @@
-from .registry import CONVERTERS
 import abc
+
+from .registry import CONVERTERS
 
 
 @CONVERTERS.register_module

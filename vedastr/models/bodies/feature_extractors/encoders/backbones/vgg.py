@@ -2,10 +2,9 @@ import logging
 
 import torch.nn as nn
 
-from vedastr.models.weight_init import init_weights
 from vedastr.models.utils import build_torch_nn, build_module
+from vedastr.models.weight_init import init_weights
 from .registry import BACKBONES
-
 
 logger = logging.getLogger()
 

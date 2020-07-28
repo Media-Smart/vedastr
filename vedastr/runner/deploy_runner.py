@@ -20,8 +20,7 @@ class DeployRunner(Common):
         self.transform = self._build_transform(deploy_cfg['transform'])
         # build model
         self.model = self._build_model(deploy_cfg['model'])
-        if 'postprocess_cfg' in deploy_cfg:
-            self.postprocess_cfg = deploy_cfg['postprocess_cfg']
+        self.postprocess_cfg = deploy_cfg.get('postprocess_cfg', None)
         self.need_text = self.model.need_text
         self.model.eval()
 

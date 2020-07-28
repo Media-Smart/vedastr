@@ -1,9 +1,7 @@
 import os
-import pdb
 
-import torch.nn.functional as F
-from PIL import Image
 import numpy as np
+from PIL import Image
 from volksdep.calibrators import EntropyCalibrator, EntropyCalibrator2, \
     MinMaxCalibrator
 from volksdep.datasets import Dataset
@@ -17,13 +15,14 @@ CALIBRATORS = {
 
 
 class CalibDataset(Dataset):
-    def __init__(self, images_dir, converter, transform=None):
+    def __init__(self, images_dir, converter, transform=None, need_text=False):
         super(CalibDataset, self).__init__()
 
         self.root = images_dir
         self.samples = os.listdir(images_dir)
         self.converter = converter
         self.transform = transform
+        self.need_text = need_text
 
     def __getitem__(self, idx):
         image_file = os.path.join(self.root, self.samples[idx])
@@ -31,26 +30,31 @@ class CalibDataset(Dataset):
         if self.transform:
             image, _ = self.transform(image=image, label='')
         label = self.converter.test_encode(1)
-
-        return image, label
+        if self.need_text:
+            return image, label
+        else:
+            return image
 
     def __len__(self):
         return len(self.samples)
 
 
 class MetricDataset(Dataset):
-    def __init__(self, dataset, converter):
+    def __init__(self, dataset, converter, need_text):
         super(MetricDataset, self).__init__()
         self.dataset = dataset
         self.converter = converter
+        self.need_text = need_text
 
     def __getitem__(self, idx):
         image, label = self.dataset[idx]
         label_input, _, _ = self.converter.test_encode(1)
         _, _, label_target = self.converter.train_encode([label])
 
-        # return (image, label_input[0]), label_target[0]
-        return (image, label_input[0]), label
+        if self.need_text:
+            return (image, label_input[0]), label
+        else:
+            return image, label
 
     def __len__(self):
         return len(self.dataset)
@@ -70,9 +74,7 @@ class Metric(BaseMetric):
     def __call__(self, preds, targets):
         self.metric.reset()
         pred_str = self.decode(preds)
-		
-        # target_str = self.converter.decode(targets, True)
-        # pdb.set_trace()
+
         self.metric.measure(pred_str, None, targets)
         res = self.metric.result
 

@@ -1,11 +1,9 @@
-import os
-import pdb
-import sys
 import argparse
+import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
-import cv2
 from PIL import Image
 from volksdep.benchmark import benchmark
 
@@ -54,18 +52,22 @@ def main():
     image = image.unsqueeze(0)
     input_len = runner.converter.test_encode(1)[0]
     model = runner.model
-    shape = tuple(image.shape), tuple(input_len.shape)
+    need_text = runner.need_text
+    if need_text:
+        shape = tuple(image.shape), tuple(input_len.shape)
+    else:
+        shape = tuple(image.shape)
 
     dtypes = args.dtypes
     iters = args.iters
     int8_calibrator = None
     if args.calibration_images:
         calib_dataset = CalibDataset(args.calibration_images, runner.converter,
-                                     runner.transform)
+                                     runner.transform, need_text)
         int8_calibrator = [CALIBRATORS[mode](dataset=calib_dataset)
                            for mode in args.calibration_modes]
     dataset = runner.test_dataloader.dataset
-    dataset = MetricDataset(dataset, runner.converter)
+    dataset = MetricDataset(dataset, runner.converter, need_text)
     metric = Metric(runner.metric, runner.converter)
     benchmark(model, shape, dtypes=dtypes, iters=iters,
               int8_calibrator=int8_calibrator, dataset=dataset, metric=metric)

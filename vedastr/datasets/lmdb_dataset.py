@@ -1,11 +1,10 @@
 # modify from clovaai
 
-import re
-import six
 import random
+import re
 
 import lmdb
-import numpy as np
+import six
 from PIL import Image
 
 from .base import BaseDataset

@@ -207,7 +207,7 @@ test_dataset_params = dict(
     data_filter_off=data_filter_off,
     character=test_character,
 )
-data_root = '/DATA7_DB7/data/sjun/github/vedastr/data/data_lmdb_release/'
+data_root = './data/data_lmdb_release/'
 
 # train data
 train_root = data_root + 'training/'
@@ -223,10 +223,8 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset',
-                      root=valid_root,
-                      **test_dataset_params)
-                 ]
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
+
 
 # test
 test_root = data_root + 'evaluation/'

@@ -72,6 +72,7 @@ class Config(object):
         "{'item1': [1, 2], 'item2': {'a': 0}, 'item3': True, 'item4': 'test'}"
 
     """
+
     @staticmethod
     def fromfile(filename):
         filename = osp.abspath(osp.expanduser(filename))
@@ -89,7 +90,7 @@ class Config(object):
                 for name, value in mod.__dict__.items()
                 if not name.startswith('__')
             }
-        #elif filename.endswith(('.yml', '.yaml', '.json')):
+        # elif filename.endswith(('.yml', '.yaml', '.json')):
         #    import mmcv
         #    cfg_dict = mmcv.load(filename)
         else:

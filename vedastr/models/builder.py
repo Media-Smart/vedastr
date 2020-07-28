@@ -1,5 +1,5 @@
-from ..utils import build_from_cfg
 from . import MODELS
+from ..utils import build_from_cfg
 
 
 def build_model(cfg, default_args=None):

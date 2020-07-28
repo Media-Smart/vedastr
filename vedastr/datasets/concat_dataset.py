@@ -1,7 +1,7 @@
 from torch.utils.data import ConcatDataset as _ConcatDataset
 
-from .registry import DATASETS
 from .builder import build_datasets
+from .registry import DATASETS
 
 
 @DATASETS.register_module

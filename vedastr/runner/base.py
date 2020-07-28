@@ -1,17 +1,17 @@
 import os
 import random
 
+import numpy as np
 import torch
 from torch.backends import cudnn
-import numpy as np
 
-from ..logger import build_logger
+from ..converter import build_converter
 from ..dataloaders import build_dataloader
 from ..dataloaders.samplers import build_sampler
 from ..datasets import build_datasets
-from ..transforms import build_transform
+from ..logger import build_logger
 from ..metrics import build_metric
-from ..converter import build_converter
+from ..transforms import build_transform
 
 
 class Common(object):

@@ -1,6 +1,5 @@
 # modify from mmcv and mmdetection
 
-import collections
 import functools
 import itertools
 import subprocess
@@ -142,7 +141,7 @@ def check_prerequisites(
         prerequisites,
         checker,
         msg_tmpl='Prerequisites "{}" are required in method "{}" but not '
-        'found, please install them first.'):
+                 'found, please install them first.'):
     """A decorator factory to check if prerequisites are satisfied.
 
     Args:
@@ -154,6 +153,7 @@ def check_prerequisites(
     Returns:
         decorator: A specific decorator.
     """
+
     def wrap(func):
         @functools.wraps(func)
         def wrapped_func(*args, **kwargs):

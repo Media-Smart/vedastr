@@ -1,7 +1,7 @@
 import torch.nn as nn
 
-from .utils import generate_encoder
 from .registry import POSITION_ENCODERS
+from .utils import generate_encoder
 
 
 @POSITION_ENCODERS.register_module

@@ -1,11 +1,12 @@
 # modify from mmcv and mmdetection
 
-import sys
-import random
-import torch
-import numpy as np
 import inspect
 import logging
+import random
+import sys
+
+import numpy as np
+import torch
 
 
 def build_from_cfg(cfg, parent, default_args=None, src='registry'):

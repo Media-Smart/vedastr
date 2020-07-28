@@ -1,6 +1,6 @@
 import copy
 import random
-import copy
+
 from torch.utils.data import Sampler
 
 from .registry import SAMPLER
@@ -12,7 +12,7 @@ class BalanceSampler(Sampler):
     Balance Sampler for Dataloader. Based on a given ratio, BalanceSampler provide
     an iterable over the index of given dataset.
     Arguments:
-        dataset (Dataset): In this project, the dataset should be the an instance of
+        dataset (Dataset): In this project, the dataset should be an instance of
                           vedastr.dataset.ConcarDataset. You can implement a dataset
                           which should have attr: data_range, batch_ratio by yourself.
         batch_size (int):  how many samplers per batch

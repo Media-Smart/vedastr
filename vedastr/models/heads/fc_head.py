@@ -67,4 +67,4 @@ class FCHead(nn.Module):
         out = self.inter_fc(x)
         out = self.fc(out)
 
-        return out.reshape(-1, self.batch_max_length+1, self.num_class)
+        return out.reshape(-1, self.batch_max_length + 1, self.num_class)

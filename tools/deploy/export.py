@@ -1,6 +1,6 @@
+import argparse
 import os
 import sys
-import argparse
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
@@ -57,6 +57,9 @@ def main():
     image = image.unsqueeze(0).cuda()
     dummy_input = (image, runner.converter.test_encode(['']))
     model = runner.model.cuda().eval()
+    need_text = runner.need_text
+    if not need_text:
+        dummy_input = dummy_input[0]
 
     if args.onnx:
         runner.logger.info('Convert to onnx model')
@@ -74,7 +77,7 @@ def main():
                                    .format(args.calibration_mode,
                                            args.calibration_images))
                 dataset = CalibDataset(args.calibration_images, runner.converter,
-                                       runner.transform)
+                                       runner.transform, need_text)
                 int8_calibrator = CALIBRATORS[args.calibration_mode](
                     dataset=dataset)
             else:

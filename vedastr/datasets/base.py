@@ -1,11 +1,11 @@
 # modify from clovaai
 
+import logging
 import os
 import re
-import logging
 
-from torch.utils.data import Dataset
 from PIL import Image
+from torch.utils.data import Dataset
 
 
 class BaseDataset(Dataset):

@@ -133,10 +133,8 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = [dict(type='LmdbDataset',
-                      root=valid_root,
-                      **test_dataset_params)
-                 ]
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
+
 
 # test dataset
 test_root = data_root + 'evaluation/'

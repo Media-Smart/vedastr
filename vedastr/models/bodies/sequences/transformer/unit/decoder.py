@@ -28,7 +28,7 @@ class TransformerDecoderLayer1D(nn.Module):
 
     def forward(self, tgt, src, tgt_mask=None, src_mask=None):
         attn1, _ = self.self_attention(tgt, tgt, tgt, tgt_mask)
-        out1 = self.self_attention_norm(tgt+attn1)
+        out1 = self.self_attention_norm(tgt + attn1)
 
         size = src.size()
         if len(size) == 4:
@@ -38,9 +38,9 @@ class TransformerDecoderLayer1D(nn.Module):
                 src_mask = src_mask.view(b, 1, h * w)
 
         attn2, _ = self.attention(out1, src, src, src_mask)
-        out2 = self.attention_norm(out1+attn2)
+        out2 = self.attention_norm(out1 + attn2)
 
         ffn_out = self.feedforward(out2)
-        out3 = self.feedforward_norm(out2+ffn_out)
+        out3 = self.feedforward_norm(out2 + ffn_out)
 
         return out3
