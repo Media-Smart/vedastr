@@ -1,4 +1,4 @@
-from . import MODELS
+from .registry import MODELS
 from ..utils import build_from_cfg
 
 
