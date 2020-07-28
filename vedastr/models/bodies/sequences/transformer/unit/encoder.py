@@ -19,10 +19,10 @@ class TransformerEncoderLayer1D(nn.Module):
 
     def forward(self, src, src_mask=None):
         attn_out, _ = self.attention(src, src, src, src_mask)
-        out1 = self.attention_norm(src + attn_out)
+        out1 = self.attention_norm(src+attn_out)
 
         ffn_out = self.feedforward(out1)
-        out2 = self.feedforward_norm(out1 + ffn_out)
+        out2 = self.feedforward_norm(out1+ffn_out)
 
         return out2
 
@@ -63,6 +63,6 @@ class TransformerEncoderLayer2D(nn.Module):
         out1 = self.norm(self.attention_norm, out1)
 
         ffn_out = self.feedforward(out1)
-        out2 = self.norm(self.feedforward_norm, out1 + ffn_out)
+        out2 = self.norm(self.feedforward_norm, out1+ffn_out)
 
         return out2

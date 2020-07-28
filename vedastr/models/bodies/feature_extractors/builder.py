@@ -1,7 +1,7 @@
 import torch.nn as nn
 
-from .decoders import build_brick, build_decoder
 from .encoders import build_encoder
+from .decoders import build_brick, build_decoder
 
 
 def build_feature_extractor(cfg):
@@ -14,6 +14,7 @@ def build_feature_extractor(cfg):
             feature_extractor = nn.Sequential(encoder, middle, final)
         else:
             feature_extractor = nn.Sequential(encoder, middle)
+        # assert 'collect' not in cfg
     else:
         assert 'collect' in cfg
         middle = build_brick(cfg.get('collect'))

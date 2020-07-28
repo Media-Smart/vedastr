@@ -1,8 +1,8 @@
-import copy
 import math
+import copy
 
-import torch
 import torch.nn as nn
+import torch
 from torch.nn import functional as F
 
 from vedastr.models.utils import build_module, ConvModule

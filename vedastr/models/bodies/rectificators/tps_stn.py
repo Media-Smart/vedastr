@@ -72,8 +72,8 @@ class GridGenerator(nn.Module):
         self.register_buffer("inv_delta_C", torch.tensor(self._build_inv_delta_C(self.F, self.C)).float())  # F+3 x F+3
         self.register_buffer("P_hat", torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float())  # n x F+3
         ## for fine-tuning with different image width, you may use below instead of self.register_buffer
-        # self.inv_delta_C = torch.tensor(self._build_inv_delta_C(self.F, self.C)).float().cuda()  # F+3 x F+3
-        # self.P_hat = torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float().cuda()  # n x F+3
+        #self.inv_delta_C = torch.tensor(self._build_inv_delta_C(self.F, self.C)).float().cuda()  # F+3 x F+3
+        #self.P_hat = torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float().cuda()  # n x F+3
 
     def _build_C(self, F):
         """ Return coordinates of fiducial points in I_r; C """
@@ -145,8 +145,7 @@ class GridGenerator(nn.Module):
     def forward(self, x):
         batch_size = x.size(0)
 
-        build_P_prime = self.build_P_prime(x.view(batch_size, self.F, 2),
-                                           x.device)  # batch_size x n (= output_width x output_height) x 2
+        build_P_prime = self.build_P_prime(x.view(batch_size, self.F, 2), x.device)  # batch_size x n (= output_width x output_height) x 2
         build_P_prime_reshape = build_P_prime.reshape([build_P_prime.size(0), self.output_height, self.output_width, 2])
 
         return build_P_prime_reshape

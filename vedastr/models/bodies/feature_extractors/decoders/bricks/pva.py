@@ -26,7 +26,7 @@ class PVABlock(nn.Module):
     def forward(self, x):
         b, c, h, w = x.size()
 
-        x = x.reshape(b, c, h * w).permute(0, 2, 1)
+        x = x.reshape(b, c, h*w).permute(0, 2, 1)
 
         o_out = self.o_linear(self.order_embeddings).view(1, self.num_steps, 1, self.inner_channels)
         v_out = self.v_linear(x).unsqueeze(1)
