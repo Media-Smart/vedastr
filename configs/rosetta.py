@@ -1,6 +1,3 @@
-# work directory
-root_workdir = 'workdir'
-
 ###############################################################################
 # 1. deploy
 size = (32, 100)
@@ -143,6 +140,8 @@ test = dict(
 
 ###############################################################################
 # 4. train
+
+root_workdir = 'workdir'
 
 # train data
 train_root = data_root + 'training/'
