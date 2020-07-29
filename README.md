@@ -171,7 +171,7 @@ python tools/inference.py config-path weight-path img-path
 python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_path
 
 ```
-More available arguments are detailed in [tools/deploy/benchmark.py]().
+More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
 The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVTP）:
 
@@ -192,7 +192,7 @@ The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVT
 python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path
 ```
 
-More available arguments are detailed in [tools/deploy/export.py]().
+More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
 ## Contact
 
 This repository is currently maintained by  Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
