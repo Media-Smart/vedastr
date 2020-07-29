@@ -131,11 +131,11 @@ data
 
 ## Train
 
-1.Config
+a. Config
 
 Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py`
 
-2.Run
+b. Run
 
 ```shell
 python tools/train.py configs/tps_resnet_bilstm_attn.py 
@@ -145,28 +145,28 @@ Snapshots and logs will be generated at `vedastr/workdir` by default.
 
 ## Test
 
-1.Config
+a. Config
 
 Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py `
 
-2.Run
+b. Run
 
 ```shell
 python tools/test.py configs/tps_resnet_bilstm_attn.py path_to_tps_resnet_bilstm_attn_weights
 ```
 
 ## Inference
-1.Run
+a. Run
 
 ```shell
 python tools/inference.py config-path weight-path img-path
 ```
 
 ## Deploy
-1.Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
+a. Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
 [official instructions](https://github.com/Media-Smart/volksdep#installation)
 
-2.Benchmark (optional)
+b. Benchmark (optional)
 ```python
 python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_path
 
@@ -186,7 +186,7 @@ The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVT
 |  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(minmax)        |         606          |      1.72       | acc: 0.7209, edit_distance: 0.8948 |
 
 
-3.Export model
+c. Export model
 
 ```python
 python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path
