@@ -72,7 +72,7 @@ class TrainRunner(DeployRunner):
                                             ))
 
     def _validate_epoch(self):
-        self.logger.info('Iteration %d, Start validating' % self.iter)
+        self.logger.info('Iteration %d, Start validating' % self.iter + 1)
         self.metric.reset()
         for img, label in self.val_dataloader:
             self._validate_batch(img, label)
@@ -82,8 +82,10 @@ class TrainRunner(DeployRunner):
         if self.metric.avg['edit'] >= self.best_norm and self.save_best:
             self.best_norm = self.metric.avg['edit']
             self.save_model(out_dir=self.workdir, filename='best_norm.pth')
-        self.logger.info('Validate, best_acc %.4f, best_edit %s' % (self.best_acc, self.best_norm))
-        self.logger.info('Validate, acc %.4f, edit %s' % (self.metric.avg['acc']['true'], self.metric.avg['edit']))
+        self.logger.info('Validate, best_acc %.4f, best_edit %s' %
+                         (self.best_acc, self.best_norm))
+        self.logger.info('Validate, acc %.4f, edit %s' %
+                         (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         self.logger.info(f'\n{self.metric.predict_example_log}')
 
     def _train_batch(self, img, label):
