@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 from PIL import Image
 from volksdep.benchmark import benchmark
 
-from vedastr.runner import TestRunner
+from vedastr.runners import TestRunner
 from vedastr.utils import Config
 from tools.deploy.utils import CALIBRATORS, CalibDataset, MetricDataset, Metric
 

@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from PIL import Image
 
-from vedastr.runner import DeployRunner
+from vedastr.runners import DeployRunner
 from vedastr.utils import Config
 
 
