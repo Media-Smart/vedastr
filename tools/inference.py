@@ -31,10 +31,15 @@ def main():
 
     runner = DeployRunner(deploy_cfg, common_cfg)
     runner.load_checkpoint(args.checkpoint)
-
-    image = Image.open(args.image)
-    pred_str, probs = runner(image)
-    runner.logger.info('predict string: {}'.format(pred_str))
+    if os.path.isfile(args.image):
+        images = [args.image]
+    else:
+        images = [os.path.join(args.image, name)
+                  for name in os.listdir(args.image)]
+    for img in images:
+        image = Image.open(img)
+        pred_str, probs = runner(image)
+        runner.logger.info('predict string: {} \t of {}'.format(pred_str, img))
 
 
 if __name__ == '__main__':
