@@ -225,7 +225,13 @@ test = dict(
             type='ConcatDatasets',
             datasets=test_dataset,
         ),
-        transform=deploy['transform'],
+        transform=[
+            dict(type='Sensitive', sensitive=test_sensitive),
+            dict(type='ColorToGray'),
+            dict(type='Resize', size=size),
+            dict(type='ToTensor'),
+            dict(type='Normalize', mean=mean, std=std),
+        ],
     ),
     postprocess_cfg=dict(
         sensitive=test_sensitive,
