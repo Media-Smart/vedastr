@@ -1,5 +1,5 @@
 ## Introduction
-Vedastr is an open source scene text recognition toolbox based on PyTorch. It is designed to be flexible
+vedastr is an open source scene text recognition toolbox based on PyTorch. It is designed to be flexible
 in order to support rapid implementation and evaluation for scene text recognition task.  
 
 ## Features
@@ -8,7 +8,7 @@ in order to support rapid implementation and evaluation for scene text recogniti
   easily construct a customized scene text recognition framework by combining different modules.
   
 - **Flexibility**\
-  Vedastr is flexible enough to be able to easily change the components within a module.
+  vedastr is flexible enough to be able to easily change the components within a module.
 
 - **Module expansibility**\
   It is easy to integrate a new module into the vedastr project. 
