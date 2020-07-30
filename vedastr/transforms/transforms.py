@@ -174,3 +174,26 @@ class Rotate(albu.Rotate):
                  p=0.5, ):
         super(Rotate, self).__init__(limit, CV2_INTER[interpolation], CV2_BORDER[border_mode],
                                      value=value, always_apply=always_apply, p=p)
+
+
+@TRANSFORMS.register_module
+class ExpandRotate(Rotate):
+
+    def __init__(self, **kwargs):
+        super(ExpandRotate, self).__init__(**kwargs)
+
+    def apply(self, img, angle=0, interpolation=cv2.INTER_LINEAR, **params):
+        return self.rotate(img, angle, interpolation, self.border_mode, self.value)
+
+    def rotate(self, img, angle, interpolation, border_mode, value):
+        pi_angle = np.deg2rad(angle)
+        height, width = img.shape[:2]
+        new_h = int(height * np.fabs(np.cos(pi_angle)) + width * np.fabs(np.sin(pi_angle)))
+        new_w = int(height * np.fabs(np.sin(pi_angle)) + width * np.fabs(np.cos(pi_angle)))
+
+        matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1.0)
+        matrix[0, 2] += (new_w - width) / 2
+        matrix[1, 2] += (new_h - height) / 2
+        img = cv2.warpAffine(img, matrix, (new_w, new_h), interpolation, border_mode, value)
+
+        return img

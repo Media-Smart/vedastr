@@ -263,7 +263,7 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
     dict(type='ToGray'),
-    dict(type='Rotation', limit=34, p=0.5, ),
+    dict(type='Rotate', limit=34, p=0.5),
     dict(type='Resize', size=size),
     dict(type='Normalize', mean=mean, std=std),
     dict(type='ToTensor')
