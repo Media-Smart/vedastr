@@ -1,7 +1,7 @@
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 0.5, 0.5
+mean, std = 127.5, 127.5
 
 sensitive = False
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -17,10 +17,10 @@ deploy = dict(
     gpu_id='3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
-        dict(type='ColorToGray'),
+        dict(type='ToGray'),
         dict(type='Resize', size=size),
-        dict(type='ToTensor'),
         dict(type='Normalize', mean=mean, std=std),
+        dict(type='ToTensor'),
     ],
     converter=dict(
         type='AttnConverter',
@@ -237,7 +237,6 @@ test = dict(
 # work directory
 root_workdir = 'workdir'
 
-
 # data
 train_root = data_root + 'training/'
 # MJ dataset
@@ -259,8 +258,8 @@ train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
     dict(type='ColorToGray'),
     dict(type='Resize', size=size),
-    dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
+    dict(type='ToTensor'),
 ]
 
 max_iterations = 300000
