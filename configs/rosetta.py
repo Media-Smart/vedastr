@@ -1,7 +1,7 @@
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 0.5, 0.5
+mean, std = 127.5, 127.5
 
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'
 sensitive = False
@@ -14,10 +14,10 @@ deploy = dict(
     gpu_id='2',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
-        dict(type='ColorToGray'),
+        dict(type='ToGray'),
         dict(type='Resize', size=size),
-        dict(type='ToTensor'),
         dict(type='Normalize', mean=mean, std=std),
+        dict(type='ToTensor'),
     ],
     converter=dict(
         type='CTCConverter',
@@ -162,10 +162,10 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 # train transforms
 train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
-    dict(type='ColorToGray'),
+    dict(type='ToGray'),
     dict(type='Resize', size=size),
-    dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
+    dict(type='ToTensor'),
 ]
 
 max_iterations = 300000

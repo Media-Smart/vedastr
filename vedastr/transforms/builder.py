@@ -1,15 +1,17 @@
-from vedastr.utils import build_from_cfg
+import albumentations as albu
 
+from vedastr.utils import build_from_cfg
 from .registry import TRANSFORMS
 
-from .transforms import Compose
 
-
-def build_transform(cfg):
+def build_transform(cfgs):
     tfs = []
-    for icfg in cfg:
-        tf = build_from_cfg(icfg, TRANSFORMS)
+    for cfg in cfgs:
+        if TRANSFORMS.get(cfg['type']):
+            tf = build_from_cfg(cfg, TRANSFORMS)
+        else:
+            tf = build_from_cfg(cfg, albu, src='module')
         tfs.append(tf)
-    aug = Compose(tfs)
+    aug = albu.Compose(tfs)
 
     return aug

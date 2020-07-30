@@ -123,5 +123,5 @@ workdir/
 # local file
 fff.py
 loader.py
-configs/local-config.py
+configs/local_config.py
 tools/imgs_after_transform.py

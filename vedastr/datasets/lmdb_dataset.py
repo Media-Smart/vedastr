@@ -5,6 +5,8 @@ import re
 
 import lmdb
 import six
+import cv2
+import numpy as np
 from PIL import Image
 
 from .base import BaseDataset
@@ -54,7 +56,8 @@ class LmdbDataset(BaseDataset):
             buf.seek(0)
             try:
                 img = Image.open(buf).convert('RGB')  # for color image
-
+                # img = cv2.imdecode(np.fromstring(value, np.uint8), 3)
+                img = np.array(img)
             except IOError:
                 print(f'Corrupted image for {index}')
                 # make dummy image and dummy label for corrupted image.
@@ -63,7 +66,9 @@ class LmdbDataset(BaseDataset):
 
             if self.transforms:
                 try:
-                    img, label = self.transforms(img, label)
+                    aug = self.transforms(image=img, label=label)
+                    img, label = aug['image'], aug['label']
+                    # img, label = self.transforms(image=img, label=label)
                 except:
                     return self.__getitem__(random.choice(range(len(self))))
 
