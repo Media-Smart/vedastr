@@ -4,7 +4,7 @@ root_workdir = 'workdir'
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 0.5, 0.5
+mean, std = 127.5, 127.5
 
 character = '0123456789abcdefghijklmnopqrstuvwxyz'
 sensitive = False
@@ -17,10 +17,10 @@ deploy = dict(
     gpu_id='3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
-        dict(type='ColorToGray'),
+        dict(type='ToGray'),
         dict(type='Resize', size=size),
-        dict(type='ToTensor'),
         dict(type='Normalize', mean=mean, std=std),
+        dict(type='ToTensor'),
     ],
     converter=dict(
         type='FCConverter',
@@ -161,10 +161,10 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 # train transforms
 train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
-    dict(type='ColorToGray'),
+    dict(type='ToGray'),
     dict(type='Resize', size=size),
-    dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
+    dict(type='ToTensor'),
 ]
 
 max_iterations = 300000
