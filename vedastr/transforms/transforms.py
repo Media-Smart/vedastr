@@ -127,7 +127,7 @@ class ToTensor(DualTransform):
         else:
             raise TypeError('img shoud be np.ndarray. Got {}'
                             .format(type(image)))
-        return image / 255.0
+        return image
 
 
 @TRANSFORMS.register_module
@@ -161,3 +161,16 @@ class ToGray(albu.ToGray):
             kwargs['image'] = new_img[:, :, :1]
 
         return kwargs
+
+
+@TRANSFORMS.register_module
+class Rotate(albu.Rotate):
+
+    def __init__(self, limit=90,
+                 interpolation='bilinear',
+                 border_mode='constant',
+                 value=0,
+                 always_apply=False,
+                 p=0.5, ):
+        super(Rotate, self).__init__(limit, CV2_INTER[interpolation], CV2_BORDER[border_mode],
+                                     value=value, always_apply=always_apply, p=p)

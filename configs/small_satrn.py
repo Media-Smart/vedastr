@@ -2,7 +2,7 @@
 # 1. deploy
 
 size = (32, 100)
-mean, std = 0.5, 0.5
+mean, std = 127.5, 127.5
 
 sensitive = True
 character = '0123456789abcdefghijklmnopq' \
@@ -26,10 +26,10 @@ deploy = dict(
     gpu_id='3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
-        dict(type='ColorToGray'),
+        dict(type='ToGray'),
         dict(type='Resize', size=size),
-        dict(type='ToTensor'),
         dict(type='Normalize', mean=mean, std=std),
+        dict(type='ToTensor'),
     ],
     converter=dict(
         type='AttnConverter',
@@ -227,10 +227,10 @@ test = dict(
         ),
         transform=[
             dict(type='Sensitive', sensitive=test_sensitive),
-            dict(type='ColorToGray'),
+            dict(type='ToGray'),
             dict(type='Resize', size=size),
-            dict(type='ToTensor'),
             dict(type='Normalize', mean=mean, std=std),
+            dict(type='ToTensor'),
         ],
     ),
     postprocess_cfg=dict(
@@ -243,9 +243,6 @@ test = dict(
 # 4. train
 
 root_workdir = 'workdir'  # save directory
-
-fill = 0
-mode = 'nearest'
 
 # data
 train_root = data_root + 'training/'
@@ -265,12 +262,11 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 
 train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
-    dict(type='ColorToGray'),
-    dict(type='RandomNormalRotation', mean=0, std=34, expand=True,
-         center=None, fill=fill, mode=mode, p=0.5),
+    dict(type='ToGray'),
+    dict(type='Rotation', limit=34, p=0.5, ),
     dict(type='Resize', size=size),
-    dict(type='ToTensor'),
     dict(type='Normalize', mean=mean, std=std),
+    dict(type='ToTensor')
 ]
 
 max_epochs = 6

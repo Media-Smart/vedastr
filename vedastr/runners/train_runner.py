@@ -72,7 +72,7 @@ class TrainRunner(DeployRunner):
                                             ))
 
     def _validate_epoch(self):
-        self.logger.info('Iteration %d, Start validating' % self.iter + 1)
+        self.logger.info('Iteration %s, Start validating' % (self.iter + 1))
         self.metric.reset()
         for img, label in self.val_dataloader:
             self._validate_batch(img, label)
