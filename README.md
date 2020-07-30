@@ -186,13 +186,18 @@ The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVT
 |  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(minmax)        |         606          |      1.72       | acc: 0.7209, edit_distance: 0.8948 |
 
 
-c. Export model
+c. Export model as ONNX or TensorRT engine format
 
 ```python
 python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path
 ```
 
-More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
+  More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
+
+d. Inference SDK
+
+  You can refer to [FlexInfer](https://github.com/Media-Smart/flexinfer) for details.
+
 ## Contact
 
 This repository is currently maintained by  Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
