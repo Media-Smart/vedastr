@@ -24,13 +24,13 @@ class DeployRunner(Common):
         # build model
         self.model = self._build_model(deploy_cfg['model'])
         self.postprocess_cfg = deploy_cfg.get('postprocess_cfg', None)
-        self.need_text = self.model.need_text
         self.model.eval()
 
     def _build_model(self, cfg):
         self.logger.info('Build model')
 
         model = build_model(cfg)
+        self.need_text = model.need_text
         if torch.cuda.is_available():
             if torch.cuda.device_count() > 1:
                 model = torch.nn.DataParallel(model)
