@@ -141,11 +141,17 @@ class TrainRunner(DeployRunner):
         self.metric.reset()
         self.logger.info('Start train...')
         iter_based = self.lr_scheduler._iter_based
+        if hasattr(self.lr_scheduler, 'warmup_iters'):
+            warmup_iters = self.lr_scheduler.warmup_iters
+        else:
+            warmup_iters = 0
         while True:
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)
                 self.lr_scheduler.iter_nums()  # update steps
                 if iter_based:
+                    self.lr_scheduler.step()
+                elif warmup_iters > 0 and warmup_iters >= self.iter:
                     self.lr_scheduler.step()
                 if self.trainval_ratio > 0 \
                         and (self.iter + 1) % self.trainval_ratio == 0 \
