@@ -152,14 +152,14 @@ Modify some configuration accordingly in the config file like `configs/tps_resne
 2. Run
 
 ```shell
-python tools/test.py configs/tps_resnet_bilstm_attn.py path_to_tps_resnet_bilstm_attn_weights
+python tools/test.py configs/tps_resnet_bilstm_attn.py checkpoint_path
 ```
 
 ## Inference
 1. Run
 
 ```shell
-python tools/inference.py config-path weight-path img-path
+python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_path
 ```
 
 ## Deploy
@@ -168,9 +168,9 @@ python tools/inference.py config-path weight-path img-path
 
 2. Benchmark (optional)
 ```python
-python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_path
-
+python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_folder_path
 ```
+
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
 The result of rosetta is as follows（test device: GTX 1080Ti, CUDA:10.2, CUDNN:8.0）:
