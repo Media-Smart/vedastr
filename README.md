@@ -173,17 +173,17 @@ python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_p
 ```
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
-The result of rosetta is as follows（test device: GTX 1080Ti, test dataset: SVTP）:
+The result of rosetta is as follows（test device: GTX 1080Ti, CUDA:10.2, CUDNN:8.0）:
 
-| framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |       accuracy       |
-|   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |        :---:         |
-|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp32            |         160          |      6.16       | acc: 0.7194, edit_distance: 0.8936 |
-|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp32            |         390          |      2.57       | acc: 0.7194, edit_distance: 0.8936 |
-|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp16            |         144          |      6.48       | acc: 0.7178, edit_distance: 0.8934 |
-|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp16            |         377          |       2.6       | acc: 0.7194, edit_distance: 0.8936 |
-|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(entropy)       |         640          |      1.65       | acc: 0.7178, edit_distance: 0.8944 |
-|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |      int8(entropy_2)      |         607          |      1.75       | acc: 0.7194, edit_distance: 0.8943 |
-|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(minmax)        |         606          |      1.72       | acc: 0.7209, edit_distance: 0.8948 |
+| framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
+|   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |
+|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp32            |         160          |      6.16       |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp32            |         390          |      2.57       |
+|  pytorch   |   1.5.1    |   (1, 1, 32, 100)    |           fp16            |         144          |      6.48       |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |           fp16            |         377          |       2.6       |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(entropy)       |         640          |      1.65       |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |      int8(entropy_2)      |         607          |      1.75       |
+|  tensorrt  |  7.1.3.4   |   (1, 1, 32, 100)    |       int8(minmax)        |         606          |      1.72       |
 
 
 3. Export model as ONNX or TensorRT engine format
