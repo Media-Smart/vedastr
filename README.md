@@ -39,10 +39,11 @@ Note:
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[Rosetta](https://drive.google.com/file/d/1_CJ0C3dqi1X1xE4vzs6_2Wr-4yIbauZ-/view?usp=sharing)| False|84.30 | 82.84 | 93.31 | 89.16|67.64|71.94|68.64|80.40|
-|[ResNet-FC](https://drive.google.com/open?id=105kvjvSAwyxv_6VsCI0kWEmKkqQX8jul)| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
-|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/open?id=1b5ykMGwLFyt-tpoWBMyhgjABaqxKBxRU)| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
-|[Small-SATRN](https://drive.google.com/file/d/12VNCjqF0YDK5sD3YHuxvvt_7DYRlemzL/view?usp=sharing)| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
+|[Rosetta]()| False|84.50 | 84.7 | 92.39 | 89.36|68.47|71.32|67.6|80.65|
+|[Rosetta-rotate]()| False|84.90 | 84.54 | 91.00 | 87.39|68.94|73.33|69.34|80.72|
+|[x] [ResNet-FC]()| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
+|[x] [TPS-ResNet-BiLSTM-Attention]()| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
+|[x] [Small-SATRN]()| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
 
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
