@@ -173,7 +173,7 @@ python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_p
 
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
-The result of rosetta is as follows（test device: jetson xavier, CUDA:10.2）:
+The result of rosetta is as follows（test device: Jetson AGX Xavier, CUDA:10.2）:
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
 |    :-:     |    :-:     |         :-:          |            :-:            |         :-:          |       :-:       |
