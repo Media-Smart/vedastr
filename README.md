@@ -42,7 +42,7 @@ Note:
 |[Rosetta]()| False|84.50 | 84.7 | 92.39 | 89.36|68.47|71.32|67.6|80.65|
 |[Rosetta-rotate]()| False|84.90 | 84.54 | 91.00 | 87.39|68.94|73.33|69.34|80.72|
 |[x] [ResNet-FC]()| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
-|[x] [TPS-ResNet-BiLSTM-Attention]()| False|87.33 | 87.79 | 95.04| 92.61|74.45|81.09|74.91|84.95|
+|[TPS-ResNet-BiLSTM-Attention]()| False|87.87 | 87.02 | 94.12| 91.63|74.92|79.22|75.96|84.86|
 |[x] [Small-SATRN]()| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
 
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
