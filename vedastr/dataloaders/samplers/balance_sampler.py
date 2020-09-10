@@ -84,9 +84,9 @@ class BalanceSampler(Sampler):
             current_nums = len(index)
             need_num = max_len - current_nums
             total_nums = need_num // current_nums
-            mod_nums = need_num // current_nums
+            mod_nums = need_num % current_nums
             init_index = copy.copy(index)
-            for _ in range(max(0, total_nums - 1)):
+            for _ in range(max(0, total_nums)):
                 new_index = copy.copy(init_index)
                 if self.shuffle:
                     random.shuffle(new_index)

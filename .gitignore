@@ -121,6 +121,7 @@ workdir/
 *.pth
 
 # local file
+*.txt
 fff.py
 loader.py
 configs/local-config.py
