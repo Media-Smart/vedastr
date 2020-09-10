@@ -1,9 +1,9 @@
 import torch
 
-from .deploy_runner import DeployRunner
+from .inference_runner import InferenceRunner
 
 
-class TestRunner(DeployRunner):
+class TestRunner(InferenceRunner):
     def __init__(self, test_cfg, deploy_cfg, common_cfg=None):
         super(TestRunner, self).__init__(deploy_cfg, common_cfg)
 
@@ -23,7 +23,7 @@ class TestRunner(DeployRunner):
             else:
                 pred = self.model((img,))
 
-            pred, prob = self.postprocess(pred, self.postprocess_cfg)
+            pred, prob, label = self.postprocess(pred, self.postprocess_cfg, label)
             self.metric.measure(pred, prob, label)
 
     def __call__(self):

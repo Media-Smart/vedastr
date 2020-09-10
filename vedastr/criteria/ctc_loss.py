@@ -1,3 +1,5 @@
+import pdb
+
 import torch
 import torch.nn as nn
 
@@ -21,5 +23,6 @@ class CTCLoss(nn.Module):
                               targets=target.to(pred.device),
                               input_lengths=input_lengths.to(pred.device),
                               target_lengths=target_length.to(pred.device))
-
+        if torch.isnan(cost):
+            pdb.set_trace()
         return cost

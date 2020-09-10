@@ -20,6 +20,7 @@ class LmdbDataset(BaseDataset):
         super(LmdbDataset, self).__init__(*args, **kwargs)
 
     def get_name_list(self):
+        # f = open('gt.txt', 'a+')
         self.env = lmdb.open(self.root, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
         with self.env.begin(write=False) as txn:
             nSamples = int(txn.get('num-samples'.encode()))
@@ -33,6 +34,8 @@ class LmdbDataset(BaseDataset):
                     index += 1  # lmdb starts with 1
                     label_key = 'label-%09d'.encode() % index
                     label = txn.get(label_key).decode('utf-8')
+                    # f.writelines(label)
+                    # f.writelines('\n')
 
                     if self.filter(label):
                         continue
@@ -40,6 +43,7 @@ class LmdbDataset(BaseDataset):
                         self.filtered_index_list.append(index)
 
                 self.samples = len(self.filtered_index_list)
+        # f.close()
 
     def __getitem__(self, index):
         assert index <= len(self), 'index range error'

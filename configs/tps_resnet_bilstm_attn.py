@@ -1,7 +1,7 @@
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 127.5, 127.5
+mean, std = 0.5, 0.5
 
 sensitive = False
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -14,7 +14,7 @@ num_class = len(character) + 2
 num_steps = batch_max_length + 1
 
 deploy = dict(
-    gpu_id='3',
+    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='ToGray'),
@@ -198,7 +198,7 @@ dataset_params = dict(
     character=character,
 )
 
-data_root = './data/data_lmdb_release/'
+data_root = '../../../../dataset/str/data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
@@ -206,8 +206,9 @@ batch_size = 192
 
 # data
 test_root = data_root + 'evaluation/'
-test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
-                     'IIIT5k_3000', 'SVT', 'SVTP']
+test_folder_names = ['IC15_2077']
+# test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
+#                      'IIIT5k_3000', 'SVT', 'SVTP']
 test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
                      **dataset_params) for f_name in test_folder_names]
 
@@ -238,7 +239,7 @@ test = dict(
 root_workdir = 'workdir'
 
 # data
-train_root = data_root + 'training/'
+train_root = data_root + 'train/'
 # MJ dataset
 train_root_mj = train_root + 'MJ/'
 mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
@@ -256,7 +257,7 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 # train transforms
 train_transforms = [
     dict(type='Sensitive', sensitive=sensitive),
-    dict(type='ColorToGray'),
+    dict(type='ToGray'),
     dict(type='Resize', size=size),
     dict(type='Normalize', mean=mean, std=std),
     dict(type='ToTensor'),
@@ -317,5 +318,8 @@ train = dict(
     trainval_ratio=2000,
     snapshot_interval=20000,
     save_best=True,
-    resume=None,
+    resume=dict(checkpoint='workdir/tps_resnet_bilstm_attn/best_acc.pth',
+    resume_optimizer=True,
+    resume_lr_scheduler=True,
+    resume_meta=True),
 )

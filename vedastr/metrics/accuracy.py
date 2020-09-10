@@ -1,4 +1,5 @@
 # modify from clovaai
+import random
 
 from nltk.metrics.distance import edit_distance
 
@@ -67,7 +68,15 @@ class Accuracy(object):
         dashed_line = '-' * 80
         head = f'{"Ground Truth":25s} | {"Prediction":25s} | Confidence Score & T/F'
         self.predict_example_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
-        for gt, pred, prob in zip(gts[:5], preds[:5], preds_prob[:5]):
+        # for gt, pred, prob in zip(gts[:5], preds[:5], preds_prob[:5]):
+        # show_inds = random.choices(range(len(gts)), k=5)
+        show_inds = list(range(len(gts)))
+        random.shuffle(show_inds)
+        show_inds = show_inds[:5]
+        show_gts = [gts[i] for i in show_inds]
+        show_preds = [preds[i] for i in show_inds]
+        show_prob = [preds_prob[i] for i in show_inds]
+        for gt, pred, prob in zip(show_gts, show_preds, show_prob):
             self.predict_example_log += f'{gt:25s} | {pred:25s} | {prob:0.4f}\t{str(pred == gt)}\n'
             count += 1
             if count > 4:

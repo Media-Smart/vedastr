@@ -1,7 +1,7 @@
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 127.5, 127.5
+mean, std = 0.5, 0.5
 
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'
 sensitive = False
@@ -11,7 +11,7 @@ norm_cfg = dict(type='BN')
 num_class = len(character) + 1
 
 deploy = dict(
-    gpu_id='2',
+    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='ToGray'),
@@ -104,7 +104,7 @@ dataset_params = dict(
     character=character,
 )
 
-data_root = './data/data_lmdb_release/'
+data_root = '../../../../dataset/str/data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
@@ -113,6 +113,7 @@ batch_size = 192
 
 # data
 test_root = data_root + 'evaluation/'
+# test_folder_names = ['CUTE80']
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
                      'IIIT5k_3000', 'SVT', 'SVTP']
 test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
@@ -144,7 +145,7 @@ test = dict(
 root_workdir = 'workdir'
 
 # train data
-train_root = data_root + 'training/'
+train_root = data_root + 'train/'
 # MJ dataset
 train_root_mj = train_root + 'MJ/'
 mj_folder_names = ['MJ_test', 'MJ_valid', 'MJ_train']

@@ -4,7 +4,7 @@ root_workdir = 'workdir'
 ###############################################################################
 # 1. deploy
 size = (32, 100)
-mean, std = 127.5, 127.5
+mean, std = 0.5, 0.5
 
 character = '0123456789abcdefghijklmnopqrstuvwxyz'
 sensitive = False
@@ -14,7 +14,7 @@ norm_cfg = dict(type='BN')
 num_class = len(character) + 1
 
 deploy = dict(
-    gpu_id='3',
+    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='ToGray'),
@@ -89,7 +89,7 @@ deploy = dict(
 ###############################################################################
 # 2.common
 common = dict(
-    seed=1111,
+    seed=96,
     logger=dict(
         handlers=(
             dict(type='StreamHandler', level='INFO'),
@@ -109,7 +109,7 @@ dataset_params = dict(
     character=character,
 )
 
-data_root = './data/data_lmdb_release/'
+data_root = '../../../../dataset/str/data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
@@ -217,11 +217,17 @@ train = dict(
     criterion=dict(type='CrossEntropyLoss', ignore_index=37),
     lr_scheduler=dict(type='StepLR',
                       milestones=milestones,
+                      warmup_epochs=0.2,
                       ),
     max_iterations=max_iterations,
+	grad_clip=0,
     log_interval=10,
     trainval_ratio=2000,
     snapshot_interval=20000,
     save_best=True,
-    resume=None,
+    resume=dict(
+    checkpoint=r'./workdir/resnet_fc/best_acc.pth',
+    resume_optimizer=True,
+    resume_lr_scheduler=True,
+    resume_meta=True),
 )

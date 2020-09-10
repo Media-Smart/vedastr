@@ -1,12 +1,11 @@
-import pdb
 import random
 
-import cv2
-import torch
-import numpy as np
 import albumentations as albu
-from albumentations import DualTransform
 import albumentations.augmentations.functional as F
+import cv2
+import numpy as np
+import torch
+from albumentations import DualTransform
 
 from .registry import TRANSFORMS
 

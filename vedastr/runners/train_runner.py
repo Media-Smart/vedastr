@@ -3,14 +3,14 @@ from collections import OrderedDict
 
 import torch
 
-from .deploy_runner import DeployRunner
+from .inference_runner import InferenceRunner
 from ..criteria import build_criterion
 from ..lr_schedulers import build_lr_scheduler
 from ..optimizers import build_optimizer
 from ..utils import save_checkpoint
 
 
-class TrainRunner(DeployRunner):
+class TrainRunner(InferenceRunner):
     def __init__(self, train_cfg, deploy_cfg, common_cfg=None):
         super(TrainRunner, self).__init__(deploy_cfg, common_cfg)
 
@@ -134,25 +134,19 @@ class TrainRunner(DeployRunner):
             else:
                 pred = self.model((img,))
 
-            pred, prob = self.postprocess(pred)
+            pred, prob = self.postprocess(pred, self.postprocess_cfg)
             self.metric.measure(pred, prob, label)
 
     def __call__(self):
         self.metric.reset()
         self.logger.info('Start train...')
         iter_based = self.lr_scheduler._iter_based
-        if hasattr(self.lr_scheduler, 'warmup_iters'):
-            warmup_iters = self.lr_scheduler.warmup_iters
-        else:
-            warmup_iters = 0
         flag = True
         while flag:
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)
                 self.lr_scheduler.iter_nums()  # update steps
                 if iter_based:
-                    self.lr_scheduler.step()
-                elif warmup_iters > 0 and warmup_iters >= self.iter:
                     self.lr_scheduler.step()
                 if self.trainval_ratio > 0 \
                         and (self.iter + 1) % self.trainval_ratio == 0 \
