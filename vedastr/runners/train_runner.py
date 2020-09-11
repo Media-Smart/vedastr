@@ -46,8 +46,6 @@ class TrainRunner(InferenceRunner):
         assert self.workdir is not None
         assert self.log_interval > 0
 
-        self.best = OrderedDict()
-
         if train_cfg.get('resume'):
             self.resume(**train_cfg['resume'])
 
@@ -153,6 +151,8 @@ class TrainRunner(InferenceRunner):
                     break
             if not iter_based:
                 self.lr_scheduler.step()
+        self.logger.info('Ending of training, save the model of the last iterations.')
+        self.save_model(out_dir=self.workdir, filename='final.pth')
 
     @property
     def epoch(self):
@@ -181,10 +181,12 @@ class TrainRunner(InferenceRunner):
                    filename,
                    save_optimizer=True,
                    meta=None):
+        current_meta = dict(epoch=self.epoch, iter=self.iter, lr=self.lr,
+                            best_acc=self.best_acc, best_norm=self.best_norm)
         if meta is None:
-            meta = dict(epoch=self.epoch, iter=self.iter, lr=self.lr)
+            meta = current_meta
         else:
-            meta.update(epoch=self.epoch, iter=self.iter, lr=self.lr)
+            meta.update(current_meta)
 
         filepath = osp.join(out_dir, filename)
         optimizer = self.optimizer if save_optimizer else None
@@ -209,6 +211,7 @@ class TrainRunner(InferenceRunner):
         if resume_meta and 'meta' in checkpoint:
             self.logger.info('Resume meta data')
             meta = checkpoint['meta']
-            self.best = meta.get('best', -1)
+            self.best_acc = meta.get('best_acc', -1)
+            self.best_norm = meta.get('best_norm', -1)
             self.iter = meta.get('iter', 0)
             self.epoch = meta.get('epoch', 0)
