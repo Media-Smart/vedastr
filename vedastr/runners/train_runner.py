@@ -34,14 +34,7 @@ class TrainRunner(InferenceRunner):
         self.optimizer = self._build_optimizer(train_cfg['optimizer'])
         self.criterion = self._build_criterion(train_cfg['criterion'])
         self.lr_scheduler = self._build_lr_scheduler(train_cfg['lr_scheduler'])
-        self.max_iterations = train_cfg.get('max_iterations', False)
-        self.max_epochs = train_cfg.get('max_epochs', False)
-        assert self.max_epochs ^ self.max_iterations, \
-            'max_epochs and max_iterations are mutual exclusion'
-        if not self.max_iterations:
-            self.max_iterations = len(self.train_dataloader) * self.max_epochs
-        if not self.max_epochs:
-            self.max_epochs = self.max_iterations // len(self.train_dataloader)
+
         self.log_interval = train_cfg.get('log_interval', 10)
         self.trainval_ratio = train_cfg.get('trainval_ratio', -1)
         self.snapshot_interval = train_cfg.get('snapshot_interval', -1)
@@ -155,7 +148,7 @@ class TrainRunner(InferenceRunner):
                     self.metric.reset()
                 if (self.iter + 1) % self.snapshot_interval == 0:
                     self.save_model(out_dir=self.workdir, filename=f'iter{self.iter + 1}.pth')
-                if self.iter > self.max_iterations:
+                if self.iter >= self.max_iterations:
                     flag = False
                     break
             if not iter_based:

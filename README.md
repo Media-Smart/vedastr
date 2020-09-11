@@ -39,11 +39,10 @@ Note:
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[Rosetta]()| False|84.50 | 84.7 | 92.39 | 89.36|68.47|71.32|67.6|80.65|
-|[Rosetta-rotate]()| False|84.90 | 84.54 | 91.00 | 87.39|68.94|73.33|69.34|80.72|
-|[x] [ResNet-FC]()| False|85.03 | 86.4 | 94| 91.03|70.29|77.67|71.43|82.38|
-|[TPS-ResNet-BiLSTM-Attention]()| False|87.87 | 87.02 | 94.12| 91.63|74.92|79.22|75.96|84.86|
-|[x] [Small-SATRN]()| False|88.87 | 88.87 | 96.19 | 93.99|79.08|84.81|84.67|87.55|
+|[ResNet-CTC](https://drive.google.com/file/d/1Y27pChqqDqL-wWb3Lt6BF6EW6DF_lZPN/view?usp=sharing)| False|84.50 | 84.7 | 92.39 | 89.36|65.77|71.32|67.71|79.78|
+|[ResNet-FC](https://drive.google.com/file/d/1zgpJkQBJLfRvAS91iLB8lBww4i_7NJsT/view?usp=sharing)  | False|84.4  | 86.55 | 93.89| 91.53|66.78|76.74|65.97|80.89|
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1qjZoyN3VeZxrAO7Vb_5bB6vPH4ocRIQ-/view?usp=sharing)| False|87.87 | 87.02 | 94.12| 91.63|71.69|79.22|75.69|83.89|
+|[Small-SATRN](https://drive.google.com/file/d/1bcKtEcYGIOehgPfGi_TqPkvrm6rjOUKR/view?usp=sharing)| False|91.97 | 88.10 | 94.81 | 93.50|75.64|83.88|80.90|87.19|
 
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
@@ -55,7 +54,7 @@ Rosetta: [Rosetta: Large scale system for text detection and recognition in imag
 AVERAGE : Average accuracy over all test datasets
 
 CASE SENSITIVE : If true, the output is case sensitive and contain common characters.
-If false, the output is not case sentive and contains only numbers and letters. 
+If false, the output is not case sensetive and contains only numbers and letters. 
 
 ## Installation
 ### Requirements
