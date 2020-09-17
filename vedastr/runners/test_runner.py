@@ -7,7 +7,7 @@ class TestRunner(InferenceRunner):
     def __init__(self, test_cfg, deploy_cfg, common_cfg=None):
         super(TestRunner, self).__init__(deploy_cfg, common_cfg)
 
-        self.test_dataloader = self._build_dataloader(test_cfg['data'])
+        self.test_dataloaders = self._build_dataloader(test_cfg['data'])
         self.postprocess_cfg = test_cfg.get('postprocess_cfg', None)
 
     def test_batch(self, img, label):
@@ -25,13 +25,18 @@ class TestRunner(InferenceRunner):
 
             pred, prob, label = self.postprocess(pred, self.postprocess_cfg, label)
             self.metric.measure(pred, prob, label)
+            self.backup_metric.measure(pred, prob, label)
 
     def __call__(self):
         self.logger.info('Start testing')
         self.logger.info('test info: %s' % self.postprocess_cfg)
         self.metric.reset()
-        for img, label in self.test_dataloader:
-            self.test_batch(img, label)
-
-        self.logger.info('Test, acc %.4f, edit %s' % (self.metric.avg['acc']['true'],
-                                                      self.metric.avg['edit']))
+        for name, dataloader in self.test_dataloaders.items():
+            self.backup_metric.reset()
+            for img, label in dataloader:
+                self.test_batch(img, label)
+            self.logger.info('Test, current dataset root %s, acc %.4f, edit distance %.4f' % (
+                name, self.backup_metric.avg['acc']['true'], self.metric.avg['edit']
+            ))
+        self.logger.info('Test, average acc %.4f, edit distance %s' % (self.metric.avg['acc']['true'],
+                                                               self.metric.avg['edit']))

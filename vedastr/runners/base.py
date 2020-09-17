@@ -39,6 +39,7 @@ class Common(object):
         # build metric
         if 'metric' in cfg:
             self.metric = self._build_metric(cfg['metric'])
+            self.backup_metric = self._build_metric(cfg['metric'])
 
         # set need_text
         self.need_text = False

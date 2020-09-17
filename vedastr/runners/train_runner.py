@@ -2,6 +2,7 @@ import os.path as osp
 from collections import OrderedDict
 
 import torch
+import torch.utils.data as tud
 
 from .inference_runner import InferenceRunner
 from ..criteria import build_criterion
@@ -16,6 +17,14 @@ class TrainRunner(InferenceRunner):
 
         self.train_dataloader = self._build_dataloader(
             train_cfg['data']['train'])
+        assert isinstance(self.train_dataloader, tud.DataLoader), \
+            "Only suppor single dataloader in training phase. " \
+            "Check the type of dataset please. " \
+            "If the type of dataset is list, then the type of build datalodaer will be dict." \
+            "If the type of dataset is torch.utils.data.Dataset, " \
+            "the type of build dataloader will be torch.utils.data.Dataloader. " \
+            "If you wanna combine different dataset, consider using ConcatDataset in your config file please."
+
         if 'val' in train_cfg['data']:
             self.val_dataloader = self._build_dataloader(
                 train_cfg['data']['val'])

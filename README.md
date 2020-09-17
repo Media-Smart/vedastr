@@ -26,7 +26,7 @@ in order to support rapid implementation and evaluation for scene text recogniti
 ## License
 This project is released under [Apache 2.0 license](https://github.com/Media-Smart/vedastr/blob/master/LICENSE).
 
-## Benchmark and model zoo
+## Benchmark and model zoo (**UPDATE LINK**)
 Note: 
 - We test our model on [IIIT5K_3000](http://cvit.iiit.ac.in/research/projects/cvit-projects/the-iiit-5k-word-dataset),
  [SVT](http://vision.ucsd.edu/~kai/svt/),
@@ -39,17 +39,15 @@ Note:
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[ResNet-CTC](https://drive.google.com/file/d/1Y27pChqqDqL-wWb3Lt6BF6EW6DF_lZPN/view?usp=sharing)| False|84.50 | 84.7 | 92.39 | 89.36|65.77|71.32|67.71|79.78|
+|[ResNet-CTC](https://drive.google.com/file/d/1Y27pChqqDqL-wWb3Lt6BF6EW6DF_lZPN/view?usp=sharing)| False|87.97 | 84.54 | 90.54 | 88.28 |67.99|72.71|77.08|81.58|
 |[ResNet-FC](https://drive.google.com/file/d/1zgpJkQBJLfRvAS91iLB8lBww4i_7NJsT/view?usp=sharing)  | False|84.4  | 86.55 | 93.89| 91.53|66.78|76.74|65.97|80.89|
-|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1qjZoyN3VeZxrAO7Vb_5bB6vPH4ocRIQ-/view?usp=sharing)| False|87.87 | 87.02 | 94.12| 91.63|71.69|79.22|75.69|83.89|
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1qjZoyN3VeZxrAO7Vb_5bB6vPH4ocRIQ-/view?usp=sharing)| False|90.93 | 88.72 | 93.89| 92.12|76.41|80.31|79.51|86.49|
 |[Small-SATRN](https://drive.google.com/file/d/1bcKtEcYGIOehgPfGi_TqPkvrm6rjOUKR/view?usp=sharing)| False|91.97 | 88.10 | 94.81 | 93.50|75.64|83.88|80.90|87.19|
 
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
 Small-SATRN: [On Recognizing Texts of Arbitrary Shapes with 2D Self-Attention](https://arxiv.org/abs/1910.04396), 
 training phase is case sensitive while testing phase is case insensitive.
-
-Rosetta: [Rosetta: Large scale system for text detection and recognition in images](https://arxiv.org/abs/1910.05085).
 
 AVERAGE : Average accuracy over all test datasets
 
@@ -103,7 +101,8 @@ pip install -r requirements.txt
 
 ## Prepare data
 1. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
- which contains training data, validation data and evaluation data. 
+ which contains training data, validation data and evaluation data. Note: we didn't use the ST dataset released by them,
+ (here)[https://github.com/ayumiymk/aster.pytorch#data-preparation] is the ST dataset we used.  
 
 2. Make directory data as follows:
 

@@ -10,7 +10,7 @@ from torch.utils.data import Dataset
 
 class BaseDataset(Dataset):
     def __init__(self, root, gt_txt=None, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=25, data_filter_off=False, unknown=False):
+                 batch_max_length=100000, data_filter=True, unknown=False):
         assert type(root) == str
         if gt_txt is not None:
             assert os.path.isfile(gt_txt)
@@ -18,7 +18,7 @@ class BaseDataset(Dataset):
         self.root = root
         self.character = character
         self.batch_max_length = batch_max_length
-        self.data_filter_off = data_filter_off
+        self.data_filter = data_filter
         self.unknown = unknown
 
         if transform:
@@ -35,15 +35,21 @@ class BaseDataset(Dataset):
         raise NotImplementedError
 
     def filter(self, label):
-        if self.data_filter_off:
-            return False
-        else:
-            if len(label) > self.batch_max_length:
-                return True
-            out_of_char = f'[^{self.character}]'
-            if re.search(out_of_char, label.lower()) and not self.unknown:
-                return True
-            return False
+        """We will filter those samples whose length is larger than defined max_length by default."""
+        out_of_char = f'[^{self.character}]'
+        label = re.sub(out_of_char, '', label.lower())  # replace those character not in self.character with ''
+        if len(label) > self.batch_max_length:  # filter whose label larger than batch_max_length
+            return True
+
+        return False
+
+        # if not self.data_filter:
+        #     return False
+        # else:
+        #
+        #     # if re.search(out_of_char, label.lower()) and not self.unknown:
+        #     #     return True
+        #     return False
 
     def __getitem__(self, index):
         img = Image.open(self.img_names[index])

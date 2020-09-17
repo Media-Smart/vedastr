@@ -4,10 +4,23 @@ from vedastr.utils import build_from_cfg
 from .registry import DATALOADERS
 
 
-def build_dataloader(cfg, default_args=None):
-    try:
-        dataloader = build_from_cfg(cfg, tud, default_args, src='module')
-    except:
-        dataloader = build_from_cfg(cfg, DATALOADERS, default_args)
+def build_dataloader(cfg, default_args: dict = None):
+    dataloaders = {}
+    if DATALOADERS.get(cfg['type']):
+        packages = DATALOADERS
+    else:
+        packages = tud
 
-    return dataloader
+    if isinstance(default_args.get('dataset'), list):
+        for idx, ds in enumerate(default_args['dataset']):
+            assert isinstance(ds, tud.Dataset)
+            dataloader = build_from_cfg(cfg, packages, dict(dataset=ds, sampler=default_args.get('sampler', None)))
+            if hasattr(ds, 'root'):
+                name = getattr(ds, 'root')
+            else:
+                name = str(idx)
+            dataloaders[name] = dataloader
+    else:
+        dataloaders = build_from_cfg(cfg, packages, default_args, src='module')
+
+    return dataloaders

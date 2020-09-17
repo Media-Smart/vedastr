@@ -1,3 +1,4 @@
+import re
 import random
 
 import albumentations as albu
@@ -131,15 +132,23 @@ class ToTensor(DualTransform):
 
 @TRANSFORMS.register_module
 class Sensitive(DualTransform):
-
-    def __init__(self, sensitive):
+    """
+    Args:
+        sensitive (bool): If false, all upper-case will transfer to lower-case, else do nothing.
+        need_character (str) :  For each character in label, replace it with '' if it isn't in need_character.
+    """
+    def __init__(self, sensitive, need_character):
         self.sensitive = sensitive
+        self.need_character = need_character
         super(Sensitive, self).__init__(always_apply=True)
 
     def __call__(self, force_apply=False, **kwargs):
+        label = kwargs.get('label')
         if not self.sensitive:
-            label = kwargs.get('label').lower()
-            kwargs.update(label=label)
+            label = label.lower()
+        out_of_char = f'[^{self.need_character}]'
+        label = re.sub(out_of_char, '', label)
+        kwargs.update(label=label)
 
         return kwargs
 

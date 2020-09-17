@@ -122,7 +122,13 @@ workdir/
 
 # local file
 *.txt
+train.sh
+ttt.py
 fff.py
 loader.py
+configs/local_spin.py
 configs/local_config.py
+configs/crnn.py
+configs/spin_crnn.py
+configs/tps_crnn.py
 tools/imgs_after_transform.py
