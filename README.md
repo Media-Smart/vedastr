@@ -39,9 +39,9 @@ Note:
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[ResNet-CTC](https://drive.google.com/file/d/1Y27pChqqDqL-wWb3Lt6BF6EW6DF_lZPN/view?usp=sharing)| False|87.97 | 84.54 | 90.54 | 88.28 |67.99|72.71|77.08|81.58|
-|[ResNet-FC](https://drive.google.com/file/d/1zgpJkQBJLfRvAS91iLB8lBww4i_7NJsT/view?usp=sharing)  | False|88.80  | 88.41 | 92.85| 90.34|72.32|79.38|76.74|84.24|
-|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1qjZoyN3VeZxrAO7Vb_5bB6vPH4ocRIQ-/view?usp=sharing)| False|90.93 | 88.72 | 93.89| 92.12|76.41|80.31|79.51|86.49|
+|[ResNet-CTC](https://drive.google.com/file/d/1gtTcc5kpVs_s5a6OR7eBh431Otk_-NrE/view?usp=sharing)| False|87.97 | 84.54 | 90.54 | 88.28 |67.99|72.71|77.08|81.58|
+|[ResNet-FC](https://drive.google.com/file/d/1OnUGdv9RFhFbQGXUUkWMcxUZg0mPV0kK/view?usp=sharing)  | False|88.80  | 88.41 | 92.85| 90.34|72.32|79.38|76.74|84.24|
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1YUOAU7xcrrsAtEqEGtI5ZD7eryP7Zr04/view?usp=sharing)| False|90.93 | 88.72 | 93.89| 92.12|76.41|80.31|79.51|86.49|
 |[Small-SATRN](https://drive.google.com/file/d/1bcKtEcYGIOehgPfGi_TqPkvrm6rjOUKR/view?usp=sharing)| False|91.97 | 88.10 | 94.81 | 93.50|75.64|83.88|80.90|87.19|
 
 TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)

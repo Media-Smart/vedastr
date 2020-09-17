@@ -137,6 +137,7 @@ class Sensitive(DualTransform):
         sensitive (bool): If false, all upper-case will transfer to lower-case, else do nothing.
         need_character (str) :  For each character in label, replace it with '' if it isn't in need_character.
     """
+
     def __init__(self, sensitive, need_character):
         self.sensitive = sensitive
         self.need_character = need_character
