@@ -35,7 +35,7 @@ Note:
 [IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads), SVTP,
 [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html).  The training data we used is [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
  [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). You can find the 
- datasets below.
+ datasets [below](https://github.com/Media-Smart/vedastr/tree/opencv-version#prepare-data).
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
@@ -102,7 +102,7 @@ pip install -r requirements.txt
 ## Prepare data
 1. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
  which contains training data, validation data and evaluation data. Note: we didn't use the ST dataset released by them,
- (here)[https://github.com/ayumiymk/aster.pytorch#data-preparation] is the ST dataset we used.  
+ [here](https://github.com/ayumiymk/aster.pytorch#data-preparation) is the ST dataset we used.  
 
 2. Make directory data as follows:
 
