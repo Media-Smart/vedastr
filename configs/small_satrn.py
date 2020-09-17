@@ -25,7 +25,7 @@ num_steps = batch_max_length + 1
 deploy = dict(
     gpu_id='0,1,2,3',
     transform=[
-        dict(type='Sensitive', sensitive=sensitive),
+        dict(type='Sensitive', sensitive=sensitive, need_character=character),
         dict(type='ToGray'),
         dict(type='Resize', size=size),
         dict(type='Normalize', mean=mean, std=std),
@@ -192,15 +192,14 @@ common = dict(
 )
 
 ###############################################################################
-data_filter_off = False
 dataset_params = dict(
     batch_max_length=batch_max_length,
-    data_filter_off=data_filter_off,
+    data_filter=True,
     character=character,
 )
 test_dataset_params = dict(
     batch_max_length=batch_max_length,
-    data_filter_off=data_filter_off,
+    data_filter=False,
     character=test_character,
 )
 
@@ -226,12 +225,9 @@ test = dict(
             num_workers=4,
             shuffle=False,
         ),
-        dataset=dict(
-            type='ConcatDatasets',
-            datasets=test_dataset,
-        ),
+        dataset=test_dataset,
         transform=[
-            dict(type='Sensitive', sensitive=test_sensitive),
+            dict(type='Sensitive', sensitive=test_sensitive, character=character),
             dict(type='ToGray'),
             dict(type='Resize', size=size),
             dict(type='Normalize', mean=mean, std=std),
@@ -266,7 +262,7 @@ valid_root = data_root + 'validation/'
 valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 train_transforms = [
-    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='Sensitive', sensitive=sensitive, need_character=character),
     dict(type='ToGray'),
     dict(type='ExpandRotate', limit=34, p=0.5),
     dict(type='Resize', size=size),
@@ -275,7 +271,7 @@ train_transforms = [
 ]
 
 max_epochs = 6
-milestones = [2, 4]
+milestones = [2, 4]  # epoch start from 0, so 2 means lr decay at 3 epoch, 4 means lr decay at the end of
 
 train = dict(
     data=dict(

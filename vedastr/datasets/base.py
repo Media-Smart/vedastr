@@ -15,7 +15,7 @@ class BaseDataset(Dataset):
         if gt_txt is not None:
             assert os.path.isfile(gt_txt)
             self.gt_txt = gt_txt
-        self.root = root
+        self.root = os.path.abspath(root)
         self.character = character
         self.batch_max_length = batch_max_length
         self.data_filter = data_filter
@@ -45,23 +45,13 @@ class BaseDataset(Dataset):
 
         return False
 
-        # if not self.data_filter:
-        #     return False
-        # else:
-        #
-        #     # if re.search(out_of_char, label.lower()) and not self.unknown:
-        #     #     return True
-        #     return False
-
     def __getitem__(self, index):
         img = Image.open(self.img_names[index])
         label = self.gt_texts[index]
 
         if self.transforms:
             img, label = self.transforms(img, label)
-        if not self.unknown:
-            out_of_char = f'[^{self.character}]'
-            label = re.sub(out_of_char, '', label)
+
         return img, label
 
     def __len__(self):

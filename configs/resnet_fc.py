@@ -16,7 +16,7 @@ num_class = len(character) + 1
 deploy = dict(
     gpu_id='0',
     transform=[
-        dict(type='Sensitive', sensitive=sensitive),
+        dict(type='Sensitive', sensitive=sensitive, need_character=character),
         dict(type='ToGray'),
         dict(type='Resize', size=size),
         dict(type='Normalize', mean=mean, std=std),
@@ -102,10 +102,15 @@ common = dict(
 )
 
 ###############################################################################
-data_filter_off = False
+data_filter = True
 dataset_params = dict(
     batch_max_length=batch_max_length,
-    data_filter_off=data_filter_off,
+    data_filter=True,
+    character=character,
+)
+test_dataset_params = dict(
+    batch_max_length=batch_max_length,
+    data_filter=False,
     character=character,
 )
 
@@ -119,7 +124,7 @@ test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
                      'IIIT5k_3000', 'SVT', 'SVTP']
 test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
-                     **dataset_params) for f_name in test_folder_names]
+                     **test_dataset_params) for f_name in test_folder_names]
 
 test = dict(
     data=dict(
@@ -129,10 +134,7 @@ test = dict(
             num_workers=4,
             shuffle=False,
         ),
-        dataset=dict(
-            type='ConcatDatasets',
-            datasets=test_dataset,
-        ),
+        dataset=test_dataset,
         transform=deploy['transform'],
     ),
     postprocess_cfg=dict(
@@ -156,11 +158,11 @@ train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
 
 # valid
 valid_root = data_root + 'validation/'
-valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
+valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 # train transforms
 train_transforms = [
-    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='Sensitive', sensitive=sensitive, need_character=character),
     dict(type='ToGray'),
     dict(type='Resize', size=size),
     dict(type='Normalize', mean=mean, std=std),
@@ -220,14 +222,10 @@ train = dict(
                       warmup_epochs=0.2,
                       ),
     max_iterations=max_iterations,
-	grad_clip=0,
+    grad_clip=0,
     log_interval=10,
     trainval_ratio=2000,
     snapshot_interval=20000,
     save_best=True,
-    resume=dict(
-    checkpoint=r'./workdir/resnet_fc/best_acc.pth',
-    resume_optimizer=True,
-    resume_lr_scheduler=True,
-    resume_meta=True),
+    resume=None,
 )
