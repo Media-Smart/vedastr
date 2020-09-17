@@ -35,6 +35,8 @@ class BaseDataset(Dataset):
         raise NotImplementedError
 
     def filter(self, label):
+        if not self.data_filter:
+            return False
         """We will filter those samples whose length is larger than defined max_length by default."""
         out_of_char = f'[^{self.character}]'
         label = re.sub(out_of_char, '', label.lower())  # replace those character not in self.character with ''
