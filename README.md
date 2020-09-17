@@ -101,8 +101,9 @@ pip install -r requirements.txt
 
 ## Prepare data
 1. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
- which contains training data, validation data and evaluation data. Note: we didn't use the ST dataset released by them,
- [here](https://github.com/ayumiymk/aster.pytorch#data-preparation) is the ST dataset we used.  
+ which contains training data, validation data and evaluation data. 
+ **Note: we didn't use the ST dataset released by them,
+ [here](https://github.com/ayumiymk/aster.pytorch#data-preparation) is the ST dataset we used.**  
 
 2. Make directory data as follows:
 
