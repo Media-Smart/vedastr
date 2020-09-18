@@ -9,10 +9,9 @@ from vedastr.utils import Config
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Train a classification model')
-    parser.add_argument('config', type=str, help='config file path')
-    parser.add_argument('checkpoint', type=str, help='checkpoint file path')
+    parser = argparse.ArgumentParser(description='Test.')
+    parser.add_argument('config', type=str, help='Config file path')
+    parser.add_argument('checkpoint', type=str, help='Checkpoint file path')
     args = parser.parse_args()
 
     return args

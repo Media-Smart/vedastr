@@ -12,9 +12,11 @@ from vedastr.utils import Config
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Inference')
-    parser.add_argument('config', type=str, help='config file path')
-    parser.add_argument('checkpoint', type=str, help='checkpoint file path')
+    parser.add_argument('config', type=str, help='Config file path')
+    parser.add_argument('checkpoint', type=str, help='Checkpoint file path')
     parser.add_argument('image', type=str, help='input image path')
+    parser.add_argument('--rgb', action='store_true', default=False,
+                        help='The mode of image is rgb or bgr.')
     args = parser.parse_args()
 
     return args
@@ -38,6 +40,8 @@ def main():
                   for name in os.listdir(args.image)]
     for img in images:
         image = cv2.imread(img)
+        if args.rgb:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         pred_str, probs = runner(image)
         runner.logger.info('predict string: {} \t of {}'.format(pred_str, img))
 

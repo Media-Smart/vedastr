@@ -9,7 +9,7 @@ from vedastr.utils import Config
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train a classification model')
+    parser = argparse.ArgumentParser(description='Train.')
     parser.add_argument('config', type=str, help='config file path')
     args = parser.parse_args()
 
