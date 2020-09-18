@@ -10,7 +10,7 @@ from torch.utils.data import Dataset
 
 class BaseDataset(Dataset):
     def __init__(self, root, gt_txt=None, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=100000, data_filter=True, unknown=False):
+                 batch_max_length=100000, data_filter=True):
         assert type(root) == str
         if gt_txt is not None:
             assert os.path.isfile(gt_txt)
@@ -19,7 +19,6 @@ class BaseDataset(Dataset):
         self.character = character
         self.batch_max_length = batch_max_length
         self.data_filter = data_filter
-        self.unknown = unknown
 
         if transform:
             self.transforms = transform

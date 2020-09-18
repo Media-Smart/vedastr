@@ -5,7 +5,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
 import cv2
-from PIL import Image
 from volksdep.converters import torch2onnx, torch2trt, save
 
 from vedastr.runners import InferenceRunner
@@ -52,7 +51,6 @@ def main():
     assert runner.use_gpu, 'Please use valid gpu to export model.'
     runner.load_checkpoint(args.checkpoint)
 
-    # image = Image.open(args.image)
     image = cv2.imread(args.image)
 
     aug = runner.transform(image=image, label='')

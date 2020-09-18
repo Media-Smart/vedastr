@@ -1,7 +1,6 @@
 import argparse
 import os
 import sys
-import pdb
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
@@ -53,7 +52,6 @@ def main():
     image = cv2.imread(args.image)
     aug= runner.transform(image=image,label='')
     image, dummy_label = aug['image'], aug['label']
-    pdb.set_trace()
     image = image.unsqueeze(0)
     input_len = runner.converter.test_encode(1)[0]
     model = runner.model

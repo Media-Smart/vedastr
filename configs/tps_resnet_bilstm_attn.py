@@ -241,7 +241,7 @@ test = dict(
 root_workdir = 'workdir'
 
 # data
-train_root = data_root + 'train/'
+train_root = data_root + 'training/'
 # MJ dataset
 train_root_mj = train_root + 'MJ/'
 mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
