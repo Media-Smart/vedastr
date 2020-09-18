@@ -26,7 +26,7 @@ in order to support rapid implementation and evaluation for scene text recogniti
 ## License
 This project is released under [Apache 2.0 license](https://github.com/Media-Smart/vedastr/blob/master/LICENSE).
 
-## Benchmark and model zoo (**UPDATE LINK**)
+## Benchmark and model zoo
 Note: 
 - We test our model on [IIIT5K_3000](http://cvit.iiit.ac.in/research/projects/cvit-projects/the-iiit-5k-word-dataset),
  [SVT](http://vision.ucsd.edu/~kai/svt/),
