@@ -168,7 +168,7 @@ python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_
 
 2. Benchmark (optional)
 ```python
-python tools/deploy/benchmark.py configs/rosetta.py checkpoint_path image_file_path --calibration_images image_folder_path
+python tools/deploy/benchmark.py configs/resnet_ctc.py checkpoint_path image_file_path --calibration_images image_folder_path
 ```
 
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
@@ -188,7 +188,7 @@ The result of rosetta is as followsï¼ˆtest device: Jetson AGX Xavier, CUDA:10.2ï
 3. Export model as ONNX or TensorRT engine format
 
 ```python
-python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path out_model_path
+python tools/deploy/export.py configs/resnet_ctc.py checkpoint_path image_file_path out_model_path
 ```
 
   More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
@@ -199,7 +199,7 @@ python tools/deploy/export.py configs/rosetta.py checkpoint_path image_file_path
 
 ## Contact
 
-This repository is currently maintained by  Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
+This repository is currently maintained by Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
 
 ## Credits
 We got a lot of code from [mmcv](https://github.com/open-mmlab/mmcv) , [mmdetection](https://github.com/open-mmlab/mmdetection), [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark) and [vedaseg](https://github.com/Media-Smart/vedaseg) thanks to [open-mmlab](https://github.com/open-mmlab), [clovaai](https://github.com/clovaai), [Media-Smart](https://github.com/Media-Smart).

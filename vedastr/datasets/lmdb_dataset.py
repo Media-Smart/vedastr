@@ -1,11 +1,9 @@
 # modify from clovaai
 
 import random
-import re
 
 import lmdb
 import six
-import cv2
 import numpy as np
 from PIL import Image
 
@@ -49,9 +47,7 @@ class LmdbDataset(BaseDataset):
             buf.seek(0)
             try:
                 img = Image.open(buf).convert('RGB')  # for color image
-                # img = cv2.imdecode(np.fromstring(value, np.uint8), 3)
                 img = np.array(img)
-                img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             except IOError:
                 print(f'Corrupted image for {index}')
                 img, label = self.__getitem__(random.choice(range(len(self))))
