@@ -173,7 +173,7 @@ python tools/deploy/benchmark.py configs/resnet_ctc.py checkpoint_path image_fil
 
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
-The result of resnet_ctc is as follows（test device: Jetson AGX Xavier, CUDA:10.2）:
+The result of resnet_ctc is as follows(test device: Jetson AGX Xavier, CUDA:10.2):
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
 |    :-:     |    :-:     |         :-:          |            :-:            |         :-:          |       :-:       |
