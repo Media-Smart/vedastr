@@ -28,13 +28,14 @@ This project is released under [Apache 2.0 license](https://github.com/Media-Sma
 
 ## Benchmark and model zoo
 Note: 
-- We test our model on [IIIT5K_3000](http://cvit.iiit.ac.in/research/projects/cvit-projects/the-iiit-5k-word-dataset),
+- We use [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
+ [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/) as training data,  and test the models on 
+ [IIIT5K_3000](http://cvit.iiit.ac.in/research/projects/cvit-projects/the-iiit-5k-word-dataset),
  [SVT](http://vision.ucsd.edu/~kai/svt/),
   [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php?title=ICDAR_2003_Robust_Reading_Competitions), 
   [IC13_1015](http://dagdata.cvc.uab.es/icdar2013competition/?ch=2&com=downloads),
 [IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads), SVTP,
-[CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html).  The training data we used is [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
- [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). You can find the 
+[CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html). You can find the 
  datasets [below](https://github.com/Media-Smart/vedastr/tree/opencv-version#prepare-data).
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
@@ -101,9 +102,8 @@ pip install -r requirements.txt
 
 ## Prepare data
 1. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
- which contains training data, validation data and evaluation data. 
- **Note: we didn't use the ST dataset released by them,
- [here](https://github.com/ayumiymk/aster.pytorch#data-preparation) is the ST dataset we used.**  
+ which contains training, validation and evaluation data. 
+ **Note: we use the ST dataset released by [ASTER](https://github.com/ayumiymk/aster.pytorch#data-preparation).**  
 
 2. Make directory data as follows:
 
@@ -112,7 +112,7 @@ cd ${vedastr_root}
 mkdir ${vedastr_root}/data
 ```
 
-3. Put the download Lmdb data into this data directory, the structure of data directory will look like as follows: 
+3. Put the download LMDB data into this data directory, the structure of data directory will look like as follows: 
 
 ```shell
 data
@@ -173,7 +173,7 @@ python tools/deploy/benchmark.py configs/resnet_ctc.py checkpoint_path image_fil
 
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
 
-The result of rosetta is as follows（test device: Jetson AGX Xavier, CUDA:10.2）:
+The result of resnet_ctc is as follows（test device: Jetson AGX Xavier, CUDA:10.2）:
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
 |    :-:     |    :-:     |         :-:          |            :-:            |         :-:          |       :-:       |
