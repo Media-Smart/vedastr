@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -48,28 +50,34 @@ class SPIN(nn.Module):
         self.ain = AIN(spin['ain'])
         self.betas = generate_beta(k)
         init_weights(self.modules())
+        # self.spn.head[-1].fc.weight.data.fill_(0)
+        # self.spn.head[-1].fc.bias.data = torch.from_numpy(np.array([0, 0, 0, 0, 0,0,1,0,0, 0, 0, 0, 0, 0])).float()
 
     def forward(self, x):
-        # print(x)
         b, c, h, w = x.size()
+        init_img = copy.copy(x)
         # shared parameters
-        body_out = self.body(x)
-        spn_out = self.spn(body_out)  # 2k+2
+        x = self.body(x)
+
+        spn_out = self.spn(x)  # 2k+2
         ain_out = self.ain(x)  # activated by sigmoid
 
         omega = spn_out[:, :-1]
 
         alpha = F.sigmoid(spn_out[:, -1])
+        
         # offset
-        ain_out = F.interpolate(ain_out, size=(h, w), mode='bilinear', align_corners=False)  # noqa: F811
-        g_out = alpha[:, None, None, None] * ain_out + (1 - alpha[:, None, None, None]) * x
+        ain_out = F.interpolate(ain_out, size=(h, w), mode='bilinear')  # noqa: F811
+        g_out = alpha[:, None, None, None] * ain_out + (1 - alpha[:, None, None, None]) * init_img
+        # g_out = alpha * ain_out + (1 - alpha) * init_img
+        # g_out = init_img
         # beta dist on g_out
         gamma_out = [g_out ** beta for beta in self.betas]
-        gamma_out = torch.stack(gamma_out, axis=1)
+        gamma_out = torch.stack(gamma_out, axis=1).requires_grad_(True)
         fusion_img = omega[:, :, None, None, None] * gamma_out
-        fusion_img = fusion_img.sum(dim=1)
+        fusion_img = torch.sigmoid(fusion_img.sum(dim=1))
 
-        return F.sigmoid(fusion_img)
+        return fusion_img
 
 
 def generate_beta(K):

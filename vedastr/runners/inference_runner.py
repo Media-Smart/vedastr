@@ -92,7 +92,7 @@ class InferenceRunner(Common):
     def __call__(self, image):
         with torch.no_grad():
             dummy_text = ''
-            aug  = self.transform(image=image, label=dummy_text)
+            aug = self.transform(image=image, label=dummy_text)
             image, text = aug['image'], aug['label']
             image = image.unsqueeze(0)
             label_input, label_length, label_target = self.converter.test_encode([text])
