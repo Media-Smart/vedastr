@@ -8,3 +8,4 @@ torchvision>=0.5.*
 lmdb
 nltk
 terminaltables
+albumentations
