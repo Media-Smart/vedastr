@@ -227,7 +227,7 @@ test = dict(
         ),
         dataset=test_dataset,
         transform=[
-            dict(type='Sensitive', sensitive=test_sensitive, character=character),
+            dict(type='Sensitive', sensitive=test_sensitive, need_character=character),
             dict(type='ToGray'),
             dict(type='Resize', size=size),
             dict(type='Normalize', mean=mean, std=std),
