@@ -45,7 +45,9 @@ class BaseDataset(Dataset):
         return False
 
     def __getitem__(self, index):
+        # default img channel is rgb
         img = cv2.imread(self.img_names[index])
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         label = self.gt_texts[index]
 
         if self.transforms:
