@@ -49,7 +49,8 @@ class BaseDataset(Dataset):
         label = self.gt_texts[index]
 
         if self.transforms:
-            img, label = self.transforms(img, label)
+            aug = self.transforms(image=img, label=label)
+            img, label = aug['image'], aug['label']
 
         return img, label
 
