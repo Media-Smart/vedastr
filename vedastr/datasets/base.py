@@ -4,7 +4,7 @@ import logging
 import os
 import re
 
-from PIL import Image
+import cv2
 from torch.utils.data import Dataset
 
 
@@ -45,7 +45,7 @@ class BaseDataset(Dataset):
         return False
 
     def __getitem__(self, index):
-        img = Image.open(self.img_names[index])
+        img = cv2.imread(self.img_names[index])
         label = self.gt_texts[index]
 
         if self.transforms:
