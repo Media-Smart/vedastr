@@ -1,9 +1,10 @@
+# [SPIN: Structure-Preserving Inner Offset Network for Scene Text Recognition](https://arxiv.org/abs/2005.13117)
+# Not fully implemented yet.
 import copy
 
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .registry import RECTIFICATORS
 from vedastr.models.bodies.feature_extractors import build_feature_extractor
@@ -47,11 +48,8 @@ class SPIN(nn.Module):
         super(SPIN, self).__init__()
         self.body = build_feature_extractor(spin['feature_extractor'])
         self.spn = SPN(spin['spn'])
-        self.ain = AIN(spin['ain'])
         self.betas = generate_beta(k)
         init_weights(self.modules())
-        # self.spn.head[-1].fc.weight.data.fill_(0)
-        # self.spn.head[-1].fc.bias.data = torch.from_numpy(np.array([0, 0, 0, 0, 0,0,1,0,0, 0, 0, 0, 0, 0])).float()
 
     def forward(self, x):
         b, c, h, w = x.size()
@@ -60,23 +58,14 @@ class SPIN(nn.Module):
         x = self.body(x)
 
         spn_out = self.spn(x)  # 2k+2
-        ain_out = self.ain(x)  # activated by sigmoid
-
         omega = spn_out[:, :-1]
+        g_out = init_img.requires_grad_(True)
 
-        alpha = F.sigmoid(spn_out[:, -1])
-        
-        # offset
-        ain_out = F.interpolate(ain_out, size=(h, w), mode='bilinear')  # noqa: F811
-        g_out = alpha[:, None, None, None] * ain_out + (1 - alpha[:, None, None, None]) * init_img
-        # g_out = alpha * ain_out + (1 - alpha) * init_img
-        # g_out = init_img
-        # beta dist on g_out
         gamma_out = [g_out ** beta for beta in self.betas]
         gamma_out = torch.stack(gamma_out, axis=1).requires_grad_(True)
+
         fusion_img = omega[:, :, None, None, None] * gamma_out
         fusion_img = torch.sigmoid(fusion_img.sum(dim=1))
-
         return fusion_img
 
 
