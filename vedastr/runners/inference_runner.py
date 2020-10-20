@@ -53,7 +53,7 @@ class InferenceRunner(Common):
 
         return load_checkpoint(self.model, filename, map_location, strict)
 
-    def postprocess(self, preds, cfg=None, label=None):
+    def postprocess(self, preds, cfg=None):
         if cfg is not None:
             sensitive = cfg.get('sensitive', True)
             character = cfg.get('character', '')
@@ -65,7 +65,6 @@ class InferenceRunner(Common):
         max_probs, indexes = probs.max(dim=2)
         preds_str = []
         preds_prob = []
-        labels = []
         for i, pstr in enumerate(self.converter.decode(indexes)):
             str_len = len(pstr)
             if str_len == 0:
@@ -73,19 +72,13 @@ class InferenceRunner(Common):
             else:
                 prob = max_probs[i, :str_len].cumprod(dim=0)[-1]
             preds_prob.append(prob)
-
             if not sensitive:
                 pstr = pstr.lower()
-                if label is not None:
-                    tmp = label[i].lower()
+
             if character:
                 pstr = re.sub('[^{}]'.format(character), '', pstr)
-                if label is not None:
-                    tmp = re.sub('[^{}]'.format(character), '', tmp)
-                    labels.append(tmp)
+
             preds_str.append(pstr)
-        if label is not None:
-             return preds_str, preds_prob, labels
 
         return preds_str, preds_prob
 

@@ -25,7 +25,7 @@ class TestRunner(InferenceRunner):
             else:
                 pred = self.model((img,))
 
-            pred, prob, label = self.postprocess(pred, self.postprocess_cfg, label)
+            pred, prob = self.postprocess(pred, self.postprocess_cfg)
             self.metric.measure(pred, prob, label)
             self.backup_metric.measure(pred, prob, label)
 
@@ -41,4 +41,4 @@ class TestRunner(InferenceRunner):
                 name, self.backup_metric.avg['acc']['true'], self.metric.avg['edit']
             ))
         self.logger.info('Test, average acc %.4f, edit distance %s' % (self.metric.avg['acc']['true'],
-                                                               self.metric.avg['edit']))
+                                                                       self.metric.avg['edit']))

@@ -209,10 +209,11 @@ class TrainRunner(InferenceRunner):
                         meta=meta)
 
     def resume(self, checkpoint, resume_optimizer=False,
-               resume_lr_scheduler=False, resume_meta=False,
+               resume_lr_scheduler=False, resume_meta=False, strict=True,
                map_location='default'):
         checkpoint = self.load_checkpoint(checkpoint,
-                                          map_location=map_location)
+                                          map_location=map_location,
+                                          strict=strict)
 
         if resume_optimizer and 'optimizer' in checkpoint:
             self.logger.info('Resume optimizer')
