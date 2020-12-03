@@ -140,7 +140,7 @@ class Sensitive(DualTransform):
 
     def __init__(self, sensitive, need_character):
         self.sensitive = sensitive
-        self.need_character = need_character
+        self.need_character = "".join(sorted(need_character, key=lambda x:ord(x)))
         super(Sensitive, self).__init__(always_apply=True)
 
     def __call__(self, force_apply=False, **kwargs):

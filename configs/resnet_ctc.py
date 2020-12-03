@@ -219,7 +219,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='CTCLoss'),
+    criterion=dict(type='CTCLoss', zero_infinity=True),
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,

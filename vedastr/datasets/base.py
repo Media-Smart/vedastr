@@ -37,7 +37,8 @@ class BaseDataset(Dataset):
         if not self.data_filter:
             return False
         """We will filter those samples whose length is larger than defined max_length by default."""
-        out_of_char = f'[^{self.character}]'
+        character = "".join(sorted(self.character, key=lambda x: ord(x)))
+        out_of_char = f'[^{character}]'
         label = re.sub(out_of_char, '', label.lower())  # replace those character not in self.character with ''
         if len(label) > self.batch_max_length:  # filter whose label larger than batch_max_length
             return True
