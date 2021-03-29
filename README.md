@@ -197,6 +197,19 @@ python tools/deploy/export.py configs/resnet_ctc.py checkpoint_path image_file_p
 
   You can refer to [FlexInfer](https://github.com/Media-Smart/flexinfer) for details.
 
+## Citation
+
+If you use this toolbox or benchmark in your research, please cite this project.
+
+```
+@misc{2020vedastr,
+    title  = {vedastr: A Toolbox for Scene Text Recognition},
+    author = {Sun, Jun and Cai, Hongxiang and Xiong, Yichao},
+    url    = {https://github.com/Media-Smart/vedastr},
+    year   = {2020}
+}
+```
+
 ## Contact
 
 This repository is currently maintained by Jun Sun([@ChaseMonsterAway](https://github.com/ChaseMonsterAway)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
