@@ -6,7 +6,13 @@ from ..registry import SEQUENCE_DECODERS
 
 
 class BaseCell(nn.Module):
-    def __init__(self, basic_cell, input_size, hidden_size, bias=True, num_layers=1):
+
+    def __init__(self,
+                 basic_cell,
+                 input_size,
+                 hidden_size,
+                 bias=True,
+                 num_layers=1):
         super(BaseCell, self).__init__()
 
         self.input_size = input_size
@@ -17,9 +23,17 @@ class BaseCell(nn.Module):
         self.cells = nn.ModuleList()
         for i in range(num_layers):
             if i == 0:
-                self.cells.append(basic_cell(input_size=input_size, hidden_size=hidden_size, bias=bias))
+                self.cells.append(
+                    basic_cell(
+                        input_size=input_size,
+                        hidden_size=hidden_size,
+                        bias=bias))
             else:
-                self.cells.append(basic_cell(input_size=hidden_size, hidden_size=hidden_size, bias=bias))
+                self.cells.append(
+                    basic_cell(
+                        input_size=hidden_size,
+                        hidden_size=hidden_size,
+                        bias=bias))
         init_weights(self.modules())
 
     def init_hidden(self, batch_size, device=None, value=0):
@@ -48,15 +62,19 @@ class BaseCell(nn.Module):
 
 @SEQUENCE_DECODERS.register_module
 class LSTMCell(BaseCell):
+
     def __init__(self, input_size, hidden_size, bias=True, num_layers=1):
-        super(LSTMCell, self).__init__(nn.LSTMCell, input_size, hidden_size, bias, num_layers)
+        super(LSTMCell, self).__init__(nn.LSTMCell, input_size, hidden_size,
+                                       bias, num_layers)
 
     def init_hidden(self, batch_size, device=None, value=0):
         hiddens = []
         for _ in range(self.num_layers):
             hidden = (
-                torch.FloatTensor(batch_size, self.hidden_size).fill_(value).to(device),
-                torch.FloatTensor(batch_size, self.hidden_size).fill_(value).to(device),
+                torch.FloatTensor(batch_size,
+                                  self.hidden_size).fill_(value).to(device),
+                torch.FloatTensor(batch_size,
+                                  self.hidden_size).fill_(value).to(device),
             )
             hiddens.append(hidden)
 
@@ -71,13 +89,16 @@ class LSTMCell(BaseCell):
 
 @SEQUENCE_DECODERS.register_module
 class GRUCell(BaseCell):
+
     def __init__(self, input_size, hidden_size, bias=True, num_layers=1):
-        super(GRUCell, self).__init__(nn.GRUCell, input_size, hidden_size, bias, num_layers)
+        super(GRUCell, self).__init__(nn.GRUCell, input_size, hidden_size,
+                                      bias, num_layers)
 
     def init_hidden(self, batch_size, device=None, value=0):
         hiddens = []
         for i in range(self.num_layers):
-            hidden = torch.FloatTensor(batch_size, self.hidden_size).fill_(value).to(device)
+            hidden = torch.FloatTensor(
+                batch_size, self.hidden_size).fill_(value).to(device)
             hiddens.append(hidden)
 
         return hiddens

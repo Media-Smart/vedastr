@@ -1,25 +1,28 @@
 import logging
-
 import torch.nn as nn
 
+from vedastr.models.weight_init import init_weights
+from ..registry import SEQUENCE_DECODERS
 from .position_encoder import build_position_encoder
 from .unit import build_decoder_layer
-from ..registry import SEQUENCE_DECODERS
-from vedastr.models.weight_init import init_weights
-
 
 logger = logging.getLogger()
 
 
 @SEQUENCE_DECODERS.register_module
 class TransformerDecoder(nn.Module):
-    def __init__(self, decoder_layer, num_layers, position_encoder=None):
+
+    def __init__(self,
+                 decoder_layer: dict,
+                 num_layers: int,
+                 position_encoder: dict = None):
         super(TransformerDecoder, self).__init__()
 
         if position_encoder is not None:
             self.pos_encoder = build_position_encoder(position_encoder)
 
-        self.layers = nn.ModuleList([build_decoder_layer(decoder_layer) for _ in range(num_layers)])
+        self.layers = nn.ModuleList(
+            [build_decoder_layer(decoder_layer) for _ in range(num_layers)])
 
         logger.info('TransformerDecoder init weights')
         init_weights(self.modules())

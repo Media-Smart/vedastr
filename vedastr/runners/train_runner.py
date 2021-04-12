@@ -1,35 +1,36 @@
 import os.path as osp
-from collections import OrderedDict
-
 import torch
 import torch.utils.data as tud
 
-from .inference_runner import InferenceRunner
 from ..criteria import build_criterion
 from ..lr_schedulers import build_lr_scheduler
 from ..optimizers import build_optimizer
 from ..utils import save_checkpoint
+from .inference_runner import InferenceRunner
 
 
 class TrainRunner(InferenceRunner):
-    def __init__(self, train_cfg, deploy_cfg, common_cfg=None):
-        super(TrainRunner, self).__init__(deploy_cfg, common_cfg)
+
+    def __init__(self, train_cfg, inference_cfg, common_cfg=None):
+        super(TrainRunner, self).__init__(inference_cfg, common_cfg)
 
         self.train_dataloader = self._build_dataloader(
             train_cfg['data']['train'])
         assert isinstance(self.train_dataloader, tud.DataLoader), \
-            "Only suppor single dataloader in training phase. " \
+            "Only support single dataloader in training phase. " \
             "Check the type of dataset please. " \
-            "If the type of dataset is list, then the type of build datalodaer will be dict." \
-            "If the type of dataset is torch.utils.data.Dataset, " \
-            "the type of build dataloader will be torch.utils.data.Dataloader. " \
-            "If you wanna combine different dataset, consider using ConcatDataset in your config file please."
+            "If you wanna combine different dataset, " \
+            "consider using ConcatDataset in your config file please."
 
         if 'val' in train_cfg['data']:
             self.val_dataloader = self._build_dataloader(
                 train_cfg['data']['val'])
+            extra_data = len(self.val_dataloader.dataset) % self.world_size
+            self.val_exclude_num = self.world_size - extra_data if extra_data != 0 else 0  # noqa 501
         else:
             self.val_dataloader = None
+
+        self.train_cfg = train_cfg
 
         self.max_iterations = train_cfg.get('max_iterations', False)
         self.max_epochs = train_cfg.get('max_epochs', False)
@@ -64,28 +65,37 @@ class TrainRunner(InferenceRunner):
     def _build_criterion(self, cfg):
         return build_criterion(cfg)
 
-    def _build_lr_scheduler(self, cfg):
+    def _build_lr_scheduler(self, cfg, last_iter=-1):
 
-        return build_lr_scheduler(cfg, dict(optimizer=self.optimizer,
-                                            niter_per_epoch=len(self.train_dataloader),
-                                            max_epochs=self.max_epochs,
-                                            ))
+        return build_lr_scheduler(
+            cfg,
+            dict(
+                optimizer=self.optimizer,
+                niter_per_epoch=len(self.train_dataloader),
+                max_epochs=self.max_epochs,
+                last_iter=last_iter,
+            ))
 
     def _validate_epoch(self):
         self.logger.info('Iteration %s, Start validating' % (self.iter + 1))
         self.metric.reset()
-        for img, label in self.val_dataloader:
-            self._validate_batch(img, label)
-        if self.metric.avg['acc']['true'] >= self.best_acc and self.save_best:
+        for vidx, (img, label) in enumerate(self.val_dataloader):
+            exclude_num = self.val_exclude_num if vidx == len(
+                self.val_dataloader) else 0
+            self._validate_batch(img, label, exclude_num)
+        if self.metric.avg['acc']['true'] >= self.best_acc and \
+                self.save_best and self.rank == 0:
             self.best_acc = self.metric.avg['acc']['true']
             self.save_model(out_dir=self.workdir, filename='best_acc.pth')
-        if self.metric.avg['edit'] >= self.best_norm and self.save_best:
+        if self.metric.avg['edit'] >= self.best_norm and \
+                self.save_best and self.rank == 0:
             self.best_norm = self.metric.avg['edit']
             self.save_model(out_dir=self.workdir, filename='best_norm.pth')
         self.logger.info('Validate, best_acc %.4f, best_edit %s' %
                          (self.best_acc, self.best_norm))
-        self.logger.info('Validate, acc %.4f, edit %s' %
-                         (self.metric.avg['acc']['true'], self.metric.avg['edit']))
+        self.logger.info(
+            'Validate, acc %.4f, edit %s' %
+            (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         self.logger.info(f'\n{self.metric.predict_example_log}')
 
     def _train_batch(self, img, label):
@@ -93,7 +103,7 @@ class TrainRunner(InferenceRunner):
 
         self.optimizer.zero_grad()
 
-        label_input, label_len, label_target = self.converter.train_encode(label)
+        label_input, label_len, label_target = self.converter.train_encode(label)  # noqa 501
         if self.use_gpu:
             img = img.cuda()
             label_input = label_input.cuda()
@@ -107,7 +117,8 @@ class TrainRunner(InferenceRunner):
 
         loss.backward()
         if self.grad_clip != 0:
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(),
+                                           self.grad_clip)
         self.optimizer.step()
 
         with torch.no_grad():
@@ -116,16 +127,17 @@ class TrainRunner(InferenceRunner):
 
         if self.iter != 0 and self.iter % self.log_interval == 0:
             self.logger.info(
-                'Train, Epoch %d, Iter %d, LR %s, Loss %.4f, acc %.4f, edit_distance %s' %
-                (self.epoch, self.iter, self.lr, loss.item(), self.metric.avg['acc']['true'],
-                 self.metric.avg['edit']))
+                'Train, Epoch %d, Iter %d, LR %s, Loss %.4f, '
+                'acc %.4f, edit_distance %s'
+                % (self.epoch, self.iter, self.lr, loss.item(),
+                   self.metric.avg['acc']['true'], self.metric.avg['edit']))
 
             self.logger.info(f'\n{self.metric.predict_example_log}')
 
-    def _validate_batch(self, img, label):
+    def _validate_batch(self, img, label, exclude_num):
         self.model.eval()
         with torch.no_grad():
-            label_input, label_length, label_target = self.converter.test_encode(label)
+            label_input, label_length, label_target = self.converter.test_encode(label)  # noqa 501
             if self.use_gpu:
                 img = img.cuda()
                 label_input = label_input.cuda()
@@ -135,7 +147,7 @@ class TrainRunner(InferenceRunner):
                 pred = self.model((img,))
 
             pred, prob = self.postprocess(pred, self.postprocess_cfg)
-            self.metric.measure(pred, prob, label)
+            self.metric.measure(pred, prob, label, exclude_num)
 
     def __call__(self):
         self.metric.reset()
@@ -143,7 +155,12 @@ class TrainRunner(InferenceRunner):
         iter_based = self.lr_scheduler._iter_based
         warmup_iters = self.lr_scheduler.warmup_iters
         flag = True
+        count = 0
         while flag:
+            if hasattr(self.train_dataloader.sampler, 'set_epoch'):
+                self.train_dataloader.sampler.set_epoch(count)
+            if hasattr(self.train_dataloader.worker_init_fn, 'set_epoch'):
+                self.train_dataloader.worker_init_fn.set_epoch(count)
             for img, label in self.train_dataloader:
                 self._train_batch(img, label)
                 self.lr_scheduler.iter_nums()  # update steps
@@ -156,15 +173,22 @@ class TrainRunner(InferenceRunner):
                         and self.val_dataloader:
                     self._validate_epoch()
                     self.metric.reset()
-                if (self.iter + 1) % self.snapshot_interval == 0:
-                    self.save_model(out_dir=self.workdir, filename=f'iter{self.iter + 1}.pth')
+                if (self.iter + 1) % self.snapshot_interval == 0 and \
+                        self.rank == 0:
+                    self.save_model(
+                        out_dir=self.workdir,
+                        filename=f'iter{self.iter + 1}.pth')
                 if self.iter >= self.max_iterations:
                     flag = False
                     break
             if not iter_based:
                 self.lr_scheduler.step()
-        self.logger.info('Ending of training, save the model of the last iterations.')
-        self.save_model(out_dir=self.workdir, filename='final.pth')
+            count += 1
+        self._validate_epoch()
+        self.logger.info(
+            'Ending of training, save the model of the last iterations.')
+        if self.rank == 0:
+            self.save_model(out_dir=self.workdir, filename='final.pth')
 
     @property
     def epoch(self):
@@ -192,9 +216,14 @@ class TrainRunner(InferenceRunner):
                    out_dir,
                    filename,
                    save_optimizer=True,
+                   save_lr_scheduler=True,
                    meta=None):
-        current_meta = dict(epoch=self.epoch, iter=self.iter, lr=self.lr,
-                            best_acc=self.best_acc, best_norm=self.best_norm)
+        current_meta = dict(
+            epoch=self.epoch,
+            iter=self.iter,
+            lr=self.lr,
+            best_acc=self.best_acc,
+            best_norm=self.best_norm)
         if meta is None:
             meta = current_meta
         else:
@@ -202,18 +231,24 @@ class TrainRunner(InferenceRunner):
 
         filepath = osp.join(out_dir, filename)
         optimizer = self.optimizer if save_optimizer else None
+        lr_scheduler = self.lr_scheduler if save_lr_scheduler else None
         self.logger.info('Save checkpoint %s', filename)
-        save_checkpoint(self.model,
-                        filepath,
-                        optimizer=optimizer,
-                        meta=meta)
+        save_checkpoint(
+            self.model,
+            filepath,
+            optimizer=optimizer,
+            lr_scheduler=lr_scheduler,
+            meta=meta)
 
-    def resume(self, checkpoint, resume_optimizer=False,
-               resume_lr_scheduler=False, resume_meta=False, strict=True,
+    def resume(self,
+               checkpoint,
+               resume_optimizer=False,
+               resume_lr_scheduler=False,
+               resume_meta=False,
+               strict=True,
                map_location='default'):
-        checkpoint = self.load_checkpoint(checkpoint,
-                                          map_location=map_location,
-                                          strict=strict)
+        checkpoint = self.load_checkpoint(
+            checkpoint, map_location=map_location, strict=strict)
 
         if resume_optimizer and 'optimizer' in checkpoint:
             self.logger.info('Resume optimizer')

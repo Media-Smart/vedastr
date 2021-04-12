@@ -6,10 +6,28 @@ from .registry import DATASETS
 
 @DATASETS.register_module
 class FolderDataset(BaseDataset):
-    extension_names = ['.jpg', '.png', '.bmp', '.jpeg']
+    """ Read images in a folder. The format of image filename should be
+    same as follows:
+    'name_gt.extension', where name represents arbitrary string,
+    gt represents the ground-truth of the image, and extension
+    represents the postfix (png, jpg, etc.).
 
-    def __init__(self, *args, **kwargs):
-        super(FolderDataset, self).__init__(*args, **kwargs)
+    """
+
+    def __init__(self,
+                 root: str,
+                 transform=None,
+                 character: str = 'abcdefghijklmnopqrstuvwxyz0123456789',
+                 batch_max_length: int = 100000,
+                 data_filter: bool = True,
+                 extension_names: tuple = ('.jpg', '.png', '.bmp', '.jpeg')):
+        super(FolderDataset, self).__init__(
+            root=root,
+            transform=transform,
+            character=character,
+            batch_max_length=batch_max_length,
+            data_filter=data_filter)
+        self.extension_names = extension_names
 
     @staticmethod
     def parse_filename(text):

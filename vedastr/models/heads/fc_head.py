@@ -1,5 +1,4 @@
 import logging
-
 import torch.nn as nn
 
 from vedastr.models.utils import FCModules, build_torch_nn
@@ -36,7 +35,8 @@ class FCHead(nn.Module):
         self.from_layer = from_layer
 
         if num_fcs > 0:
-            inter_fc = FCModules(in_channels, inner_channels, bias, activation, inplace, dropouts, num_fcs)
+            inter_fc = FCModules(in_channels, inner_channels, bias, activation,
+                                 inplace, dropouts, num_fcs)
             fc = nn.Linear(inner_channels, out_channels)
         else:
             inter_fc = nn.Sequential()
@@ -67,4 +67,4 @@ class FCHead(nn.Module):
         out = self.inter_fc(x)
         out = self.fc(out)
 
-        return out.reshape(-1, self.batch_max_length+1, self.num_class)
+        return out.reshape(-1, self.batch_max_length + 1, self.num_class)

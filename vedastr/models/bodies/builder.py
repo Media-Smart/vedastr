@@ -1,6 +1,5 @@
 from vedastr.utils import build_from_cfg
-
-from .registry import COMPONENT, BODIES
+from .registry import BODIES, COMPONENT
 
 
 def build_component(cfg, default_args=None):

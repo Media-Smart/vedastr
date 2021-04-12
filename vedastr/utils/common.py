@@ -2,10 +2,9 @@
 
 import inspect
 import logging
+import numpy as np
 import random
 import sys
-
-import numpy as np
 import torch
 
 
@@ -90,5 +89,26 @@ def get_root_logger(log_level=logging.INFO):
     logger = logging.getLogger()
     np.set_printoptions(precision=4)
     if not logger.hasHandlers():
-        logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=log_level)
+        logging.basicConfig(
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            level=log_level)
     return logger
+
+
+class WorkerInit:
+
+    def __init__(self, num_workers, rank, seed, epoch):
+        self.num_workers = num_workers
+        self.rank = rank
+        self.seed = seed
+        self.epoch = epoch
+
+    def __call__(self, worker_id):
+        worker_seed = self.num_workers * self.rank + \
+                      worker_id + self.seed + self.epoch
+        np.random.seed(worker_seed)
+        random.seed(worker_seed)
+
+    def set_epoch(self, n):
+        assert isinstance(n, int)
+        self.epoch = n

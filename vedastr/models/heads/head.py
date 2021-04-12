@@ -1,5 +1,4 @@
 import logging
-
 import torch.nn as nn
 
 from vedastr.models.utils import build_module
@@ -16,10 +15,11 @@ class Head(nn.Module):
     Args:
     """
 
-    def __init__(self,
-                 from_layer,
-                 generator,
-                 ):
+    def __init__(
+        self,
+        from_layer,
+        generator,
+    ):
         super(Head, self).__init__()
 
         self.from_layer = from_layer

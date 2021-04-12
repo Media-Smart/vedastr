@@ -1,41 +1,56 @@
+import numpy as np
 import re
-
 import torch
 import torch.nn.functional as F
 
-from .base import Common
 from ..converter import build_converter
 from ..models import build_model
 from ..utils import load_checkpoint
+from .base import Common
 
 
 class InferenceRunner(Common):
-    def __init__(self, deploy_cfg, common_cfg=None):
-        deploy_cfg = deploy_cfg.copy()
+
+    def __init__(self, inference_cfg, common_cfg=None):
+        inference_cfg = inference_cfg.copy()
         common_cfg = {} if common_cfg is None else common_cfg.copy()
 
-        common_cfg['gpu_id'] = deploy_cfg.pop('gpu_id')
+        common_cfg['gpu_id'] = inference_cfg.pop('gpu_id')
         super(InferenceRunner, self).__init__(common_cfg)
 
         # build test transform
-        self.transform = self._build_transform(deploy_cfg['transform'])
+        self.transform = self._build_transform(inference_cfg['transform'])
         # build converter
-        self.converter = self._build_converter(deploy_cfg['converter'])
+        self.converter = self._build_converter(inference_cfg['converter'])
         # build model
-        self.model = self._build_model(deploy_cfg['model'])
-        self.postprocess_cfg = deploy_cfg.get('postprocess', None)
+        self.model = self._build_model(inference_cfg['model'])
+        self.logger.info(self.model)
+        self.postprocess_cfg = inference_cfg.get('postprocess', None)
         self.model.eval()
 
     def _build_model(self, cfg):
         self.logger.info('Build model')
 
         model = build_model(cfg)
+        params_num = []
+        for p in filter(lambda p: p.requires_grad, model.parameters()):
+            # filtered_parameters.append(p)
+            params_num.append(np.prod(p.size()))
+        self.logger.info('Trainable params num : %s' % (sum(params_num)))
         self.need_text = model.need_text
-        if torch.cuda.is_available():
-            if torch.cuda.device_count() > 1:
-                model = torch.nn.DataParallel(model)
-            model.cuda()
 
+        if self.use_gpu:
+            if self.distribute:
+                model = torch.nn.parallel.DistributedDataParallel(
+                    model.cuda(),
+                    device_ids=[torch.cuda.current_device()],
+                    broadcast_buffers=True,
+                )
+                self.logger.info('Using distributed training')
+            else:
+                if torch.cuda.device_count() > 1:
+                    model = torch.nn.DataParallel(model)
+                model.cuda()
         return model
 
     def _build_converter(self, cfg):
@@ -79,7 +94,6 @@ class InferenceRunner(Common):
                 pstr = re.sub('[^{}]'.format(character), '', pstr)
 
             preds_str.append(pstr)
-
         return preds_str, preds_prob
 
     def __call__(self, image):
@@ -88,7 +102,7 @@ class InferenceRunner(Common):
             aug = self.transform(image=image, label=dummy_text)
             image, text = aug['image'], aug['label']
             image = image.unsqueeze(0)
-            label_input, label_length, label_target = self.converter.test_encode([text])
+            label_input, label_length, label_target = self.converter.test_encode([text])  # noqa 501
             if self.use_gpu:
                 image = image.cuda()
                 label_input = label_input.cuda()

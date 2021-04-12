@@ -7,6 +7,7 @@ from ..registry import SEQUENCE_ENCODERS
 
 @SEQUENCE_ENCODERS.register_module
 class RNN(nn.Module):
+
     def __init__(self, input_pool, layers, keep_order=False):
         super(RNN, self).__init__()
         self.keep_order = keep_order
@@ -17,7 +18,8 @@ class RNN(nn.Module):
         self.layers = nn.ModuleList()
         for i, (layer_name, layer_cfg) in enumerate(layers):
             if layer_name in ['rnn', 'fc']:
-                self.layers.add_module('{}_{}'.format(i, layer_name), build_torch_nn(layer_cfg))
+                self.layers.add_module('{}_{}'.format(i, layer_name),
+                                       build_torch_nn(layer_cfg))
             else:
                 raise ValueError('Unknown layer name {}'.format(layer_name))
 

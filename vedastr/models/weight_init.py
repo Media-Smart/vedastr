@@ -45,15 +45,11 @@ def kaiming_init(module,
                 if 'bias' in name:
                     nn.init.constant_(param, bias)
                 elif 'weight' in name:
-                    nn.init.kaiming_uniform_(param,
-                                             a=a,
-                                             mode=mode,
-                                             nonlinearity=nonlinearity)
+                    nn.init.kaiming_uniform_(
+                        param, a=a, mode=mode, nonlinearity=nonlinearity)
         else:
-            nn.init.kaiming_uniform_(module.weight,
-                                     a=a,
-                                     mode=mode,
-                                     nonlinearity=nonlinearity)
+            nn.init.kaiming_uniform_(
+                module.weight, a=a, mode=mode, nonlinearity=nonlinearity)
 
     else:
         if is_rnn:
@@ -61,15 +57,11 @@ def kaiming_init(module,
                 if 'bias' in name:
                     nn.init.constant_(param, bias)
                 elif 'weight' in name:
-                    nn.init.kaiming_normal_(param,
-                                            a=a,
-                                            mode=mode,
-                                            nonlinearity=nonlinearity)
+                    nn.init.kaiming_normal_(
+                        param, a=a, mode=mode, nonlinearity=nonlinearity)
         else:
-            nn.init.kaiming_normal_(module.weight,
-                                    a=a,
-                                    mode=mode,
-                                    nonlinearity=nonlinearity)
+            nn.init.kaiming_normal_(
+                module.weight, a=a, mode=mode, nonlinearity=nonlinearity)
 
     if not is_rnn and hasattr(module, 'bias') and module.bias is not None:
         nn.init.constant_(module.bias, bias)
@@ -78,11 +70,12 @@ def kaiming_init(module,
 def caffe2_xavier_init(module, bias=0):
     # `XavierFill` in Caffe2 corresponds to `kaiming_uniform_` in PyTorch
     # Acknowledgment to FAIR's internal code
-    kaiming_init(module,
-                 a=1,
-                 mode='fan_in',
-                 nonlinearity='leaky_relu',
-                 distribution='uniform')
+    kaiming_init(
+        module,
+        a=1,
+        mode='fan_in',
+        nonlinearity='leaky_relu',
+        distribution='uniform')
 
 
 def init_weights(modules):

@@ -1,2 +1,2 @@
-from .encoder import RNN
-from .decoder import LSTMCell, GRUCell
+from .decoder import GRUCell, LSTMCell  # noqa 401
+from .encoder import RNN  # noqa 401

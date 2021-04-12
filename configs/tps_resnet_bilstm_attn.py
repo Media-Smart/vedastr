@@ -1,5 +1,5 @@
 ###############################################################################
-# 1. deploy
+# 1. inference
 size = (32, 100)
 mean, std = 0.5, 0.5
 
@@ -13,10 +13,11 @@ norm_cfg = dict(type='BN')
 num_class = len(character) + 2
 num_steps = batch_max_length + 1
 
-deploy = dict(
+inference = dict(
     gpu_id='0',
     transform=[
-        dict(type='Sensitive', sensitive=sensitive, need_character=character),
+        dict(type='Sensitive', sensitive=sensitive),
+        dict(type='Filter', need_character=character),
         dict(type='ToGray'),
         dict(type='Resize', size=size),
         dict(type='Normalize', mean=mean, std=std),
@@ -46,19 +47,19 @@ deploy = dict(
                             feature_extractor=dict(
                                 encoder=dict(
                                     backbone=dict(
-                                        type='GVGG',
+                                        type='GBackbone',
                                         layers=[
-                                            ('conv', dict(type='ConvModule', in_channels=1, out_channels=64,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=64, out_channels=128,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=128, out_channels=256,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
-                                            ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2)),
-                                            ('conv', dict(type='ConvModule', in_channels=256, out_channels=512,
-                                                          kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg)),
+                                            dict(type='ConvModule', in_channels=1, out_channels=64,
+                                                 kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg),
+                                            dict(type='MaxPool2d', kernel_size=2, stride=2),
+                                            dict(type='ConvModule', in_channels=64, out_channels=128,
+                                                 kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg),
+                                            dict(type='MaxPool2d', kernel_size=2, stride=2),
+                                            dict(type='ConvModule', in_channels=128, out_channels=256,
+                                                 kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg),
+                                            dict(type='MaxPool2d', kernel_size=2, stride=2),
+                                            dict(type='ConvModule', in_channels=256, out_channels=512,
+                                                 kernel_size=3, stride=1, padding=1, norm_cfg=norm_cfg),
                                         ],
                                     ),
                                 ),
@@ -79,29 +80,33 @@ deploy = dict(
                     arch=dict(
                         encoder=dict(
                             backbone=dict(
-                                type='GResNet',
+                                type='GBackbone',
                                 layers=[
-                                    ('conv', dict(type='ConvModule', in_channels=1, out_channels=32, kernel_size=3,
-                                                  stride=1, padding=1, norm_cfg=norm_cfg)),
-                                    ('conv', dict(type='ConvModule', in_channels=32, out_channels=64, kernel_size=3,
-                                                  stride=1, padding=1, norm_cfg=norm_cfg)),
-                                    ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
-                                    ('block', dict(block_name='BasicBlock', planes=128, blocks=1, stride=1)),
-                                    ('conv', dict(type='ConvModule', in_channels=128, out_channels=128, kernel_size=3,
-                                                  stride=1, padding=1, norm_cfg=norm_cfg)),
-                                    ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
-                                    ('block', dict(block_name='BasicBlock', planes=256, blocks=2, stride=1)),
-                                    ('conv', dict(type='ConvModule', in_channels=256, out_channels=256, kernel_size=3,
-                                                  stride=1, padding=1, norm_cfg=norm_cfg)),
-                                    ('pool', dict(type='MaxPool2d', kernel_size=2, stride=(2, 1), padding=(0, 1))),
-                                    ('block', dict(block_name='BasicBlock', planes=512, blocks=5, stride=1)),
-                                    ('conv', dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=3,
-                                                  stride=1, padding=1, norm_cfg=norm_cfg)),
-                                    ('block', dict(block_name='BasicBlock', planes=512, blocks=3, stride=1)),
-                                    ('conv', dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=2,
-                                                  stride=(2, 1), padding=(0, 1), norm_cfg=norm_cfg)),
-                                    ('conv', dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=2,
-                                                  stride=1, padding=0, norm_cfg=norm_cfg)),
+                                    dict(type='ConvModule', in_channels=1, out_channels=32, kernel_size=3,
+                                         stride=1, padding=1, norm_cfg=norm_cfg),
+                                    dict(type='ConvModule', in_channels=32, out_channels=64, kernel_size=3,
+                                         stride=1, padding=1, norm_cfg=norm_cfg),  # c0
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),
+                                    dict(type='BasicBlocks', inplanes=64, planes=128, blocks=1,
+                                         stride=1, norm_cfg=norm_cfg),
+                                    dict(type='ConvModule', in_channels=128, out_channels=128, kernel_size=3,
+                                         stride=1, padding=1, norm_cfg=norm_cfg),  # c1
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),
+                                    dict(type='BasicBlocks', inplanes=128, planes=256, blocks=2,
+                                         stride=1, norm_cfg=norm_cfg),
+                                    dict(type='ConvModule', in_channels=256, out_channels=256, kernel_size=3,
+                                         stride=1, padding=1, norm_cfg=norm_cfg),  # c2
+                                    dict(type='MaxPool2d', kernel_size=2, stride=(2, 1), padding=(0, 1)),
+                                    dict(type='BasicBlocks', inplanes=256, planes=512, blocks=5,
+                                         stride=1, norm_cfg=norm_cfg),
+                                    dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=3,
+                                         stride=1, padding=1, norm_cfg=norm_cfg),
+                                    dict(type='BasicBlocks', inplanes=512, planes=512, blocks=3,
+                                         stride=1, norm_cfg=norm_cfg),  # c3
+                                    dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=2,
+                                         stride=(2, 1), padding=(0, 1), norm_cfg=norm_cfg),
+                                    dict(type='ConvModule', in_channels=512, out_channels=512, kernel_size=2,
+                                         stride=1, padding=0, norm_cfg=norm_cfg),  # c4
                                 ],
                             ),
                         ),
@@ -189,6 +194,7 @@ common = dict(
     cudnn_deterministic=False,
     cudnn_benchmark=True,
     metric=dict(type='Accuracy'),
+    dist_params=dict(backend='nccl'),
 )
 ###############################################################################
 dataset_params = dict(
@@ -203,17 +209,19 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = '../../../../dataset/str/data/data_lmdb_release/'
+data_root = './dataset/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
 batch_size = 192
+assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
+    "batch size cannot envisibly divided by gpu nums."
+samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))
 
 # data
 test_root = data_root + 'evaluation/'
-test_folder_names = ['IC15_2077']
-# test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
-#                      'IIIT5k_3000', 'SVT', 'SVTP']
+test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
+                     'IIIT5k_3000', 'SVT', 'SVTP']
 test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
                      **test_dataset_params) for f_name in test_folder_names]
 
@@ -221,12 +229,13 @@ test = dict(
     data=dict(
         dataloader=dict(
             type='DataLoader',
-            batch_size=batch_size,
-            num_workers=4,
+            samples_per_gpu=samples_per_gpu,
+            workers_per_gpu=4,
             shuffle=False,
         ),
+        sampler=dict(type='DefaultSampler', shuffle=False),
         dataset=test_dataset,
-        transform=deploy['transform'],
+        transform=inference['transform'],
     ),
     postprocess_cfg=dict(
         sensitive=sensitive,
@@ -258,7 +267,8 @@ valid_dataset = dict(type='LmdbDataset', root=valid_root, **dataset_params)
 
 # train transforms
 train_transforms = [
-    dict(type='Sensitive', sensitive=sensitive, need_character=character),
+    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='Filter', need_character=character),
     dict(type='ToGray'),
     dict(type='Resize', size=size),
     dict(type='Normalize', mean=mean, std=std),
@@ -273,14 +283,15 @@ train = dict(
         train=dict(
             dataloader=dict(
                 type='DataLoader',
-                batch_size=batch_size,
-                num_workers=4,
+                samples_per_gpu=samples_per_gpu,
+                workers_per_gpu=4,
             ),
             sampler=dict(
                 type='BalanceSampler',
                 batch_size=batch_size,
                 shuffle=True,
                 oversample=True,
+                seed=common['seed'],
             ),
             dataset=dict(
                 type='ConcatDatasets',
@@ -302,12 +313,12 @@ train = dict(
         val=dict(
             dataloader=dict(
                 type='DataLoader',
-                batch_size=batch_size,
-                num_workers=4,
+                samples_per_gpu=samples_per_gpu,
+                workers_per_gpu=4,
                 shuffle=False,
             ),
             dataset=valid_dataset,
-            transform=deploy['transform'],
+            transform=inference['transform'],
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),

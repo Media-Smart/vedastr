@@ -7,11 +7,13 @@ from .registry import BODIES
 
 @BODIES.register_module
 class GBody(nn.Module):
+
     def __init__(self, pipelines, collect=None):
         super(GBody, self).__init__()
 
         self.input_to_layer = 'input'
-        self.components = nn.ModuleList([build_component(component) for component in pipelines])
+        self.components = nn.ModuleList(
+            [build_component(component) for component in pipelines])
 
         if collect is not None:
             self.collect = build_brick(collect)

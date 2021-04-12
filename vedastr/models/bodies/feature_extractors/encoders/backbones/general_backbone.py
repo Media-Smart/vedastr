@@ -1,29 +1,30 @@
 import logging
-
 import torch.nn as nn
 
+from vedastr.models.utils import build_module, build_torch_nn
 from vedastr.models.weight_init import init_weights
-from vedastr.models.utils import build_torch_nn, build_module
 from .registry import BACKBONES
-
 
 logger = logging.getLogger()
 
 
 @BACKBONES.register_module
-class GVGG(nn.Module):
-    def __init__(self, layers):
-        super(GVGG, self).__init__()
+class GBackbone(nn.Module):
+
+    def __init__(
+        self,
+        layers: list,
+    ):
+        super(GBackbone, self).__init__()
 
         self.layers = nn.ModuleList()
         stage_layers = []
-        for layer_name, layer_cfg in layers:
-            if layer_name == 'conv':
-                layer = build_module(layer_cfg)
-            elif layer_name == 'pool':
+        for layer_cfg in layers:
+            type_name = layer_cfg['type']
+            if hasattr(nn, type_name):
                 layer = build_torch_nn(layer_cfg)
             else:
-                raise ValueError('Unknown layer name {}'.format(layer_name))
+                layer = build_module(layer_cfg)
             stride = layer_cfg.get('stride', 1)
             max_stride = stride if isinstance(stride, int) else max(stride)
             if max_stride > 1:
@@ -31,7 +32,7 @@ class GVGG(nn.Module):
                 stage_layers = []
             stage_layers.append(layer)
         self.layers.append(nn.Sequential(*stage_layers))
-
+        logger.info('GBackbone init weights')
         init_weights(self.modules())
 
     def forward(self, x):

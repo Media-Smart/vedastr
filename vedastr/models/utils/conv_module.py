@@ -2,11 +2,10 @@
 
 import warnings
 
-import torch
 import torch.nn as nn
 
-from .registry import UTILS
 from .norm import build_norm_layer
+from .registry import UTILS
 
 conv_cfg = {
     'Conv': nn.Conv2d,
@@ -56,11 +55,12 @@ class ConvModule(nn.Module):
             False.
         conv_cfg (dict): Config dict for convolution layer.
         norm_cfg (dict): Config dict for normalization layer.
-        act_cfg (str or None): Config dict for activation layer.
+        activation (str or None): Config dict for activation layer.
         order (tuple[str]): The order of conv/norm/activation layers. It is a
             sequence of "conv", "norm" and "act". Examples are
             ("conv", "norm", "act") and ("act", "conv", "norm").
     """
+
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -132,7 +132,7 @@ class ConvModule(nn.Module):
 
         # build activation layer
         if self.with_activatation:
-            # TODO: introduce `act_cfg` and supports more activation layers
+            # TODO: introduce `activation` and supports more activation layers
             if self.activation not in ['relu', 'tanh', 'sigmoid']:
                 raise ValueError('{} is currently not supported.'.format(
                     self.activation))
@@ -169,6 +169,7 @@ class ConvModules(nn.Module):
 
     Args:
     """
+
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -198,8 +199,8 @@ class ConvModules(nn.Module):
 
         layers = [
             ConvModule(in_channels, out_channels, kernel_size, stride, padding,
-                       dilation, groups, bias, conv_cfg, norm_cfg, activation, inplace,
-                       order, dropout),
+                       dilation, groups, bias, conv_cfg, norm_cfg, activation,
+                       inplace, order, dropout),
         ]
         for ii in range(1, num_convs):
             if dropouts is not None:
@@ -208,8 +209,8 @@ class ConvModules(nn.Module):
                 dropout = None
             layers.append(
                 ConvModule(out_channels, out_channels, kernel_size, stride,
-                           padding, dilation, groups, bias, conv_cfg, norm_cfg, activation, inplace,
-                           order, dropout))
+                           padding, dilation, groups, bias, conv_cfg, norm_cfg,
+                           activation, inplace, order, dropout))
 
         self.block = nn.Sequential(*layers)
 

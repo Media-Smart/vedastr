@@ -1,6 +1,5 @@
 import logging
 import math
-
 import torch
 import torch.nn as nn
 
@@ -14,15 +13,17 @@ logger = logging.getLogger()
 
 @HEADS.register_module
 class TransformerHead(nn.Module):
-    def __init__(self,
-                 decoder,
-                 generator,
-                 embedding,
-                 num_steps,
-                 pad_id,
-                 src_from,
-                 src_mask_from=None,
-                 ):
+
+    def __init__(
+        self,
+        decoder,
+        generator,
+        embedding,
+        num_steps,
+        pad_id,
+        src_from,
+        src_mask_from=None,
+    ):
         super(TransformerHead, self).__init__()
 
         self.decoder = build_sequence_decoder(decoder)
@@ -45,7 +46,7 @@ class TransformerHead(nn.Module):
 
     def order_mask(self, text):
         t = text.size(1)
-        order_mask = torch.triu(torch.ones(t,t), diagonal=1).bool()
+        order_mask = torch.triu(torch.ones(t, t), diagonal=1).bool()
         order_mask = order_mask.unsqueeze(0).to(text.device)
 
         return order_mask

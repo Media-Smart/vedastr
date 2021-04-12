@@ -1,2 +1,2 @@
-from .encoder import TransformerEncoder
-from .decoder import TransformerDecoder
+from .decoder import TransformerDecoder  # noqa 401
+from .encoder import TransformerEncoder  # noqa 401

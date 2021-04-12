@@ -6,20 +6,23 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 from vedastr.models.bodies import build_feature_extractor
-from vedastr.models.utils import build_torch_nn, build_module
+from vedastr.models.utils import build_module, build_torch_nn
 from .registry import RECTIFICATORS
 
 
 @RECTIFICATORS.register_module
 class TPS_STN(nn.Module):
-    def __init__(self, F, input_size, output_size, stn):
+
+    def __init__(self, F: int, input_size: tuple, output_size: tuple,
+                 stn: dict):
         super(TPS_STN, self).__init__()
 
         self.F = F
         self.input_size = input_size
         self.output_size = output_size
 
-        self.feature_extractor = build_feature_extractor(stn['feature_extractor'])
+        self.feature_extractor = build_feature_extractor(
+            stn['feature_extractor'])
         self.pool = build_torch_nn(stn['pool'])
         heads = []
         for head in stn['head']:
@@ -50,15 +53,21 @@ class TPS_STN(nn.Module):
         build_P_prime_reshape = self.grid_generator(batch_C_prime)
 
         if torch.__version__ > "1.2.0":
-            out = F.grid_sample(x, build_P_prime_reshape, padding_mode='border', align_corners=True)
+            out = F.grid_sample(
+                x,
+                build_P_prime_reshape,
+                padding_mode='border',
+                align_corners=True)
         else:
-            out = F.grid_sample(x, build_P_prime_reshape, padding_mode='border')
+            out = F.grid_sample(
+                x, build_P_prime_reshape, padding_mode='border')
 
         return out
 
 
 class GridGenerator(nn.Module):
-    """ Grid Generator of RARE, which produces P_prime by multipling T with P """
+    """ Grid Generator of RARE, which produces
+    P_prime by multipling T with P """
 
     def __init__(self, F, output_size, eps=1e-6):
         """ Generate P_hat and inv_delta_C for later """
@@ -68,12 +77,18 @@ class GridGenerator(nn.Module):
         self.F = F
         self.C = self._build_C(self.F)  # F x 2
         self.P = self._build_P(self.output_width, self.output_height)
-        ## for multi-gpu, you need register buffer
-        self.register_buffer("inv_delta_C", torch.tensor(self._build_inv_delta_C(self.F, self.C)).float())  # F+3 x F+3
-        self.register_buffer("P_hat", torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float())  # n x F+3
-        ## for fine-tuning with different image width, you may use below instead of self.register_buffer
-        #self.inv_delta_C = torch.tensor(self._build_inv_delta_C(self.F, self.C)).float().cuda()  # F+3 x F+3
-        #self.P_hat = torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float().cuda()  # n x F+3
+        # for multi-gpu, you need register buffer
+        self.register_buffer(
+            "inv_delta_C",
+            torch.tensor(self._build_inv_delta_C(self.F,
+                                                 self.C)).float())  # F+3 x F+3
+        self.register_buffer("P_hat",
+                             torch.tensor(
+                                 self._build_P_hat(self.F, self.C,
+                                                   self.P)).float())  # n x F+3
+        # for fine-tuning with different image width, you may use below instead of self.register_buffer # noqa 501
+        # self.inv_delta_C = torch.tensor(self._build_inv_delta_C(self.F, self.C)).float().cuda()->F+3 x F+3 # noqa 501
+        # self.P_hat = torch.tensor(self._build_P_hat(self.F, self.C, self.P)).float().cuda()  # n x F+3 # noqa 501
 
     def _build_C(self, F):
         """ Return coordinates of fiducial points in I_r; C """
@@ -100,32 +115,37 @@ class GridGenerator(nn.Module):
         delta_C = np.concatenate(  # F+3 x F+3
             [
                 np.concatenate([np.ones((F, 1)), C, hat_C], axis=1),  # F x F+3
-                np.concatenate([np.zeros((2, 3)), np.transpose(C)], axis=1),  # 2 x F+3
-                np.concatenate([np.zeros((1, 3)), np.ones((1, F))], axis=1)  # 1 x F+3
+                np.concatenate([np.zeros(
+                    (2, 3)), np.transpose(C)], axis=1),  # 2 x F+3
+                np.concatenate([np.zeros(
+                    (1, 3)), np.ones((1, F))], axis=1)  # 1 x F+3
             ],
-            axis=0
-        )
+            axis=0)
         inv_delta_C = np.linalg.inv(delta_C)
 
         return inv_delta_C  # F+3 x F+3
 
     def _build_P(self, I_r_width, I_r_height):
-        I_r_grid_x = (np.arange(-I_r_width, I_r_width, 2) + 1.0) / I_r_width  # self.I_r_width
-        I_r_grid_y = (np.arange(-I_r_height, I_r_height, 2) + 1.0) / I_r_height  # self.I_r_height
+        I_r_grid_x = (np.arange(-I_r_width, I_r_width, 2) +
+                      1.0) / I_r_width  # self.I_r_width
+        I_r_grid_y = (np.arange(-I_r_height, I_r_height, 2) +
+                      1.0) / I_r_height  # self.I_r_height
         P = np.stack(  # self.I_r_width x self.I_r_height x 2
             np.meshgrid(I_r_grid_x, I_r_grid_y),
-            axis=2
-        )
+            axis=2)
 
         return P.reshape([-1, 2])  # n (= self.I_r_width x self.I_r_height) x 2
 
     def _build_P_hat(self, F, C, P):
         n = P.shape[0]  # n (= self.I_r_width x self.I_r_height)
-        P_tile = np.tile(np.expand_dims(P, axis=1), (1, F, 1))  # n x 2 -> n x 1 x 2 -> n x F x 2
+        P_tile = np.tile(np.expand_dims(P, axis=1),
+                         (1, F, 1))  # n x 2 -> n x 1 x 2 -> n x F x 2
         C_tile = np.expand_dims(C, axis=0)  # 1 x F x 2
         P_diff = P_tile - C_tile  # n x F x 2
-        rbf_norm = np.linalg.norm(P_diff, ord=2, axis=2, keepdims=False)  # n x F
-        rbf = np.multiply(np.square(rbf_norm), np.log(rbf_norm + self.eps))  # n x F
+        rbf_norm = np.linalg.norm(
+            P_diff, ord=2, axis=2, keepdims=False)  # n x F
+        rbf = np.multiply(np.square(rbf_norm),
+                          np.log(rbf_norm + self.eps))  # n x F
         P_hat = np.concatenate([np.ones((n, 1)), P, rbf], axis=1)
 
         return P_hat  # n x F+3
@@ -135,9 +155,11 @@ class GridGenerator(nn.Module):
         batch_size = batch_C_prime.size(0)
         batch_inv_delta_C = self.inv_delta_C.repeat(batch_size, 1, 1)
         batch_P_hat = self.P_hat.repeat(batch_size, 1, 1)
-        batch_C_prime_with_zeros = torch.cat((batch_C_prime, torch.zeros(
-            batch_size, 3, 2).float().to(device)), dim=1)  # batch_size x F+3 x 2
-        batch_T = torch.bmm(batch_inv_delta_C, batch_C_prime_with_zeros)  # batch_size x F+3 x 2
+        batch_C_prime_with_zeros = torch.cat(
+            (batch_C_prime, torch.zeros(batch_size, 3, 2).float().to(device)),
+            dim=1)  # batch_size x F+3 x 2
+        batch_T = torch.bmm(batch_inv_delta_C,
+                            batch_C_prime_with_zeros)  # batch_size x F+3 x 2
         batch_P_prime = torch.bmm(batch_P_hat, batch_T)  # batch_size x n x 2
 
         return batch_P_prime  # batch_size x n x 2
@@ -145,7 +167,10 @@ class GridGenerator(nn.Module):
     def forward(self, x):
         batch_size = x.size(0)
 
-        build_P_prime = self.build_P_prime(x.view(batch_size, self.F, 2), x.device)  # batch_size x n (= output_width x output_height) x 2
-        build_P_prime_reshape = build_P_prime.reshape([build_P_prime.size(0), self.output_height, self.output_width, 2])
+        build_P_prime = self.build_P_prime(
+            x.view(batch_size, self.F, 2),
+            x.device)  # batch_size x n (= output_width x output_height) x 2
+        build_P_prime_reshape = build_P_prime.reshape(
+            [build_P_prime.size(0), self.output_height, self.output_width, 2])
 
         return build_P_prime_reshape

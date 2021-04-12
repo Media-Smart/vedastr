@@ -1,7 +1,6 @@
+import numpy as np
 import os
 import random
-
-import numpy as np
 import torch
 from torch.backends import cudnn
 
@@ -11,9 +10,11 @@ from ..datasets import build_datasets
 from ..logger import build_logger
 from ..metrics import build_metric
 from ..transforms import build_transform
+from ..utils import get_dist_info, init_dist_pytorch
 
 
 class Common(object):
+
     def __init__(self, cfg):
         super(Common, self).__init__()
 
@@ -21,12 +22,19 @@ class Common(object):
         logger_cfg = cfg.get('logger')
         if logger_cfg is None:
             logger_cfg = dict(
-                handlers=(dict(type='StreamHandler', level='INFO'),))
+                handlers=(dict(type='StreamHandler', level='INFO'), ))
         self.workdir = cfg.get('workdir')
-        self.logger = self._build_logger(logger_cfg)
+        self.distribute = cfg.get('distribute', False)
 
         # set gpu devices
         self.use_gpu = self._set_device(cfg.get('gpu_id', ''))
+
+        # set distribute setting
+        if self.distribute and self.use_gpu:
+            init_dist_pytorch(**cfg.dist_params)
+
+        self.rank, self.world_size = get_dist_info()
+        self.logger = self._build_logger(logger_cfg)
 
         # set cudnn configuration
         self._set_cudnn(
@@ -34,7 +42,8 @@ class Common(object):
             cfg.get('cudnn_benchmark', False))
 
         # set seed
-        self._set_seed(cfg.get('seed'))
+        self._set_seed(cfg.get('seed', None))
+        self.seed = cfg.get('seed', None)
 
         # build metric
         if 'metric' in cfg:
@@ -49,11 +58,10 @@ class Common(object):
 
     def _set_device(self, gpu_id):
         os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
+        self.gpu_num = torch.cuda.device_count()
         if torch.cuda.is_available():
-            self.logger.info('Use GPU {}'.format(gpu_id))
             use_gpu = True
         else:
-            self.logger.info('Use CPU')
             use_gpu = False
 
         return use_gpu
@@ -82,7 +90,23 @@ class Common(object):
     def _build_dataloader(self, cfg):
         transform = build_transform(cfg['transform'])
         dataset = build_datasets(cfg['dataset'], dict(transform=transform))
-        sampler = build_sampler(cfg['sampler'], dict(dataset=dataset)) if cfg.get('sampler', False) else None
-        dataloader = build_dataloader(cfg['dataloader'], dict(dataset=dataset, sampler=sampler))
 
+        # TODO, distributed sampler or not
+        if not cfg.get('sampler'):
+            sampler = None
+        else:
+            if isinstance(dataset, list):
+                sampler = [
+                    build_sampler(self.distribute, cfg['sampler'],
+                                  dict(dataset=d)) for d in dataset
+                ]
+            else:
+                sampler = build_sampler(self.distribute, cfg['sampler'],
+                                        dict(dataset=dataset))
+        dataloader = build_dataloader(
+            self.distribute,
+            self.gpu_num,
+            cfg['dataloader'],
+            dict(dataset=dataset, sampler=sampler),
+            seed=self.seed)
         return dataloader
