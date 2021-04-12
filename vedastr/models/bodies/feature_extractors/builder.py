@@ -1,7 +1,7 @@
 import torch.nn as nn
 
-from .encoders import build_encoder
 from .decoders import build_brick, build_decoder
+from .encoders import build_encoder
 
 
 def build_feature_extractor(cfg):

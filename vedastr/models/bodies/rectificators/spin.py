@@ -1,18 +1,18 @@
-# [SPIN: Structure-Preserving Inner Offset Network for Scene Text Recognition](https://arxiv.org/abs/2005.13117)
-# Not fully implemented yet.
+# [SPIN: Structure-Preserving Inner Offset Network for Scene Text Recognition](https://arxiv.org/abs/2005.13117) # noqa 501
+# Not fully implemented yet. SPN has tested successfully.
 import copy
-
 import numpy as np
 import torch
 import torch.nn as nn
 
-from .registry import RECTIFICATORS
 from vedastr.models.bodies.feature_extractors import build_feature_extractor
 from vedastr.models.utils import build_module, build_torch_nn
 from vedastr.models.weight_init import init_weights
+from .registry import RECTIFICATORS
 
 
 class SPN(nn.Module):
+
     def __init__(self, cfg):
         super(SPN, self).__init__()
         self.body = build_feature_extractor(cfg['feature_extractor'])
@@ -31,6 +31,7 @@ class SPN(nn.Module):
 
 
 class AIN(nn.Module):
+
     def __init__(self, cfg):
         super(AIN, self).__init__()
         self.body = build_feature_extractor(cfg['feature_extractor'])
@@ -44,7 +45,7 @@ class AIN(nn.Module):
 @RECTIFICATORS.register_module
 class SPIN(nn.Module):
 
-    def __init__(self, spin, k):
+    def __init__(self, spin: dict, k: int):
         super(SPIN, self).__init__()
         self.body = build_feature_extractor(spin['feature_extractor'])
         self.spn = SPN(spin['spn'])
@@ -61,7 +62,7 @@ class SPIN(nn.Module):
         omega = spn_out[:, :-1]
         g_out = init_img.requires_grad_(True)
 
-        gamma_out = [g_out ** beta for beta in self.betas]
+        gamma_out = [g_out**beta for beta in self.betas]
         gamma_out = torch.stack(gamma_out, axis=1).requires_grad_(True)
 
         fusion_img = omega[:, :, None, None, None] * gamma_out
@@ -69,14 +70,14 @@ class SPIN(nn.Module):
         return fusion_img
 
 
-def generate_beta(K):
+def generate_beta(k):
     betas = []
-    for i in range(1, K + 2):
-        p = i / (2 * (K + 1))
+    for i in range(1, k + 2):
+        p = i / (2 * (k + 1))
         beta = round(np.log(1 - p) / np.log(p), 2)
         betas.append(beta)
-    for i in range(K + 2, 2 * K + 2):
-        beta = round(1 / betas[(i - (K + 1))], 2)
+    for i in range(k + 2, 2 * k + 2):
+        beta = round(1 / betas[(i - (k + 1))], 2)
         betas.append(beta)
 
     return betas

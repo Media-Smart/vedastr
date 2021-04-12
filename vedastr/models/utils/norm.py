@@ -2,7 +2,6 @@
 
 import torch.nn as nn
 
-
 norm_cfg = {
     # format: layer_type: (abbreviation, module)
     'BN': ('bn', nn.BatchNorm2d),
@@ -12,7 +11,7 @@ norm_cfg = {
 }
 
 
-def build_norm_layer(cfg, num_features, postfix=''):
+def build_norm_layer(cfg, num_features, postfix='', layer_only=False):
     """ Build normalization layer
 
     Args:
@@ -53,5 +52,8 @@ def build_norm_layer(cfg, num_features, postfix=''):
 
     for param in layer.parameters():
         param.requires_grad = requires_grad
+
+    if layer_only:
+        return layer
 
     return name, layer

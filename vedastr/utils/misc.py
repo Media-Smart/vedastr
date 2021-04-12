@@ -2,10 +2,9 @@
 
 import functools
 import itertools
+import six
 import subprocess
 from importlib import import_module
-
-import six
 
 # ABCs from collections will be deprecated in python 3.8+,
 # while collections.abc is not available in python 2.7
@@ -140,8 +139,8 @@ def concat_list(in_list):
 def check_prerequisites(
         prerequisites,
         checker,
-        msg_tmpl='Prerequisites "{}" are required in method "{}" but not '
-                 'found, please install them first.'):
+        msg_tmpl='Prerequisites "{}" are required in method "{}" '
+                 'but not found, please install them first.'):
     """A decorator factory to check if prerequisites are satisfied.
 
     Args:
@@ -155,6 +154,7 @@ def check_prerequisites(
     """
 
     def wrap(func):
+
         @functools.wraps(func)
         def wrapped_func(*args, **kwargs):
             requirements = [prerequisites] if isinstance(

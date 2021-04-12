@@ -1,11 +1,10 @@
-import math
 import copy
-
-import torch.nn as nn
+import math
 import torch
+import torch.nn as nn
 from torch.nn import functional as F
 
-from vedastr.models.utils import build_module, ConvModule
+from vedastr.models.utils import ConvModule, build_module
 from .registry import BRICKS
 
 
@@ -16,7 +15,12 @@ class JunctionBlock(nn.Module):
     Args:
     """
 
-    def __init__(self, top_down, lateral, post, to_layer, fusion_method=None):
+    def __init__(self,
+                 top_down: dict,
+                 lateral: dict,
+                 post: dict,
+                 to_layer: str,
+                 fusion_method: str = None):
         super(JunctionBlock, self).__init__()
 
         self.from_layer = {}
@@ -71,7 +75,8 @@ class JunctionBlock(nn.Module):
             if lateral is not None:
                 feat = lateral
             else:
-                raise ValueError('There is neither top down feature nor lateral feature')
+                raise ValueError(
+                    'There is neither top down feature nor lateral feature')
 
         feat = self.post_block(feat)
 
@@ -80,38 +85,44 @@ class JunctionBlock(nn.Module):
 
 @BRICKS.register_module
 class FusionBlock(nn.Module):
-    """FusionBlock
 
-        Args:
-    """
-
-    def __init__(self,
-                 method,
-                 from_layers,
-                 feat_strides,
-                 in_channels_list,
-                 out_channels_list,
-                 upsample,
-                 conv_cfg=dict(type='Conv'),
-                 norm_cfg=dict(type='BN'),
-                 activation='relu',
-                 inplace=True,
-                 common_stride=4,
-                 ):
+    def __init__(
+        self,
+        method: str,
+        from_layers: str,
+        feat_strides: list,
+        in_channels_list: list,
+        out_channels_list: list,
+        upsample: (dict, list),
+        conv_cfg: dict = dict(type='Conv'),
+        norm_cfg: dict = dict(type='BN'),
+        activation: str = 'relu',
+        inplace: bool = True,
+        common_stride: int = 4,
+    ):
         super(FusionBlock, self).__init__()
 
         assert method in ('add', 'concat')
         self.method = method
         self.from_layers = from_layers
 
-        assert len(in_channels_list) == len(out_channels_list)
+        assert len(in_channels_list) == len(out_channels_list), \
+            'The length between input channel list and output ' \
+            'channel list is not equal.'
 
         self.blocks = nn.ModuleList()
         for idx in range(len(from_layers)):
+            if isinstance(upsample, list):
+                current_upsample = upsample[idx]
+                ups_num = int(max(1, len(current_upsample)))
+            else:
+                current_upsample = upsample
+                feat_stride = feat_strides[idx]
+                ups_num = int(
+                    max(1,
+                        math.log2(feat_stride) - math.log2(common_stride)))
             in_channels = in_channels_list[idx]
             out_channels = out_channels_list[idx]
-            feat_stride = feat_strides[idx]
-            ups_num = int(max(1, math.log2(feat_stride) - math.log2(common_stride)))
             head_ops = []
             for idx2 in range(ups_num):
                 cur_in_channels = in_channels if idx2 == 0 else out_channels
@@ -126,8 +137,13 @@ class FusionBlock(nn.Module):
                     inplace=inplace,
                 )
                 head_ops.append(conv)
-                if int(feat_stride) != int(common_stride):
-                    head_ops.append(build_module(upsample))
+                if isinstance(current_upsample, list):
+                    if current_upsample:
+                        head_ops.append(build_module(current_upsample[idx2]))
+                else:
+                    if int(feat_stride) != int(common_stride):
+                        head_ops.append(build_module(current_upsample))
+
             self.blocks.append(nn.Sequential(*head_ops))
 
     def forward(self, feats):
@@ -146,10 +162,6 @@ class FusionBlock(nn.Module):
 
 @BRICKS.register_module
 class CollectBlock(nn.Module):
-    """CollectBlock
-
-        Args:
-    """
 
     def __init__(self, from_layer, to_layer=None):
         super(CollectBlock, self).__init__()
@@ -168,12 +180,21 @@ class CollectBlock(nn.Module):
             if isinstance(self.from_layer, str):
                 feats[self.to_layer] = feats[self.from_layer]
             elif isinstance(self.from_layer, list):
-                feats[self.to_layer] = {f_layer: feats[f_layer] for f_layer in self.from_layer}
+                feats[self.to_layer] = {
+                    f_layer: feats[f_layer]
+                    for f_layer in self.from_layer
+                }
 
 
 @BRICKS.register_module
 class CellAttentionBlock(nn.Module):
-    def __init__(self, feat, hidden, fusion_method='add', post=None, post_activation='softmax'):
+
+    def __init__(self,
+                 feat: torch.Tensor,
+                 hidden: torch.Tensor,
+                 fusion_method: str = 'add',
+                 post: dict = None,
+                 post_activation: str = 'softmax'):
         super(CellAttentionBlock, self).__init__()
 
         feat_ = feat.copy()
@@ -200,7 +221,7 @@ class CellAttentionBlock(nn.Module):
         assert self.fusion_method in ['add', 'dot']
         if self.fusion_method == 'add':
             attention_map = x + y
-        elif self.fusion_method == 'dot':
+        else:
             attention_map = x * y
 
         attention_map = self.post_block(attention_map)

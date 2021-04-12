@@ -1,5 +1,5 @@
 ###############################################################################
-# 1. deploy
+# 1. inference
 
 size = (32, 100)
 mean, std = 0.5, 0.5
@@ -22,10 +22,11 @@ layer_norm = dict(type='LayerNorm', normalized_shape=hidden_dim)
 num_class = len(character) + 1
 num_steps = batch_max_length + 1
 
-deploy = dict(
+inference = dict(
     gpu_id='0,1,2,3',
     transform=[
-        dict(type='Sensitive', sensitive=sensitive, need_character=character),
+        dict(type='Sensitive', sensitive=sensitive),
+        dict(type='Filter', need_character=character),
         dict(type='ToGray'),
         dict(type='Resize', size=size),
         dict(type='Normalize', mean=mean, std=std),
@@ -50,18 +51,14 @@ deploy = dict(
                     arch=dict(
                         encoder=dict(
                             backbone=dict(
-                                type='GResNet',
+                                type='GBackbone',
                                 layers=[
-                                    ('conv',
-                                     dict(type='ConvModule', in_channels=1, out_channels=int(hidden_dim / 2),
-                                          kernel_size=3,
-                                          stride=1, padding=1, norm_cfg=batch_norm)),
-                                    ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
-                                    ('conv',
-                                     dict(type='ConvModule', in_channels=int(hidden_dim / 2), out_channels=hidden_dim,
-                                          kernel_size=3,
-                                          stride=1, padding=1, norm_cfg=batch_norm)),
-                                    ('pool', dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0)),
+                                    dict(type='ConvModule', in_channels=1, out_channels=int(hidden_dim / 2),
+                                         kernel_size=3, stride=1, padding=1, norm_cfg=batch_norm),  # c0
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),
+                                    dict(type='ConvModule', in_channels=int(hidden_dim / 2), out_channels=hidden_dim,
+                                         kernel_size=3, stride=1, padding=1, norm_cfg=batch_norm),  # c1
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # c2
                                 ],
                             ),
                         ),
@@ -189,6 +186,7 @@ common = dict(
     cudnn_deterministic=True,
     cudnn_benchmark=True,
     metric=dict(type='Accuracy'),
+    dist_params=dict(backend='nccl'),
 )
 
 ###############################################################################
@@ -203,12 +201,15 @@ test_dataset_params = dict(
     character=test_character,
 )
 
-data_root = '../../../../dataset/str/data/data_lmdb_release/'
+data_root = './dataset/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
 
 batch_size = 256
+assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
+    "batch size cannot envisibly divided by gpu nums."
+samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))
 
 # data
 test_root = data_root + 'evaluation/'
@@ -221,13 +222,15 @@ test = dict(
     data=dict(
         dataloader=dict(
             type='DataLoader',
-            batch_size=batch_size,
-            num_workers=4,
+            samples_per_gpu=samples_per_gpu,
+            workers_per_gpu=4,
             shuffle=False,
         ),
+        sampler=dict(type='DefaultSampler', shuffle=False),
         dataset=test_dataset,
         transform=[
-            dict(type='Sensitive', sensitive=test_sensitive, need_character=test_character),
+            dict(type='Sensitive', sensitive=test_sensitive),
+            dict(type='Filter', need_character=test_character),
             dict(type='ToGray'),
             dict(type='Resize', size=size),
             dict(type='Normalize', mean=mean, std=std),
@@ -262,7 +265,8 @@ valid_root = data_root + 'validation/'
 valid_dataset = dict(type='LmdbDataset', root=valid_root, **test_dataset_params)
 
 train_transforms = [
-    dict(type='Sensitive', sensitive=sensitive, need_character=character),
+    dict(type='Sensitive', sensitive=sensitive),
+    dict(type='Filter', need_character=character),
     dict(type='ToGray'),
     dict(type='ExpandRotate', limit=34, p=0.5),
     dict(type='Resize', size=size),
@@ -278,14 +282,15 @@ train = dict(
         train=dict(
             dataloader=dict(
                 type='DataLoader',
-                batch_size=batch_size,
-                num_workers=4,
+                samples_per_gpu=samples_per_gpu,
+                workers_per_gpu=4,
             ),
             sampler=dict(
                 type='BalanceSampler',
                 batch_size=batch_size,
                 shuffle=True,
                 oversample=True,
+                seed=common['seed'],
             ),
             dataset=dict(
                 type='ConcatDatasets',
@@ -307,8 +312,8 @@ train = dict(
         val=dict(
             dataloader=dict(
                 type='DataLoader',
-                batch_size=batch_size,
-                num_workers=4,
+                samples_per_gpu=samples_per_gpu,
+                workers_per_gpu=4,
                 shuffle=False,
             ),
             dataset=valid_dataset,

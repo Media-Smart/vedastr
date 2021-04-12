@@ -4,10 +4,10 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
-import cv2
+import cv2  # noqa 402
 
-from vedastr.runners import InferenceRunner
-from vedastr.utils import Config
+from vedastr.runners import InferenceRunner  # noqa 402
+from vedastr.utils import Config  # noqa 402
 
 
 def parse_args():
@@ -26,21 +26,22 @@ def main():
     cfg_path = args.config
     cfg = Config.fromfile(cfg_path)
 
-    deploy_cfg = cfg['deploy']
+    inference_cfg = cfg['inference']
     common_cfg = cfg.get('common')
 
-    runner = InferenceRunner(deploy_cfg, common_cfg)
+    runner = InferenceRunner(inference_cfg, common_cfg)
     runner.load_checkpoint(args.checkpoint)
     if os.path.isfile(args.image):
         images = [args.image]
     else:
-        images = [os.path.join(args.image, name)
-                  for name in os.listdir(args.image)]
+        images = [
+            os.path.join(args.image, name) for name in os.listdir(args.image)
+        ]
     for img in images:
         image = cv2.imread(img)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         pred_str, probs = runner(image)
-        runner.logger.info('predict string: {} \t of {}'.format(pred_str, img))
+        runner.logger.info('Text in {} is:\t {} '.format(pred_str, img))
 
 
 if __name__ == '__main__':

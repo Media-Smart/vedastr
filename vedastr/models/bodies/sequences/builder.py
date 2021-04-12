@@ -1,5 +1,5 @@
 from vedastr.utils import build_from_cfg
-from .registry import SEQUENCE_ENCODERS, SEQUENCE_DECODERS
+from .registry import SEQUENCE_DECODERS, SEQUENCE_ENCODERS
 
 
 def build_sequence_encoder(cfg, default_args=None):

@@ -1,2 +1,2 @@
-from .accuracy import Accuracy
-from .builder import build_metric
+from .accuracy import Accuracy  # noqa 401
+from .builder import build_metric  # noqa 401

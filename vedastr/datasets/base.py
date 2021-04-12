@@ -1,26 +1,45 @@
 # modify from clovaai
 
+import cv2
 import logging
 import os
 import re
-
-import cv2
 from torch.utils.data import Dataset
 
 
 class BaseDataset(Dataset):
-    def __init__(self, root, gt_txt=None, transform=None, character='abcdefghijklmnopqrstuvwxyz0123456789',
-                 batch_max_length=100000, data_filter=True):
-        assert type(root) == str
-        if gt_txt is not None:
-            assert os.path.isfile(gt_txt)
-            self.gt_txt = gt_txt
+    """
+        Args:
+            root (str): The dir path of image files.
+            transform: Transformation for images, which will be passed
+                     automatically if you set transform cfg correctly in
+                     configure file.
+            character (str): The character will be used. We will filter the
+                            sample based on the charatcer.
+            batch_max_length (int): The max allowed length of the text
+                                   after filter.
+            data_filter (bool): If true, we will filter sample based on the
+                               character. Otherwise not filter.
+
+    """
+
+    def __init__(self,
+                 root: str,
+                 transform=None,
+                 character: str = 'abcdefghijklmnopqrstuvwxyz0123456789',
+                 batch_max_length: int = 100000,
+                 data_filter: bool = True):
+
+        assert type(
+            root
+        ) == str, f'The type of root should be str but got {type(root)}'
+
         self.root = os.path.abspath(root)
         self.character = character
         self.batch_max_length = batch_max_length
         self.data_filter = data_filter
 
-        if transform:
+        if transform is not None:
             self.transforms = transform
         self.samples = 0
         self.img_names = []
@@ -28,22 +47,31 @@ class BaseDataset(Dataset):
         self.get_name_list()
 
         self.logger = logging.getLogger()
-        self.logger.info(f'current dataset length is {self.samples} in {self.root}')
+        self.logger.info(
+            f'current dataset length is {self.samples} in {self.root}')
 
     def get_name_list(self):
         raise NotImplementedError
 
-    def filter(self, label):
+    def filter(self, label, retrun_len=False):
         if not self.data_filter:
-            return False
-        """We will filter those samples whose length is larger than defined max_length by default."""
+            if not retrun_len:
+                return False
+            return False, len(label)
+        """We will filter those samples whose length is larger
+         than defined max_length by default."""
         character = "".join(sorted(self.character, key=lambda x: ord(x)))
         out_of_char = f'[^{character}]'
-        label = re.sub(out_of_char, '', label.lower())  # replace those character not in self.character with ''
-        if len(label) > self.batch_max_length:  # filter whose label larger than batch_max_length
-            return True
-
-        return False
+        label = re.sub(out_of_char, '', label.lower(
+        ))  # replace those character not in self.character with ''
+        # filter whose label larger than batch_max_length
+        if len(label) > self.batch_max_length:
+            if not retrun_len:
+                return True
+            return True, len(label)
+        if not retrun_len:
+            return False
+        return False, len(label)
 
     def __getitem__(self, index):
         # default img channel is rgb

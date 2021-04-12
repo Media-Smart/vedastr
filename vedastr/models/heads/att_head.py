@@ -1,5 +1,4 @@
 import logging
-
 import torch
 import torch.nn as nn
 
@@ -13,6 +12,7 @@ logger = logging.getLogger()
 
 @HEADS.register_module
 class AttHead(nn.Module):
+
     def __init__(self,
                  cell,
                  generator,
@@ -41,21 +41,26 @@ class AttHead(nn.Module):
         if holistic_input_from is not None:
             self.holistic_input_from = holistic_input_from
 
-        self.register_buffer('embeddings', torch.diag(torch.ones(self.num_class)))
+        self.register_buffer('embeddings',
+                             torch.diag(torch.ones(self.num_class)))
         logger.info('AttHead init weights')
         init_weights(self.modules())
 
     @property
     def with_holistic_input(self):
-        return hasattr(self, 'holistic_input_from') and self.holistic_input_from
+        return hasattr(self,
+                       'holistic_input_from') and self.holistic_input_from
 
     @property
     def with_input_attention(self):
-        return hasattr(self, 'input_attention_block') and self.input_attention_block is not None
+        return hasattr(
+            self,
+            'input_attention_block') and self.input_attention_block is not None
 
     @property
     def with_output_attention(self):
-        return hasattr(self, 'output_attention_block') and self.output_attention_block is not None
+        return hasattr(self, 'output_attention_block'
+                       ) and self.output_attention_block is not None
 
     @property
     def with_text_transform(self):
@@ -92,7 +97,9 @@ class AttHead(nn.Module):
                 text_feat = self.text_transform(text_feat)
 
             if self.with_input_attention:
-                attention_feat = self.input_attention_block(feats, self.cell.get_output(hidden).unsqueeze(-1).unsqueeze(-1))
+                attention_feat = self.input_attention_block(
+                    feats,
+                    self.cell.get_output(hidden).unsqueeze(-1).unsqueeze(-1))
                 cell_input = torch.cat([attention_feat, text_feat], dim=1)
             else:
                 cell_input = text_feat
@@ -100,8 +107,11 @@ class AttHead(nn.Module):
             out_feat = self.cell.get_output(hidden)
 
             if self.with_output_attention:
-                attention_feat = self.output_attention_block(feats, self.cell.get_output(hidden).unsqueeze(-1).unsqueeze(-1))
-                out_feat = torch.cat([self.cell.get_output(hidden), attention_feat], dim=1)
+                attention_feat = self.output_attention_block(
+                    feats,
+                    self.cell.get_output(hidden).unsqueeze(-1).unsqueeze(-1))
+                out_feat = torch.cat(
+                    [self.cell.get_output(hidden), attention_feat], dim=1)
 
             out.append(self.generator(out_feat))
 

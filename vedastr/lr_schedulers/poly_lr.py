@@ -7,8 +7,14 @@ class PolyLR(_Iter_LRScheduler):
     """PolyLR
     """
 
-    def __init__(self, optimizer, niter_per_epoch, max_epochs, power=0.9,
-                 last_iter=-1, warmup_epochs=0, iter_based=True):
+    def __init__(self,
+                 optimizer,
+                 niter_per_epoch,
+                 max_epochs,
+                 power=0.9,
+                 last_iter=-1,
+                 warmup_epochs=0,
+                 iter_based=True):
         self.max_iters = niter_per_epoch * max_epochs
         self.power = power
         self.warmup_iters = niter_per_epoch * warmup_epochs
@@ -16,8 +22,10 @@ class PolyLR(_Iter_LRScheduler):
 
     def get_lr(self):
         if self.last_iter < self.warmup_iters:
-            multiplier = (self.last_iter / float(self.warmup_iters)) ** self.power
+            multiplier = (self.last_iter /
+                          float(self.warmup_iters))**self.power
         else:
-            multiplier = (1 - (self.last_iter - self.warmup_iters) /
-                          float(self.max_iters - self.warmup_iters)) ** self.power
+            multiplier = (
+                1 - (self.last_iter - self.warmup_iters) /
+                float(self.max_iters - self.warmup_iters))**self.power
         return [base_lr * multiplier for base_lr in self.base_lrs]

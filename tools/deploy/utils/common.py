@@ -1,9 +1,8 @@
-import os
-
 import numpy as np
+import os
 from PIL import Image
-from volksdep.calibrators import EntropyCalibrator, EntropyCalibrator2, \
-    MinMaxCalibrator
+from volksdep.calibrators import (EntropyCalibrator, EntropyCalibrator2,
+                                  MinMaxCalibrator)
 from volksdep.datasets import Dataset
 from volksdep.metrics import Metric as BaseMetric
 
@@ -15,6 +14,7 @@ CALIBRATORS = {
 
 
 class CalibDataset(Dataset):
+
     def __init__(self, images_dir, converter, transform=None, need_text=False):
         super(CalibDataset, self).__init__()
 
@@ -40,6 +40,7 @@ class CalibDataset(Dataset):
 
 
 class MetricDataset(Dataset):
+
     def __init__(self, dataset, converter, need_text):
         super(MetricDataset, self).__init__()
         self.dataset = dataset
@@ -61,6 +62,7 @@ class MetricDataset(Dataset):
 
 
 class Metric(BaseMetric):
+
     def __init__(self, metric, converter):
         self.metric = metric
         self.converter = converter

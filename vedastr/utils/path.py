@@ -2,10 +2,9 @@
 
 import os
 import os.path as osp
+import six
 import sys
 from pathlib import Path
-
-import six
 
 from .misc import is_str
 
@@ -81,7 +80,7 @@ def scandir(dir_path, suffix=None):
         return _scandir_py(dir_path, suffix)
 
 
-def find_vcs_root(path, markers=('.git',)):
+def find_vcs_root(path, markers=('.git', )):
     """Finds the root directory (including itself) of specified markers.
 
     Args:

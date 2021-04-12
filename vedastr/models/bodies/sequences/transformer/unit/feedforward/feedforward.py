@@ -6,7 +6,8 @@ from .registry import TRANSFORMER_FEEDFORWARDS
 
 @TRANSFORMER_FEEDFORWARDS.register_module
 class Feedforward(nn.Module):
-    def __init__(self, layers):
+
+    def __init__(self, layers: dict):
         super(Feedforward, self).__init__()
 
         self.layers = [build_module(layer) for layer in layers]

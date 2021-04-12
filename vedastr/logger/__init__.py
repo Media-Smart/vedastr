@@ -1,1 +1,1 @@
-from .builder import build_logger
+from .builder import build_logger  # noqa 401

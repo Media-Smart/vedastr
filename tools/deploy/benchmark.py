@@ -4,13 +4,12 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
 
-import cv2
-from PIL import Image
-from volksdep.benchmark import benchmark
+import cv2  # noqa 402
+from volksdep.benchmark import benchmark  # noqa 402
 
-from vedastr.runners import TestRunner
-from vedastr.utils import Config
-from tools.deploy.utils import CALIBRATORS, CalibDataset, MetricDataset, Metric
+from tools.deploy.utils import CALIBRATORS, CalibDataset, Metric, MetricDataset  # noqa 402
+from vedastr.runners import TestRunner  # noqa 402
+from vedastr.utils import Config  # noqa 402
 
 
 def parse_args():
@@ -18,17 +17,27 @@ def parse_args():
     parser.add_argument('config', type=str, help='config file path')
     parser.add_argument('checkpoint', type=str, help='checkpoint file path')
     parser.add_argument('image', type=str, help='sample image path')
-    parser.add_argument('--dtypes', default=('fp32', 'fp16', 'int8'),
-                        nargs='+', type=str, choices=['fp32', 'fp16', 'int8'],
-                        help='dtypes for benchmark')
-    parser.add_argument('--iters', default=100, type=int,
-                        help='iters for benchmark')
-    parser.add_argument('--calibration_images', default=None, type=str,
-                        help='images dir used when int8 in dtypes')
-    parser.add_argument('--calibration_modes', nargs='+',
-                        default=['entropy', 'entropy_2', 'minmax'], type=str,
-                        choices=['entropy_2', 'entropy', 'minmax'],
-                        help='calibration modes for benchmark')
+    parser.add_argument(
+        '--dtypes',
+        default=('fp32', 'fp16', 'int8'),
+        nargs='+',
+        type=str,
+        choices=['fp32', 'fp16', 'int8'],
+        help='dtypes for benchmark')
+    parser.add_argument(
+        '--iters', default=100, type=int, help='iters for benchmark')
+    parser.add_argument(
+        '--calibration_images',
+        default=None,
+        type=str,
+        help='images dir used when int8 in dtypes')
+    parser.add_argument(
+        '--calibration_modes',
+        nargs='+',
+        default=['entropy', 'entropy_2', 'minmax'],
+        type=str,
+        choices=['entropy_2', 'entropy', 'minmax'],
+        help='calibration modes for benchmark')
     args = parser.parse_args()
 
     return args
@@ -41,17 +50,17 @@ def main():
     cfg = Config.fromfile(cfg_path)
 
     test_cfg = cfg['test']
-    deploy_cfg = cfg['deploy']
+    infer_cfg = cfg['inference']
     common_cfg = cfg['common']
 
-    runner = TestRunner(test_cfg, deploy_cfg, common_cfg)
+    runner = TestRunner(test_cfg, infer_cfg, common_cfg)
     assert runner.use_gpu, 'Please use gpu for benchmark.'
     runner.load_checkpoint(args.checkpoint)
 
-    # image = Image.open(args.image)
     image = cv2.imread(args.image)
-    aug= runner.transform(image=image,label='')
-    image, dummy_label = aug['image'], aug['label']
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    aug = runner.transform(image=image, label='')
+    image, dummy_label = aug['image'], aug['label']  # noqa 841
     image = image.unsqueeze(0)
     input_len = runner.converter.test_encode(1)[0]
     model = runner.model
@@ -67,13 +76,21 @@ def main():
     if args.calibration_images:
         calib_dataset = CalibDataset(args.calibration_images, runner.converter,
                                      runner.transform, need_text)
-        int8_calibrator = [CALIBRATORS[mode](dataset=calib_dataset)
-                           for mode in args.calibration_modes]
+        int8_calibrator = [
+            CALIBRATORS[mode](dataset=calib_dataset)
+            for mode in args.calibration_modes
+        ]
     dataset = runner.test_dataloader.dataset
     dataset = MetricDataset(dataset, runner.converter, need_text)
     metric = Metric(runner.metric, runner.converter)
-    benchmark(model, shape, dtypes=dtypes, iters=iters,
-              int8_calibrator=int8_calibrator, dataset=dataset, metric=metric)
+    benchmark(
+        model,
+        shape,
+        dtypes=dtypes,
+        iters=iters,
+        int8_calibrator=int8_calibrator,
+        dataset=dataset,
+        metric=metric)
 
 
 if __name__ == '__main__':

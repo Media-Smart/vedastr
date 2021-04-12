@@ -1,15 +1,21 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 from .registry import UTILS
 
 
 @UTILS.register_module
 class Upsample(nn.Module):
-    __constants__ = ['size', 'scale_factor', 'scale_bias', 'mode', 'align_corners', 'name']
+    __constants__ = [
+        'size', 'scale_factor', 'scale_bias', 'mode', 'align_corners', 'name'
+    ]
 
-    def __init__(self, size=None, scale_factor=None, scale_bias=0, mode='nearest', align_corners=None):
+    def __init__(self,
+                 size=None,
+                 scale_factor=None,
+                 scale_bias=0,
+                 mode='nearest',
+                 align_corners=None):
         super(Upsample, self).__init__()
         self.size = size
         self.scale_factor = scale_factor
@@ -29,7 +35,8 @@ class Upsample(nn.Module):
 
             size = (new_h, new_w)
 
-        return F.interpolate(x, size=size, mode=self.mode, align_corners=self.align_corners)
+        return F.interpolate(
+            x, size=size, mode=self.mode, align_corners=self.align_corners)
 
     def extra_repr(self):
         if self.size is not None:

@@ -8,6 +8,7 @@ from .registry import CONVERTERS
 
 @CONVERTERS.register_module
 class AttnConverter(BaseConverter):
+
     def __init__(self, character, batch_max_length, go_last=False):
         list_character = list(character)
         self.batch_max_length = batch_max_length + 1
@@ -22,9 +23,7 @@ class AttnConverter(BaseConverter):
 
     def train_encode(self, text):
         length = [len(s) + 1 for s in text]
-        batch_text = torch.LongTensor(
-            len(text), self.batch_max_length + 1
-        ).fill_(self.ignore_id)
+        batch_text = torch.LongTensor(len(text), self.batch_max_length + 1).fill_(self.ignore_id)  # noqa 501
         for idx, t in enumerate(text):
             text = list(t)
             text.append('[s]')
@@ -41,7 +40,10 @@ class AttnConverter(BaseConverter):
         elif isinstance(text, int):
             num = text
         else:
-            raise TypeError(f'Type of text should in (list, tuple, int) but got {type(text)}')
+            raise TypeError(
+                f'Type of text should in (list, tuple, int) '
+                f'but got {type(text)}'
+            )
         batch_text = torch.LongTensor(num, 1).fill_(self.ignore_id)
         length = [1 for i in range(num)]
 

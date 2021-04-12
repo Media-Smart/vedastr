@@ -9,6 +9,7 @@ class FCModule(nn.Module):
 
     Args:
     """
+
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -29,14 +30,16 @@ class FCModule(nn.Module):
 
         # build activation layer
         if self.with_activatation:
-            # TODO: introduce `act_cfg` and supports more activation layers
-            if self.activation not in ['relu', 'tanh']:
+            # TODO: introduce `activation` and supports more activation layers
+            if self.activation not in ['relu', 'tanh', 'sigmoid']:
                 raise ValueError('{} is currently not supported.'.format(
                     self.activation))
             if self.activation == 'relu':
                 self.activate = nn.ReLU(inplace=inplace)
             elif self.activation == 'tanh':
                 self.activate = nn.Tanh()
+            elif self.activation == 'sigmoid':
+                self.activate = nn.Sigmoid()
 
         if self.with_dropout:
             self.dropout = nn.Dropout(p=dropout)
@@ -64,6 +67,7 @@ class FCModules(nn.Module):
 
     Args:
     """
+
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -80,13 +84,18 @@ class FCModules(nn.Module):
         else:
             dropout = None
 
-        layers = [FCModule(in_channels, out_channels, bias, activation, inplace, dropout)]
+        layers = [
+            FCModule(in_channels, out_channels, bias, activation, inplace,
+                     dropout)
+        ]
         for ii in range(1, num_fcs):
             if dropouts is not None:
                 dropout = dropouts[ii]
             else:
                 dropout = None
-            layers.append(FCModule(out_channels, out_channels, bias, activation, inplace, dropout))
+            layers.append(
+                FCModule(out_channels, out_channels, bias, activation, inplace,
+                         dropout))
 
         self.block = nn.Sequential(*layers)
 

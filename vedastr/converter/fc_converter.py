@@ -13,12 +13,12 @@ class FCConverter(BaseConverter):
         ignore_token = ['[ignore]']
         list_character = list(character)
         self.batch_max_length = batch_max_length + 1
-        super(FCConverter, self).__init__(character=list_token + list_character + ignore_token)
+        super(FCConverter, self).__init__(character=list_token + list_character + ignore_token)  # noqa 501
         self.ignore_index = self.dict[ignore_token[0]]
 
     def encode(self, text):
         length = [len(s) + 1 for s in text]  # +1 for [s] at end of sentence.
-        batch_text = torch.LongTensor(len(text), self.batch_max_length).fill_(self.ignore_index)
+        batch_text = torch.LongTensor(len(text), self.batch_max_length).fill_(self.ignore_index)  # noqa 501
         for i, t in enumerate(text):
             text = list(t)
             text.append('[s]')

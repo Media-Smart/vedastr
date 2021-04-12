@@ -1,11 +1,12 @@
 import torch.nn as nn
 
-from .utils import generate_encoder
 from .registry import POSITION_ENCODERS
+from .utils import generate_encoder
 
 
 @POSITION_ENCODERS.register_module
 class PositionEncoder1D(nn.Module):
+
     def __init__(self, in_channels, max_len=2000, dropout=0.1):
         super(PositionEncoder1D, self).__init__()
 

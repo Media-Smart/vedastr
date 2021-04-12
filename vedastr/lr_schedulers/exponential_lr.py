@@ -7,8 +7,15 @@ class ExponentialLR(_Iter_LRScheduler):
     """ExponentialLR
     """
 
-    def __init__(self, optimizer, niter_per_epoch, max_epochs, gamma, step,
-                 last_iter=-1, warmup_epochs=0, iter_based=True):
+    def __init__(self,
+                 optimizer,
+                 niter_per_epoch,
+                 max_epochs,
+                 gamma,
+                 step,
+                 last_iter=-1,
+                 warmup_epochs=0,
+                 iter_based=True):
         self.max_iters = niter_per_epoch * max_epochs
         self.gamma = gamma
         self.step_iters = niter_per_epoch * step
@@ -19,6 +26,6 @@ class ExponentialLR(_Iter_LRScheduler):
         if self.last_iter < self.warmup_iters:
             multiplier = self.last_iter / float(self.warmup_iters)
         else:
-            multiplier = self.gamma ** ((self.last_iter - self.warmup_iters)
-                                        / float(self.step_iters))
+            multiplier = self.gamma**((self.last_iter - self.warmup_iters) /
+                                      float(self.step_iters))
         return [base_lr * multiplier for base_lr in self.base_lrs]

@@ -7,6 +7,7 @@ from .registry import MODELS
 
 @MODELS.register_module
 class GModel(nn.Module):
+
     def __init__(self, body, head, need_text=True):
         super(GModel, self).__init__()
 

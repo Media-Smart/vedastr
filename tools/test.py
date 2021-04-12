@@ -4,16 +4,19 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
-from vedastr.runners import TestRunner
-from vedastr.utils import Config
+from vedastr.runners import TestRunner  # noqa 402
+from vedastr.utils import Config  # noqa 402
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test.')
     parser.add_argument('config', type=str, help='Config file path')
     parser.add_argument('checkpoint', type=str, help='Checkpoint file path')
+    parser.add_argument('--distribute', default=False, action='store_true')
+    parser.add_argument('--local_rank', type=int, default=0)
     args = parser.parse_args()
-
+    if 'LOCAL_RANK' not in os.environ:
+        os.environ['LOCAL_RANK'] = str(args.local_rank)
     return args
 
 
@@ -31,11 +34,12 @@ def main():
     os.makedirs(workdir, exist_ok=True)
 
     test_cfg = cfg['test']
-    deploy_cfg = cfg['deploy']
+    inference_cfg = cfg['inference']
     common_cfg = cfg['common']
     common_cfg['workdir'] = workdir
+    common_cfg['distribute'] = args.distribute
 
-    runner = TestRunner(test_cfg, deploy_cfg, common_cfg)
+    runner = TestRunner(test_cfg, inference_cfg, common_cfg)
     runner.load_checkpoint(args.checkpoint)
     runner()
 
