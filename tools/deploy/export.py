@@ -74,7 +74,7 @@ def main():
     aug = runner.transform(image=image, label='')
     image, label = aug['image'], aug['label']  # noqa 841
     image = image.unsqueeze(0).cuda()
-    dummy_input = (image, runner.converter.test_encode(['']))
+    dummy_input = (image, runner.converter.test_encode([''])[0])
     model = runner.model.cuda().eval()
     need_text = runner.need_text
     if not need_text:

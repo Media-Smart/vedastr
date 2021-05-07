@@ -14,10 +14,11 @@ batch_max_length = 25
 norm_cfg = dict(type='SyncBN')
 num_class = len(character) + 1
 base_channel = 16
-F = 20
+fiducial_num = 20
+
 
 inference = dict(
-    gpu_id='4,5,6,7',
+    gpu_id='0,1,2,3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='Filter', need_character=character),
@@ -42,7 +43,7 @@ inference = dict(
                     to_layer='rect',
                     arch=dict(
                         type='TPS_STN',
-                        F=F,
+                        F=fiducial_num,
                         input_size=size,
                         output_size=size,
                         stn=dict(
@@ -70,7 +71,7 @@ inference = dict(
                             pool=dict(type='AdaptiveAvgPool2d', output_size=1),
                             head=[
                                 dict(type='FCModule', in_channels=512, out_channels=256),
-                                dict(type='FCModule', in_channels=256, out_channels=F * 2, activation=None)
+                                dict(type='FCModule', in_channels=256, out_channels=fiducial_num * 2, activation=None),
                             ],
                         ),
                     ),
@@ -428,10 +429,10 @@ test = dict(
 
 ###############################################################################
 ## MJ dataset
-train_root_mj = data_root + 'train/MJ/'
+train_root_mj = data_root + 'training/MJ/'
 mj_folder_names = ['MJ_test', 'MJ_valid', 'MJ_train']
 ## ST dataset
-train_root_st = data_root + 'train/ST/'
+train_root_st = data_root + 'training/ST/'
 
 train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name)
                     for folder_name in mj_folder_names]

@@ -25,7 +25,8 @@ class SE(nn.Module):
         )
 
     def forward(self, x):
-        y = self.pool(x).squeeze()
-        y = self.layer(y)
+        b, c, _, _ = x.size()
+        y = self.pool(x).view(b, c)
+        y = self.layer(y).view(b, c, 1, 1)
 
-        return x * y[:, :, None, None]
+        return x * y.expand_as(x)
