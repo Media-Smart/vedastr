@@ -201,7 +201,7 @@ test_dataset_params = dict(
     character=test_character,
 )
 
-data_root = './dataset/data_lmdb_release/'
+data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test

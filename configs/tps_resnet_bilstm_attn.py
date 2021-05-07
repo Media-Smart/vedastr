@@ -7,7 +7,7 @@ sensitive = False
 character = 'abcdefghijklmnopqrstuvwxyz0123456789'
 batch_max_length = 25
 
-F = 20
+fiducial_num = 20
 hidden_dim = 256
 norm_cfg = dict(type='BN')
 num_class = len(character) + 2
@@ -40,7 +40,7 @@ inference = dict(
                     to_layer='rect',
                     arch=dict(
                         type='TPS_STN',
-                        F=F,
+                        F=fiducial_num,
                         input_size=size,
                         output_size=size,
                         stn=dict(
@@ -68,7 +68,7 @@ inference = dict(
                             pool=dict(type='AdaptiveAvgPool2d', output_size=1),
                             head=[
                                 dict(type='FCModule', in_channels=512, out_channels=256),
-                                dict(type='FCModule', in_channels=256, out_channels=F * 2, activation=None)
+                                dict(type='FCModule', in_channels=256, out_channels=fiducial_num * 2, activation=None)
                             ],
                         ),
                     ),
@@ -209,7 +209,7 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = './dataset/data_lmdb_release/'
+data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test

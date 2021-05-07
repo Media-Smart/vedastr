@@ -19,8 +19,8 @@ in order to support rapid implementation and evaluation for scene text recogniti
 
 - **Good performance**\
   We re-implement the best model in  [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark)
-  and get better average accuracy. What's more, we implement a simple baseline(ResNet-FC)
-   and the performance is acceptable.
+  and get better average accuracy. What's more, we devise a new model named [CSTR](https://arxiv.org/abs/2102.10884) which
+  achieves nearly SOTA performance.
   
 
 ## License
@@ -28,33 +28,31 @@ This project is released under [Apache 2.0 license](https://github.com/Media-Sma
 
 ## Benchmark and model zoo
 Note: 
-- We use [MJSynth(MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and
- [SynthText(ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/) as training data,  and test the models on 
+- We use MJSynth(MJ) and SynthText(ST) as training data,  and test the models on 
  [IIIT5K_3000](http://cvit.iiit.ac.in/research/projects/cvit-projects/the-iiit-5k-word-dataset),
  [SVT](http://vision.ucsd.edu/~kai/svt/),
   [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php?title=ICDAR_2003_Robust_Reading_Competitions), 
   [IC13_1015](http://dagdata.cvc.uab.es/icdar2013competition/?ch=2&com=downloads),
 [IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads), SVTP,
-[CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html). You can find the 
- datasets [below](https://github.com/Media-Smart/vedastr/tree/opencv-version#prepare-data).
+[CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html).
   
 | MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
 |:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[CSTR](https://drive.google.com/file/d/14USWpsW8_HH3BMxYfSWxINlaI1Y26Q1q/view?usp=sharing)| False| 93.7 | 90.1 | 94.8 | 93.2 |81.6|85|81.3|89.5|
-|[ResNet-CTC]()| False|-|-|-|-|-|-|-|-|
-|[TPS-ResNet-BiLSTM-Attention]()| False|-|-|-|-|-|-|-|-|
+|[CSTR](https://drive.google.com/file/d/14USWpsW8_HH3BMxYfSWxINlaI1Y26Q1q/view?usp=sharing)| False | 93.7 | 90.1 | 94.8 | 93.2 | 81.6 | 85 | 81.3 | 89.5 |
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1Zzg1Q8_JTIW4XY-CCmBQhgNkgVsMek-o/view?usp=sharing)| False | 94 | 89.2 | 93.5 | 91.2 | 76.9 | 80.9 | 81.2 | 87.7 |
+|[ResNet-CTC](https://drive.google.com/file/d/177FmlOHJWNWgEZwoPlBQBM9mmug_9kue/view?usp=sharing)| False | 91.3 | 85.9 | 90.3 | 88.3 | 70.0 | 74.1 | 73.3 | 83.3 |
 |[Small-SATRN]()| False|-|-|-|-|-|-|-|-|
 
 CSTR: [Revisiting Classification Perspective on Scene Text Recognition](https://arxiv.org/abs/2102.10884)
 
-TPS : [Spatial transformer network](https://arxiv.org/abs/1603.03915)
+TPS: [Spatial transformer network](https://arxiv.org/abs/1603.03915)
 
 Small-SATRN: [On Recognizing Texts of Arbitrary Shapes with 2D Self-Attention](https://arxiv.org/abs/1910.04396), 
 training phase is case sensitive while testing phase is case insensitive.
 
-AVERAGE : Average accuracy over all test datasets
+AVERAGE: Average accuracy over all test datasets
 
-CASE SENSITIVE : If true, the output is case sensitive and contain common characters.
+CASE SENSITIVE: If true, the output is case sensitive and contain common characters.
 If false, the output is not case sensetive and contains only numbers and letters. 
 
 ## Installation
@@ -103,7 +101,7 @@ pip install -r requirements.txt
 ```
 
 ## Prepare data
-1. Download Lmdb data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
+1. Download LMDB data from [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark),
  which contains training, validation and evaluation data. 
  **Note: we use the ST dataset released by [ASTER](https://github.com/ayumiymk/aster.pytorch#data-preparation).**  
 
@@ -129,18 +127,15 @@ data
     └── validation
 ```
 
-
-
 ## Train
 
 1. Config
 
-Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py`
+Modify some configuration accordingly in the config file like `configs/cstr.py`
 
-2. Run
-
-```shell
-python tools/train.py configs/tps_resnet_bilstm_attn.py 
+2. Training
+```shell script
+tools/dist_train.sh configs/cstr.py gpu_nums
 ```
 
 Snapshots and logs will be generated at `vedastr/workdir` by default.
@@ -149,53 +144,34 @@ Snapshots and logs will be generated at `vedastr/workdir` by default.
 
 1. Config
 
-Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py `
+Modify some configuration accordingly in the config file like `configs/cstr.py `
 
-2. Run
-
-```shell
-python tools/test.py configs/tps_resnet_bilstm_attn.py checkpoint_path
+2. Testing
+```shell script
+tools/dist_test.sh configs/cstr.py checkpoint_path gpu_nums
 ```
 
 ## Inference
 1. Run
 
 ```shell
-python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_path
+python tools/inference.py configs/cstr.py checkpoint_path img_path
 ```
 
 ## Deploy
 1. Install [volksdep](https://github.com/Media-Smart/volksdep) following the 
 [official instructions](https://github.com/Media-Smart/volksdep#installation)
 
-2. Benchmark (optional)
-```python
-python tools/deploy/benchmark.py configs/resnet_ctc.py checkpoint_path image_file_path --calibration_images image_folder_path
-```
-
-More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
-
-The result of resnet_ctc is as follows(test device: Jetson AGX Xavier, CUDA:10.2):
-
-| framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
-|    :-:     |    :-:     |         :-:          |            :-:            |         :-:          |       :-:       |
-|  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp32            |          64          |      15.81      |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp32            |         109          |      9.66       |
-|  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp16            |         113          |      10.75      |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp16            |         308          |      3.55       |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |      int8(entropy_2)      |         449          |      2.38       |
-
-
-
-3. Export model as ONNX or TensorRT engine format
+2. Export model as ONNX
 
 ```python
-python tools/deploy/export.py configs/resnet_ctc.py checkpoint_path image_file_path out_model_path
+python tools/deploy/export.py configs/resnet_ctc.py checkpoint_path image_file_path out_model_path --onnx
 ```
 
-  More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
+  - More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
+  - Currently, only `resnet_ctc.py` is supported. 
 
-4. Inference SDK
+3. Inference SDK
 
   You can refer to [FlexInfer](https://github.com/Media-Smart/flexinfer) for details.
 

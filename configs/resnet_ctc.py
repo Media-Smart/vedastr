@@ -78,6 +78,7 @@ inference = dict(
             from_layer='cnn_feat',
             num_class=num_class,
             in_channels=512,
+            export=True,
             pool=dict(
                 type='AdaptiveAvgPool2d',
                 output_size=(1, None),
@@ -116,7 +117,7 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = './dataset/data_lmdb_release/'
+data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test

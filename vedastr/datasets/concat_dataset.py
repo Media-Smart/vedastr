@@ -30,4 +30,9 @@ class ConcatDatasets(_ConcatDataset):
                                                len(data_range) + 1)
         ]
         self.batch_ratio = batch_ratio
+        if self.batch_ratio is not None:
+            assert len(self.batch_ratio) == len(datasets), \
+                'The length of batch_ratio and datasets should be equal. ' \
+                f'But got {len(self.batch_ratio)} batch_ratio and ' \
+                f'{len(datasets)} datasets.'
         super(ConcatDatasets, self).__init__(datasets=datasets)
