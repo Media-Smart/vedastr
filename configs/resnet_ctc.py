@@ -1,5 +1,6 @@
 ###############################################################################
 # 1. inference
+samples_per_gpu = 192
 size = (32, 100)
 mean, std = 0.5, 0.5
 
@@ -11,7 +12,6 @@ norm_cfg = dict(type='BN')
 num_class = len(character) + 1
 
 inference = dict(
-    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='Filter', need_character=character),
@@ -122,11 +122,6 @@ data_root = './data/data_lmdb_release/'
 ###############################################################################
 # 3. test
 
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot evenly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))
-
 # data
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
@@ -196,7 +191,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,
+                samples_per_gpu=samples_per_gpu,
                 shuffle=True,
                 oversample=True,
             ),

@@ -37,7 +37,7 @@ class BalanceSampler(Sampler):
 
     def __init__(self,
                  dataset,
-                 batch_size: int,
+                 samples_per_gpu: int,
                  shuffle: bool,
                  oversample: bool = False,
                  downsample: bool = False,
@@ -50,7 +50,7 @@ class BalanceSampler(Sampler):
         self.dataset = dataset
         self.samples_range = dataset.data_range
         self.batch_ratio = np.array(dataset.batch_ratio)
-        self.batch_size = batch_size
+        self.batch_size = samples_per_gpu
         self.batch_sizes = self._compute_each_batch_size()
         self.shuffle_batch = shuffle_batch
         new_br = self.batch_sizes / self.batch_size

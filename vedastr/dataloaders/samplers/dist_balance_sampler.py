@@ -34,7 +34,7 @@ class BalanceSampler(DistributedSampler):
 
     def __init__(self,
                  dataset,
-                 batch_size: int,
+                 samples_per_gpu: int,
                  shuffle: bool,
                  oversample: bool = False,
                  downsample: bool = False,
@@ -51,7 +51,7 @@ class BalanceSampler(DistributedSampler):
         self.dataset = dataset
         self.samples_range = dataset.data_range
         self.batch_ratio = np.array(dataset.batch_ratio)
-        self.batch_size = batch_size
+        self.batch_size = samples_per_gpu * num_replicas # total batch size
         self.batch_sizes = self._compute_each_batch_size()
         self.shuffle_batch = shuffle_batch
         self.drop_last = drop_last  # noqa 501

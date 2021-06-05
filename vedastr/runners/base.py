@@ -14,7 +14,6 @@ from ..utils import get_dist_info, init_dist_pytorch
 
 
 class Common(object):
-
     def __init__(self, cfg):
         super(Common, self).__init__()
 
@@ -22,12 +21,12 @@ class Common(object):
         logger_cfg = cfg.get('logger')
         if logger_cfg is None:
             logger_cfg = dict(
-                handlers=(dict(type='StreamHandler', level='INFO'), ))
+                handlers=(dict(type='StreamHandler', level='INFO'),))
         self.workdir = cfg.get('workdir')
         self.distribute = cfg.get('distribute', False)
 
         # set gpu devices
-        self.use_gpu = self._set_device(cfg.get('gpu_id', ''))
+        self.use_gpu = self._set_device()
 
         # set distribute setting
         if self.distribute and self.use_gpu:
@@ -58,8 +57,7 @@ class Common(object):
     def _build_logger(self, cfg):
         return build_logger(cfg, dict(workdir=self.workdir))
 
-    def _set_device(self, gpu_id):
-        os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
+    def _set_device(self):
         self.gpu_num = torch.cuda.device_count()
         if torch.cuda.is_available():
             use_gpu = True
@@ -100,11 +98,11 @@ class Common(object):
             if isinstance(dataset, list):
                 sampler = [
                     build_sampler(self.distribute, cfg['sampler'],
-                                  dict(dataset=d)) for d in dataset
+                                  dict(dataset=d, gpu_nums=self.gpu_num)) for d in dataset
                 ]
             else:
                 sampler = build_sampler(self.distribute, cfg['sampler'],
-                                        dict(dataset=dataset))
+                                        dict(dataset=dataset, gpu_nums=self.gpu_num))
         dataloader = build_dataloader(
             self.distribute,
             self.gpu_num,

@@ -119,7 +119,7 @@ class TrainRunner(InferenceRunner):
         else:
             pred = self.model((img,))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
-        all_loss = gather_tensor(loss)
+        all_loss = gather_tensor(loss.unsqueeze(0))
         gather_loss = torch.mean(all_loss)
         loss.backward()
         if self.grad_clip != 0:

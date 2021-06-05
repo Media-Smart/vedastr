@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 
 if (($# < 2)); then
-    echo "Uasage: bash tools/dist_train.sh config_file gpu_nums"
-    exit 1
+  echo "Uasage: bash tools/dist_train.sh config_file gpus_to_use"
+  exit 1
 fi
+CONFIG="$1"
+GPUS="$2"
 
-CONFIG=$1
-GPUS=$2
+IFS=', ' read -r -a gpus <<<"${GPUS}"
+NGPUS="${#gpus[@]}"
 PORT="$((29400 + RANDOM % 100))"
 
-PYTHON=${PYTHON:-"python"}
+export CUDA_VISIBLE_DEVICES=${GPUS}
 
-$PYTHON -m torch.distributed.launch --nproc_per_node=$GPUS --master_port=$PORT \
-    $(dirname "$0")/train.py $CONFIG --distribute ${@:3}
+PYTHONPATH="$(dirname "$0")/..":${PYTHONPATH} \
+    python -m torch.distributed.launch \
+        --nproc_per_node="${NGPUS}" \
+        --master_port=${PORT} \
+        "$(dirname "$0")"/train.py \
+            "$CONFIG" \
+            --distribute \
+            "${@:3}"

@@ -1,5 +1,6 @@
 ###############################################################################
 # 1. inference
+samples_per_gpu = 192
 size = (32, 100)
 mean, std = 0.5, 0.5
 
@@ -213,10 +214,6 @@ data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot envisibly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))
 
 # data
 test_root = data_root + 'evaluation/'
@@ -288,7 +285,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,
+                samples_per_gpu=samples_per_gpu,
                 shuffle=True,
                 oversample=True,
                 seed=common['seed'],

@@ -14,8 +14,6 @@ class InferenceRunner(Common):
     def __init__(self, inference_cfg, common_cfg=None):
         inference_cfg = inference_cfg.copy()
         common_cfg = {} if common_cfg is None else common_cfg.copy()
-
-        common_cfg['gpu_id'] = inference_cfg.pop('gpu_id')
         super(InferenceRunner, self).__init__(common_cfg)
 
         # build test transform

@@ -3,8 +3,8 @@ root_workdir = 'workdir'
 
 ###############################################################################
 # 1. inference
+samples_per_gpu = 48
 size = (48, 192)
-# pad_size = (32, 128)
 mean, std = 0.5, 0.5
 
 character = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -15,7 +15,6 @@ norm_cfg = dict(type='SyncBN')
 num_class = len(character) + 1
 base_channel = 16
 fiducial_num = 20
-
 
 inference = dict(
     gpu_id='0,1,2,3',
@@ -103,7 +102,7 @@ inference = dict(
                                          stride=1, padding=1, norm_cfg=norm_cfg),  # 24, 96
 
                                     dict(type='NonLocal2d', in_channels=128 + base_channel * 4, sub_sample=True),  # c1
-                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 49
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 48
                                     dict(type='BasicBlocks', inplanes=128 + base_channel * 4,
                                          planes=256 + base_channel * 8, blocks=4, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=256 + base_channel * 8,
@@ -398,11 +397,6 @@ data_root = './data/data_lmdb_release/'
 ###############################################################################
 # 3. test
 
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot envisibly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))  # compute batch size for each gpu
-
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
                      'IIIT5k_3000', 'SVT', 'SVTP']
@@ -470,7 +464,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,  # here should set total batch size
+                samples_per_gpu=samples_per_gpu,  # here should set total batch size
                 shuffle=True,
                 oversample=True,
                 seed=common['seed'],  # if not set, default seed is 0.

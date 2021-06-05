@@ -3,6 +3,7 @@ root_workdir = 'workdir'
 
 ###############################################################################
 # 1. inference
+samples_per_gpu = 48  # compute batch size for each gpu
 size = (48, 192)
 mean, std = 0.5, 0.5
 
@@ -15,7 +16,6 @@ num_class = len(character) + 1
 base_channel = 16
 
 inference = dict(
-    gpu_id='0,1,2,3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='Filter', need_character=character),
@@ -355,12 +355,6 @@ data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
-
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot envisibly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))  # compute batch size for each gpu
-
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
                      'IIIT5k_3000', 'SVT', 'SVTP']
@@ -428,7 +422,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,  # here should set total batch size
+                samples_per_gpu=samples_per_gpu,  # here should set total batch size
                 shuffle=True,
                 oversample=True,
                 seed=common['seed'],  # if not set, default seed is 0.
