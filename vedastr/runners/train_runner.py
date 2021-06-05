@@ -5,7 +5,7 @@ import torch.utils.data as tud
 from ..criteria import build_criterion
 from ..lr_schedulers import build_lr_scheduler
 from ..optimizers import build_optimizer
-from ..utils import save_checkpoint
+from ..utils import save_checkpoint, gather_tensor
 from .inference_runner import InferenceRunner
 
 
@@ -119,7 +119,8 @@ class TrainRunner(InferenceRunner):
         else:
             pred = self.model((img,))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
-
+        all_loss = gather_tensor(loss)
+        gather_loss = torch.mean(all_loss)
         loss.backward()
         if self.grad_clip != 0:
             torch.nn.utils.clip_grad_norm_(self.model.parameters(),
@@ -134,7 +135,7 @@ class TrainRunner(InferenceRunner):
             self.logger.info(
                 'Train, Epoch %d, Iter %d, LR %s, Loss %.4f, '
                 'acc %.4f, edit_distance %s'
-                % (self.epoch, self.iter, self.lr, loss.item(),
+                % (self.epoch, self.iter, self.lr, gather_loss.item(),
                    self.metric.avg['acc']['true'], self.metric.avg['edit']))
 
             self.logger.info(f'\n{self.metric.predict_example_log}')

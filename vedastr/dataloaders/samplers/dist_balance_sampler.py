@@ -208,4 +208,4 @@ class BalanceSampler(DistributedSampler):
         return result_indices
 
     def __len__(self):
-        return self._num_samples
+        return self.single_rank_num_samples
