@@ -63,6 +63,11 @@ class TrainRunner(InferenceRunner):
         return build_optimizer(cfg, dict(params=self.model.parameters()))
 
     def _build_criterion(self, cfg):
+        if self.converter.ignore_index is not None:
+            if cfg['type'] in ['CrossEntropyLoss', 'LabelSmoothingCrossEntropy']:
+                self.logger.info(f'Set ignore index as {self.converter.ignore_index}')
+                cfg.update(ignore_index=self.converter.ignore_index)
+
         return build_criterion(cfg)
 
     def _build_lr_scheduler(self, cfg, last_iter=-1):

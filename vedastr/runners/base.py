@@ -49,6 +49,8 @@ class Common(object):
         if 'metric' in cfg:
             self.metric = self._build_metric(cfg['metric'])
             self.backup_metric = self._build_metric(cfg['metric'])
+        else:
+            raise KeyError(f'Please set metric in config file.')
 
         # set need_text
         self.need_text = False
@@ -67,7 +69,7 @@ class Common(object):
         return use_gpu
 
     def _set_seed(self, seed):
-        if seed:
+        if seed is not None:
             self.logger.info('Set seed {}'.format(seed))
             random.seed(seed)
             np.random.seed(seed)

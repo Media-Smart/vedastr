@@ -321,7 +321,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adam', lr=3e-4),
-    criterion=dict(type='CrossEntropyLoss', ignore_index=num_class),
+    criterion=dict(type='CrossEntropyLoss', ),
     lr_scheduler=dict(type='CosineLR',
                       iter_based=True,
                       warmup_epochs=0.1,

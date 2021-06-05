@@ -8,7 +8,6 @@ from .registry import CONVERTERS
 
 @CONVERTERS.register_module
 class CTCConverter(BaseConverter):
-
     def __init__(self, character: str, batch_max_length: int):
         list_token = ['[blank]']
         list_character = list(character)
@@ -16,7 +15,7 @@ class CTCConverter(BaseConverter):
         super(CTCConverter,
               self).__init__(character=list_token + list_character)
 
-    def encode(self, text: list):
+    def train_encode(self, text: list):
         length = [len(s) for s in text]
         batch_text = torch.LongTensor(len(text),
                                       self.batch_max_length).fill_(0)
@@ -40,12 +39,3 @@ class CTCConverter(BaseConverter):
             text = ''.join(char_list)
             texts.append(text)
         return texts
-
-    def train_encode(self, text):
-        return self.encode(text)
-
-    def test_encode(self, text):
-        if isinstance(text, int):
-            text = ['' for idx in range(text)]
-
-        return self.encode(text)

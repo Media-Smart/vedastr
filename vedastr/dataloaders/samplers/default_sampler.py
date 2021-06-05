@@ -8,7 +8,7 @@ from .registry import SAMPLER
 class DefaultSampler(Sampler):
     """Default non-distributed sampler."""
 
-    def __init__(self, dataset, shuffle: bool = True):
+    def __init__(self, dataset, shuffle: bool = True, **kwargs):
         self.dataset = dataset
         self.shuffle = shuffle
 

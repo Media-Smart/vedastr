@@ -6,6 +6,7 @@ import random
 from torch.utils.data import DistributedSampler
 
 from .registry import DISTSAMPLER
+from ...utils import get_dist_info
 
 
 @DISTSAMPLER.register_module
@@ -39,16 +40,21 @@ class BalanceSampler(DistributedSampler):
                  downsample: bool = False,
                  shuffle_batch: bool = False,
                  eps: float = 0.1,
-                 **kwargs):
+                 seed=0,
+                 drop_last=False,
+                 ):
         assert hasattr(dataset, 'data_range')
         assert hasattr(dataset, 'batch_ratio')
+        rank, num_replicas = get_dist_info()
+        if seed is None:
+            seed = 0
         self.dataset = dataset
         self.samples_range = dataset.data_range
         self.batch_ratio = np.array(dataset.batch_ratio)
         self.batch_size = batch_size
         self.batch_sizes = self._compute_each_batch_size()
         self.shuffle_batch = shuffle_batch
-        self.drop_last = kwargs.pop('drop_last') if 'drop_last' in kwargs else False  # noqa 501
+        self.drop_last = drop_last  # noqa 501
         new_br = self.batch_sizes / self.batch_size
         br_diffs = np.abs((new_br - self.batch_ratio))
         assert not np.sum(br_diffs > eps), \
@@ -74,7 +80,13 @@ class BalanceSampler(DistributedSampler):
         self.oversample = oversample
         self.downsample = downsample
         self.shuffle = shuffle
-        super(BalanceSampler, self).__init__(dataset=dataset, **kwargs)
+        super(BalanceSampler, self).__init__(dataset=dataset,
+                                             rank=rank,
+                                             num_replicas=num_replicas,
+                                             shuffle=shuffle,
+                                             seed=seed,
+                                             drop_last=drop_last,
+                                             )
         self._generate_indices()
         # If the dataset length is evenly divisible by # of replicas, then
         # there is no need to drop any data, since the dataset will be split
@@ -148,7 +160,7 @@ class BalanceSampler(DistributedSampler):
         total_nums = self.total_size // self.batch_size
         final_index = [total_nums * size for size in self.batch_sizes]
         indices = []
-        for idx2 in range(total_nums):
+        for idx2 in range(int(total_nums)):
             batch_indices = []
             for idx3, size in enumerate(self.batch_sizes):
                 batch_indices.append(indices_[idx3][idx2 * size:(idx2 + 1) * size])  # noqa 501

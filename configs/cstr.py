@@ -4,7 +4,6 @@ root_workdir = 'workdir'
 ###############################################################################
 # 1. inference
 size = (48, 192)
-# pad_size = (32, 128)
 mean, std = 0.5, 0.5
 
 character = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -28,6 +27,7 @@ inference = dict(
     converter=dict(
         type='FCConverter',
         character=character,
+        batch_max_length=batch_max_length,
     ),
     model=dict(
         type='GModel',
@@ -61,7 +61,7 @@ inference = dict(
                                          stride=1, padding=1, norm_cfg=norm_cfg),  # 24, 96
 
                                     dict(type='NonLocal2d', in_channels=128 + base_channel * 4, sub_sample=True),  # c1
-                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 49
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 48
                                     dict(type='BasicBlocks', inplanes=128 + base_channel * 4,
                                          planes=256 + base_channel * 8, blocks=4, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=256 + base_channel * 8,
@@ -465,7 +465,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='LabelSmoothingCrossEntropy', ignore_index=37),
+    criterion=dict(type='LabelSmoothingCrossEntropy', ),
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,

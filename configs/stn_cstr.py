@@ -30,6 +30,7 @@ inference = dict(
     converter=dict(
         type='FCConverter',
         character=character,
+        batch_max_length=batch_max_length,
     ),
     model=dict(
         type='GModel',
@@ -78,7 +79,7 @@ inference = dict(
                 ),
                 dict(
                     type='FeatureExtractorComponent',
-                    from_layer='input',
+                    from_layer='rect',
                     to_layer='cnn_feat',
                     arch=dict(
                         encoder=dict(
@@ -506,7 +507,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='LabelSmoothingCrossEntropy', ignore_index=37),
+    criterion=dict(type='LabelSmoothingCrossEntropy', ),
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,

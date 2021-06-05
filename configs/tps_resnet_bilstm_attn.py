@@ -10,7 +10,7 @@ batch_max_length = 25
 fiducial_num = 20
 hidden_dim = 256
 norm_cfg = dict(type='BN')
-num_class = len(character) + 2
+num_class = len(character) + 2 # Attention based need two more characters: '[G0]' and '[S]'
 num_steps = batch_max_length + 1
 
 inference = dict(
@@ -322,7 +322,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='CrossEntropyLoss', ignore_index=0),
+    criterion=dict(type='CrossEntropyLoss', ),
     lr_scheduler=dict(type='StepLR',
                       milestones=milestones,
                       ),
