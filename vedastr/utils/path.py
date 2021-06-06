@@ -2,9 +2,10 @@
 
 import os
 import os.path as osp
-import six
 import sys
 from pathlib import Path
+
+import six
 
 from .misc import is_str
 

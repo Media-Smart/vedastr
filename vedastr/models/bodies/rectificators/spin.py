@@ -1,6 +1,7 @@
 # [SPIN: Structure-Preserving Inner Offset Network for Scene Text Recognition](https://arxiv.org/abs/2005.13117) # noqa 501
 # Not fully implemented yet. SPN has tested successfully.
 import copy
+
 import numpy as np
 import torch
 import torch.nn as nn

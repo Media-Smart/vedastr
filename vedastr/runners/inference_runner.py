@@ -1,12 +1,13 @@
-import numpy as np
 import re
+
+import numpy as np
 import torch
 import torch.nn.functional as F
 
+from .base import Common
 from ..converter import build_converter
 from ..models import build_model
 from ..utils import load_checkpoint
-from .base import Common
 
 
 class InferenceRunner(Common):
@@ -32,7 +33,6 @@ class InferenceRunner(Common):
         model = build_model(cfg)
         params_num = []
         for p in filter(lambda p: p.requires_grad, model.parameters()):
-            # filtered_parameters.append(p)
             params_num.append(np.prod(p.size()))
         self.logger.info('Trainable params num : %s' % (sum(params_num)))
         self.need_text = model.need_text

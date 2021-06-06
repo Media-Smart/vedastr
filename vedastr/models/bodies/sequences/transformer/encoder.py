@@ -1,10 +1,11 @@
 import logging
+
 import torch.nn as nn
 
 from vedastr.models.weight_init import init_weights
-from ..registry import SEQUENCE_ENCODERS
 from .position_encoder import build_position_encoder
 from .unit import build_encoder_layer
+from ..registry import SEQUENCE_ENCODERS
 
 logger = logging.getLogger()
 

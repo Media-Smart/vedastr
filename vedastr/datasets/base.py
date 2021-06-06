@@ -1,9 +1,10 @@
 # modify from clovaai
 
-import cv2
 import logging
 import os
 import re
+
+import cv2
 from torch.utils.data import Dataset
 
 
@@ -62,8 +63,8 @@ class BaseDataset(Dataset):
          than defined max_length by default."""
         character = "".join(sorted(self.character, key=lambda x: ord(x)))
         out_of_char = f'[^{character}]'
-        label = re.sub(out_of_char, '', label.lower(
-        ))  # replace those character not in self.character with ''
+        # replace those character not in self.character with ''
+        label = re.sub(out_of_char, '', label.lower())
         # filter whose label larger than batch_max_length
         if len(label) > self.batch_max_length:
             if not retrun_len:

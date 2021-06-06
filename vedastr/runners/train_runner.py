@@ -1,12 +1,13 @@
 import os.path as osp
+
 import torch
 import torch.utils.data as tud
 
+from .inference_runner import InferenceRunner
 from ..criteria import build_criterion
 from ..lr_schedulers import build_lr_scheduler
 from ..optimizers import build_optimizer
 from ..utils import save_checkpoint, gather_tensor
-from .inference_runner import InferenceRunner
 
 
 class TrainRunner(InferenceRunner):
@@ -119,7 +120,7 @@ class TrainRunner(InferenceRunner):
         else:
             pred = self.model((img,))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
-        all_loss = gather_tensor(loss.unsqueeze(0))
+        all_loss = gather_tensor(loss.detach())
         gather_loss = torch.mean(all_loss)
         loss.backward()
         if self.grad_clip != 0:

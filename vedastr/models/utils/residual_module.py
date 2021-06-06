@@ -1,5 +1,6 @@
-import torch.nn as nn
 from functools import partial
+
+import torch.nn as nn
 from torchvision.models.resnet import BasicBlock as BasicBlock_
 from torchvision.models.resnet import Bottleneck as Bottleneck_
 from torchvision.models.resnet import conv1x1

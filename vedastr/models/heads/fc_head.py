@@ -1,4 +1,5 @@
 import logging
+
 import torch.nn as nn
 
 from vedastr.models.utils import FCModules, build_torch_nn

@@ -1,4 +1,5 @@
 import logging
+
 import torch.nn as nn
 
 from vedastr.models.weight_init import init_weights

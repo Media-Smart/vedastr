@@ -1,7 +1,8 @@
 # modify from clovaai
 
-import lmdb
 import logging
+
+import lmdb
 import numpy as np
 import six
 from PIL import Image

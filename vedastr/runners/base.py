@@ -1,6 +1,6 @@
-import numpy as np
-import os
 import random
+
+import numpy as np
 import torch
 from torch.backends import cudnn
 
@@ -14,6 +14,7 @@ from ..utils import get_dist_info, init_dist_pytorch
 
 
 class Common(object):
+
     def __init__(self, cfg):
         super(Common, self).__init__()
 
@@ -21,7 +22,9 @@ class Common(object):
         logger_cfg = cfg.get('logger')
         if logger_cfg is None:
             logger_cfg = dict(
-                handlers=(dict(type='StreamHandler', level='INFO'),))
+                handlers=(dict(type='StreamHandler', level='INFO'),
+                          ),
+            )
         self.workdir = cfg.get('workdir')
         self.distribute = cfg.get('distribute', False)
 
@@ -49,7 +52,7 @@ class Common(object):
             self.metric = self._build_metric(cfg['metric'])
             self.backup_metric = self._build_metric(cfg['metric'])
         else:
-            raise KeyError(f'Please set metric in config file.')
+            raise KeyError('Please set metric in config file.')
 
         # set need_text
         self.need_text = False
@@ -98,15 +101,17 @@ class Common(object):
             if isinstance(dataset, list):
                 sampler = [
                     build_sampler(self.distribute, cfg['sampler'],
-                                  dict(dataset=d, gpu_nums=self.gpu_num)) for d in dataset
+                                  dict(dataset=d)) for d in dataset
                 ]
             else:
-                sampler = build_sampler(self.distribute, cfg['sampler'],
-                                        dict(dataset=dataset, gpu_nums=self.gpu_num))
+                sampler = build_sampler(self.distribute,
+                                        cfg['sampler'],
+                                        dict(dataset=dataset))
         dataloader = build_dataloader(
             self.distribute,
             self.gpu_num,
             cfg['dataloader'],
             dict(dataset=dataset, sampler=sampler),
-            seed=self.seed)
+            seed=self.seed,
+        )
         return dataloader

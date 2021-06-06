@@ -1,8 +1,9 @@
 import copy
 import logging
 import math
-import numpy as np
 import random
+
+import numpy as np
 from torch.utils.data import DistributedSampler
 
 from .registry import DISTSAMPLER
@@ -160,7 +161,7 @@ class BalanceSampler(DistributedSampler):
         total_nums = self.total_size // self.batch_size
         final_index = [total_nums * size for size in self.batch_sizes]
         indices = []
-        for idx2 in range(int(total_nums)):
+        for idx2 in range(total_nums):
             batch_indices = []
             for idx3, size in enumerate(self.batch_sizes):
                 batch_indices.append(indices_[idx3][idx2 * size:(idx2 + 1) * size])  # noqa 501

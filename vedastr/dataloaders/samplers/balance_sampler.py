@@ -1,8 +1,10 @@
 import copy
 import logging
-import numpy as np
 import random
 from itertools import chain
+
+import numpy as np
+import torch
 from torch.utils.data import Sampler
 
 from .registry import SAMPLER
@@ -50,7 +52,7 @@ class BalanceSampler(Sampler):
         self.dataset = dataset
         self.samples_range = dataset.data_range
         self.batch_ratio = np.array(dataset.batch_ratio)
-        self.batch_size = samples_per_gpu
+        self.batch_size = samples_per_gpu * torch.cuda.device_count()
         self.batch_sizes = self._compute_each_batch_size()
         self.shuffle_batch = shuffle_batch
         new_br = self.batch_sizes / self.batch_size
@@ -86,7 +88,7 @@ class BalanceSampler(Sampler):
         float_bs = (batch_sizes - int_bs) >= 0.5
         diff = self.batch_size - np.sum(int_bs) - np.sum(float_bs)
         float_bs[np.where(float_bs == (diff < 0))[0][:int(abs(diff))]] = (
-                diff >= 0)
+            diff >= 0)
 
         return (int_bs + float_bs).astype(np.int)
 

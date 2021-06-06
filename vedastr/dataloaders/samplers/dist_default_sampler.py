@@ -12,7 +12,9 @@ class DefaultSampler(DistributedSampler):
                  dataset,
                  shuffle: bool = True,
                  seed=0,
-                 drop_last=False):
+                 drop_last=False,
+                 **kwargs
+                 ):
         if seed is None:
             seed = 0
         rank, num_replicas = get_dist_info()
