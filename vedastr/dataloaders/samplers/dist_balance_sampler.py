@@ -1,11 +1,13 @@
 import copy
 import logging
 import math
-import numpy as np
 import random
+
+import numpy as np
 from torch.utils.data import DistributedSampler
 
 from .registry import DISTSAMPLER
+from ...utils import get_dist_info
 
 
 @DISTSAMPLER.register_module
@@ -33,22 +35,27 @@ class BalanceSampler(DistributedSampler):
 
     def __init__(self,
                  dataset,
-                 batch_size: int,
+                 samples_per_gpu: int,
                  shuffle: bool,
                  oversample: bool = False,
                  downsample: bool = False,
                  shuffle_batch: bool = False,
                  eps: float = 0.1,
-                 **kwargs):
+                 seed=0,
+                 drop_last=False,
+                 ):
         assert hasattr(dataset, 'data_range')
         assert hasattr(dataset, 'batch_ratio')
+        rank, num_replicas = get_dist_info()
+        if seed is None:
+            seed = 0
         self.dataset = dataset
         self.samples_range = dataset.data_range
         self.batch_ratio = np.array(dataset.batch_ratio)
-        self.batch_size = batch_size
+        self.batch_size = samples_per_gpu * num_replicas # total batch size
         self.batch_sizes = self._compute_each_batch_size()
         self.shuffle_batch = shuffle_batch
-        self.drop_last = kwargs.pop('drop_last') if 'drop_last' in kwargs else False  # noqa 501
+        self.drop_last = drop_last  # noqa 501
         new_br = self.batch_sizes / self.batch_size
         br_diffs = np.abs((new_br - self.batch_ratio))
         assert not np.sum(br_diffs > eps), \
@@ -74,7 +81,13 @@ class BalanceSampler(DistributedSampler):
         self.oversample = oversample
         self.downsample = downsample
         self.shuffle = shuffle
-        super(BalanceSampler, self).__init__(dataset=dataset, **kwargs)
+        super(BalanceSampler, self).__init__(dataset=dataset,
+                                             rank=rank,
+                                             num_replicas=num_replicas,
+                                             shuffle=shuffle,
+                                             seed=seed,
+                                             drop_last=drop_last,
+                                             )
         self._generate_indices()
         # If the dataset length is evenly divisible by # of replicas, then
         # there is no need to drop any data, since the dataset will be split
@@ -196,4 +209,4 @@ class BalanceSampler(DistributedSampler):
         return result_indices
 
     def __len__(self):
-        return self._num_samples
+        return self.single_rank_num_samples

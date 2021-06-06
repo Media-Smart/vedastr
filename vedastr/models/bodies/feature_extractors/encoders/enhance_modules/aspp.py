@@ -1,6 +1,7 @@
 # modify from https://github.com/pytorch/vision/tree/master/torchvision/models/segmentation/deeplabv3.py # noqa 501
 
 import logging
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

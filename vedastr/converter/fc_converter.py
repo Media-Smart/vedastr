@@ -16,7 +16,7 @@ class FCConverter(BaseConverter):
         super(FCConverter, self).__init__(character=list_token + list_character + ignore_token)  # noqa 501
         self.ignore_index = self.dict[ignore_token[0]]
 
-    def encode(self, text):
+    def train_encode(self, text):
         length = [len(s) + 1 for s in text]  # +1 for [s] at end of sentence.
         batch_text = torch.LongTensor(len(text), self.batch_max_length).fill_(self.ignore_index)  # noqa 501
         for i, t in enumerate(text):
@@ -28,12 +28,6 @@ class FCConverter(BaseConverter):
         batch_text_target = batch_text
 
         return batch_text_input, torch.IntTensor(length), batch_text_target
-
-    def train_encode(self, text):
-        return self.encode(text)
-
-    def test_encode(self, text):
-        return self.encode(text)
 
     def decode(self, text_index):
         texts = []

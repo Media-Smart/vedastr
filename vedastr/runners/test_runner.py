@@ -52,19 +52,13 @@ class TestRunner(InferenceRunner):
         self.metric.reset()
         accs = []
         for name, dataloader in self.test_dataloader.items():
-            # pdb.set_trace()
-            # print(self.test_exclude_num)
             test_exclude_num = self.test_exclude_num[name]
-            save_name = name.split('/')[-1]
-            save_path = './goodcase/%s' % save_name
             save_path = None
-            # os.makedirs(save_path)
             self.backup_metric.reset()
             for tidx, (img, label) in enumerate(dataloader):
                 exclude_num = test_exclude_num if (tidx +
                                                    1) == len(dataloader) else 0
-                # if exclude_num !=0 :
-                #     print ('current_exclude num:', exclude_num)
+
                 self.test_batch(img, label, save_path, exclude_num)
             accs.append(self.backup_metric.avg['acc']['true'])
             self.logger.info(

@@ -1,9 +1,10 @@
+import random
+import re
+
 import albumentations as albu
 import albumentations.augmentations.functional as F
 import cv2
 import numpy as np
-import random
-import re
 import torch
 from albumentations import DualTransform
 

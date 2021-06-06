@@ -2,8 +2,8 @@ numpy
 opencv-python
 addict
 six
-torch>=1.4.*
-torchvision>=0.5.*
+torch>=1.6.*
+torchvision>=0.7.*
 pillow>=6.0,<7.0
 lmdb
 nltk

@@ -35,13 +35,13 @@ Note:
   [IC13_1015](http://dagdata.cvc.uab.es/icdar2013competition/?ch=2&com=downloads),
 [IC15_2077](https://rrc.cvc.uab.es/?ch=4&com=downloads), SVTP,
 [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html).
-  
-| MODEL|CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
-|:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----:|
-|[CSTR](https://drive.google.com/file/d/14USWpsW8_HH3BMxYfSWxINlaI1Y26Q1q/view?usp=sharing)| False | 93.7 | 90.1 | 94.8 | 93.2 | 81.6 | 85 | 81.3 | 89.5 |
-|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1Zzg1Q8_JTIW4XY-CCmBQhgNkgVsMek-o/view?usp=sharing)| False | 94 | 89.2 | 93.5 | 91.2 | 76.9 | 80.9 | 81.2 | 87.7 |
-|[ResNet-CTC](https://drive.google.com/file/d/177FmlOHJWNWgEZwoPlBQBM9mmug_9kue/view?usp=sharing)| False | 91.3 | 85.9 | 90.3 | 88.3 | 70.0 | 74.1 | 73.3 | 83.3 |
-|[Small-SATRN]()| False|-|-|-|-|-|-|-|-|
+
+| MODEL| GPUs |CASE SENSITIVE| IIIT5k_3000|	SVT	|IC03_867|	IC13_1015|	 IC15_2077|	SVTP|	CUTE80| AVERAGE|
+|:----:|:----:| :----: | :----: |:----: |:----: |:----: |:----: |:----: | :----: | :----: |
+|[CSTR](https://drive.google.com/file/d/14USWpsW8_HH3BMxYfSWxINlaI1Y26Q1q/view?usp=sharing)|4| False | 93.7 | 90.1 | 94.8 | 93.2 | 81.6 | 85 | 81.3 | 89.5 |
+|[TPS-ResNet-BiLSTM-Attention](https://drive.google.com/file/d/1Zzg1Q8_JTIW4XY-CCmBQhgNkgVsMek-o/view?usp=sharing)|1| False | 94 | 89.2 | 93.5 | 91.2 | 76.9 | 80.9 | 81.2 | 87.7 |
+|[ResNet-CTC](https://drive.google.com/file/d/177FmlOHJWNWgEZwoPlBQBM9mmug_9kue/view?usp=sharing)|1| False | 91.3 | 85.9 | 90.3 | 88.3 | 70.0 | 74.1 | 73.3 | 83.3 |
+|[Small-SATRN]()|4| False|-|-|-|-|-|-|-|-|
 
 CSTR: [Revisiting Classification Perspective on Scene Text Recognition](https://arxiv.org/abs/2102.10884)
 
@@ -53,22 +53,24 @@ training phase is case sensitive while testing phase is case insensitive.
 AVERAGE: Average accuracy over all test datasets
 
 CASE SENSITIVE: If true, the output is case sensitive and contain common characters.
-If false, the output is not case sensetive and contains only numbers and letters. 
+If false, the output is not case sensetive and contains only numbers and letters.
+
+GPUs: The number of GPUs used in training phase.
 
 ## Installation
 ### Requirements
 
 - Linux
 - Python 3.6+
-- PyTorch 1.4.0 or higher
+- PyTorch 1.6.0 or higher
 - CUDA 9.0 or higher
 
 We have tested the following versions of OS and softwares:
 
 - OS: Ubuntu 16.04.6 LTS
 - CUDA: 10.2
-- Python 3.6.9
-- Pytorch: 1.5.1
+- Python 3.6.13
+- PyTorch: 1.8.0
 
 ### Install vedastr
 
@@ -135,10 +137,11 @@ Modify some configuration accordingly in the config file like `configs/cstr.py`
 
 2. Training
 ```shell script
-tools/dist_train.sh configs/cstr.py gpu_nums
+# train cstr using GPUs with gpu_id 0, 1, 2, 3
+tools/dist_train.sh configs/cstr.py "0,1,2,3"
 ```
 
-Snapshots and logs will be generated at `vedastr/workdir` by default.
+Snapshots and logs will be generated at `${vedastr_root}/workdir/cstr` by default (you can specify workdir in config files).
 
 ## Test
 
@@ -148,14 +151,15 @@ Modify some configuration accordingly in the config file like `configs/cstr.py `
 
 2. Testing
 ```shell script
-tools/dist_test.sh configs/cstr.py checkpoint_path gpu_nums
+# test cstr using GPUs with gpu_id 0
+tools/dist_test.sh configs/cstr.py checkpoint_path "0" 
 ```
 
 ## Inference
 1. Run
 
 ```shell
-python tools/inference.py configs/cstr.py checkpoint_path img_path
+CUDA_VISIBLE_DEVICES=0 python tools/inference.py configs/cstr.py checkpoint_path img_path
 ```
 
 ## Deploy

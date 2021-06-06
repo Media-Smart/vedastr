@@ -1,6 +1,7 @@
 import logging
-import torch.nn as nn
 from functools import partial
+
+import torch.nn as nn
 from torchvision.models.resnet import (BasicBlock, Bottleneck, conv1x1,
                                        model_urls)
 

@@ -2,9 +2,10 @@
 
 import os.path as osp
 import sys
-from addict import Dict
 from argparse import ArgumentParser
 from importlib import import_module
+
+from addict import Dict
 
 from .misc import collections_abc
 from .path import check_file_exist

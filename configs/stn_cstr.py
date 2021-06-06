@@ -1,10 +1,10 @@
 # work directory
 root_workdir = 'workdir'
-
+# sample_per_gpu
+samples_per_gpu = 48
 ###############################################################################
 # 1. inference
 size = (48, 192)
-# pad_size = (32, 128)
 mean, std = 0.5, 0.5
 
 character = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -16,9 +16,7 @@ num_class = len(character) + 1
 base_channel = 16
 fiducial_num = 20
 
-
 inference = dict(
-    gpu_id='0,1,2,3',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='Filter', need_character=character),
@@ -30,6 +28,7 @@ inference = dict(
     converter=dict(
         type='FCConverter',
         character=character,
+        batch_max_length=batch_max_length,
     ),
     model=dict(
         type='GModel',
@@ -78,7 +77,7 @@ inference = dict(
                 ),
                 dict(
                     type='FeatureExtractorComponent',
-                    from_layer='input',
+                    from_layer='rect',
                     to_layer='cnn_feat',
                     arch=dict(
                         encoder=dict(
@@ -95,19 +94,19 @@ inference = dict(
                                          planes=128 + base_channel * 4, blocks=1, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=128 + base_channel * 4,
                                                        reduction_ratio=16,
-                                                       norm_cfg=dict(type='SyncBN', momentum=0.01))),
+                                                       norm_cfg=dict(type=norm_cfg['type'], momentum=0.01))),
                                     # 24, 96
                                     dict(type='ConvModule', in_channels=128 + base_channel * 4,
                                          out_channels=128 + base_channel * 4, kernel_size=3,
                                          stride=1, padding=1, norm_cfg=norm_cfg),  # 24, 96
 
                                     dict(type='NonLocal2d', in_channels=128 + base_channel * 4, sub_sample=True),  # c1
-                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 49
+                                    dict(type='MaxPool2d', kernel_size=2, stride=2, padding=0),  # 12, 48
                                     dict(type='BasicBlocks', inplanes=128 + base_channel * 4,
                                          planes=256 + base_channel * 8, blocks=4, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=256 + base_channel * 8,
                                                        reduction_ratio=16,
-                                                       norm_cfg=dict(type='SyncBN', momentum=0.01))),
+                                                       norm_cfg=dict(type=norm_cfg['type'], momentum=0.01))),
                                     # 12, 48
                                     dict(type='ConvModule', in_channels=256 + base_channel * 8,
                                          out_channels=256 + base_channel * 8, kernel_size=3,
@@ -119,7 +118,7 @@ inference = dict(
                                          planes=512 + base_channel * 16, blocks=7, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=512 + base_channel * 16,
                                                        reduction_ratio=16,
-                                                       norm_cfg=dict(type='SyncBN', momentum=0.01))),
+                                                       norm_cfg=dict(type=norm_cfg['type'], momentum=0.01))),
                                     # 6, 24
 
                                     dict(type='ConvModule', in_channels=512 + base_channel * 16,
@@ -129,7 +128,7 @@ inference = dict(
                                          planes=512 + base_channel * 16, blocks=5, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=512 + base_channel * 16,
                                                        reduction_ratio=16,
-                                                       norm_cfg=dict(type='SyncBN', momentum=0.01))),
+                                                       norm_cfg=dict(type=norm_cfg['type'], momentum=0.01))),
                                     # 6, 24
                                     dict(type='NonLocal2d', in_channels=512 + base_channel * 16, sub_sample=True),  # c3
                                     dict(type='ConvModule', in_channels=512 + base_channel * 16,
@@ -140,7 +139,7 @@ inference = dict(
                                          blocks=3, stride=1, norm_cfg=norm_cfg,
                                          plug_cfg=dict(type='CBAM', gate_channels=512 + base_channel * 16,
                                                        reduction_ratio=16,
-                                                       norm_cfg=dict(type='SyncBN', momentum=0.01))),
+                                                       norm_cfg=dict(type=norm_cfg['type'], momentum=0.01))),
                                     dict(type='ConvModule', in_channels=512 + base_channel * 16,
                                          out_channels=512 + base_channel * 16, kernel_size=2,
                                          stride=1, padding=0, norm_cfg=norm_cfg),  # 2, 24  # c4
@@ -173,7 +172,6 @@ inference = dict(
                                         from_layer='p5',
                                         upsample=dict(
                                             type='Upsample',
-                                            # scale_factor=2,
                                             size=(6, 24),
                                             scale_bias=0,
                                             mode='bilinear',
@@ -201,7 +199,6 @@ inference = dict(
                                         upsample=dict(
                                             type='Upsample',
                                             size=(12, 48),
-                                            # scale_factor=2,
                                             scale_bias=0,
                                             mode='bilinear',
                                             align_corners=True,
@@ -343,7 +340,7 @@ inference = dict(
                             backbone=dict(
                                 type='GBackbone',
                                 layers=[
-                                    dict(type='NonLocal2d', in_channels=512, sub_sample=True, )  # c0
+                                    dict(type='NonLocal2d', in_channels=512, sub_sample=True),  # c0
                                 ]),
                         ),
                         collect=dict(type='CollectBlock', from_layer='c0'),
@@ -396,11 +393,6 @@ data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
-
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot envisibly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))  # compute batch size for each gpu
 
 test_root = data_root + 'evaluation/'
 test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
@@ -469,7 +461,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,  # here should set total batch size
+                samples_per_gpu=samples_per_gpu,  # here should set total batch size
                 shuffle=True,
                 oversample=True,
                 seed=common['seed'],  # if not set, default seed is 0.
@@ -484,7 +476,7 @@ train = dict(
                     dict(
                         type='ConcatDatasets',
                         datasets=train_dataset_st,
-                    )
+                    ),
                 ],
                 batch_ratio=[0.5, 0.5],
                 **dataset_params,
@@ -506,7 +498,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='LabelSmoothingCrossEntropy', ignore_index=37),
+    criterion=dict(type='LabelSmoothingCrossEntropy'),
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,

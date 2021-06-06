@@ -2,9 +2,10 @@
 
 import inspect
 import logging
-import numpy as np
 import random
 import sys
+
+import numpy as np
 import torch
 
 
@@ -100,7 +101,7 @@ class WorkerInit:
     def __init__(self, num_workers, rank, seed, epoch):
         self.num_workers = num_workers
         self.rank = rank
-        self.seed = seed
+        self.seed = seed if seed is not None else 0
         self.epoch = epoch
 
     def __call__(self, worker_id):

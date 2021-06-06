@@ -1,12 +1,13 @@
-import numpy as np
 import re
+
+import numpy as np
 import torch
 import torch.nn.functional as F
 
+from .base import Common
 from ..converter import build_converter
 from ..models import build_model
 from ..utils import load_checkpoint
-from .base import Common
 
 
 class InferenceRunner(Common):
@@ -14,8 +15,6 @@ class InferenceRunner(Common):
     def __init__(self, inference_cfg, common_cfg=None):
         inference_cfg = inference_cfg.copy()
         common_cfg = {} if common_cfg is None else common_cfg.copy()
-
-        common_cfg['gpu_id'] = inference_cfg.pop('gpu_id')
         super(InferenceRunner, self).__init__(common_cfg)
 
         # build test transform
@@ -34,7 +33,6 @@ class InferenceRunner(Common):
         model = build_model(cfg)
         params_num = []
         for p in filter(lambda p: p.requires_grad, model.parameters()):
-            # filtered_parameters.append(p)
             params_num.append(np.prod(p.size()))
         self.logger.info('Trainable params num : %s' % (sum(params_num)))
         self.need_text = model.need_text

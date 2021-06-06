@@ -5,8 +5,8 @@
 import torch.nn as nn
 
 from vedastr.models.bodies.feature_extractors import build_feature_extractor
-from vedastr.models.weight_init import init_weights
 from vedastr.models.utils import SE
+from vedastr.models.weight_init import init_weights
 from .registry import RECTIFICATORS
 
 

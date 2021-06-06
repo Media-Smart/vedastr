@@ -19,11 +19,11 @@ class AttnConverter(BaseConverter):
             list_token = ['[GO]', '[s]']
             character = list_token + list_character
         super(AttnConverter, self).__init__(character=character)
-        self.ignore_id = self.dict['[GO]']
+        self.ignore_index = self.dict['[GO]']
 
     def train_encode(self, text):
         length = [len(s) + 1 for s in text]
-        batch_text = torch.LongTensor(len(text), self.batch_max_length + 1).fill_(self.ignore_id)  # noqa 501
+        batch_text = torch.LongTensor(len(text), self.batch_max_length + 1).fill_(self.ignore_index)  # noqa 501
         for idx, t in enumerate(text):
             text = list(t)
             text.append('[s]')
@@ -33,21 +33,6 @@ class AttnConverter(BaseConverter):
         batch_text_target = batch_text[:, 1:]
 
         return batch_text_input, torch.IntTensor(length), batch_text_target
-
-    def test_encode(self, text):
-        if isinstance(text, (list, tuple)):
-            num = len(text)
-        elif isinstance(text, int):
-            num = text
-        else:
-            raise TypeError(
-                f'Type of text should in (list, tuple, int) '
-                f'but got {type(text)}'
-            )
-        batch_text = torch.LongTensor(num, 1).fill_(self.ignore_id)
-        length = [1 for i in range(num)]
-
-        return batch_text, torch.IntTensor(length), batch_text
 
     def decode(self, text_index):
         texts = []

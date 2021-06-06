@@ -1,6 +1,7 @@
+import random
+
 import cv2
 import lmdb
-import random
 
 from .lmdb_dataset import LmdbDataset
 from .registry import DATASETS

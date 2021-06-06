@@ -3,11 +3,12 @@
 import os.path as osp
 import pkgutil
 import time
-import torch
-import torchvision
 import warnings
 from collections import OrderedDict
 from importlib import import_module
+
+import torch
+import torchvision
 from terminaltables import AsciiTable
 from torch.utils import model_zoo
 

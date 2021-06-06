@@ -2,6 +2,7 @@
 
 import functools
 import os
+
 import torch
 import torch.distributed as dist
 
@@ -51,6 +52,8 @@ def gather_tensor(data):
     with torch.no_grad():
         if not isinstance(data, torch.Tensor):
             data = torch.tensor(data).cuda()
+        if not data.size():
+            data = data.unsqueeze(0)
 
         gather_list = [torch.ones_like(data) for _ in range(world_size)]
         dist.all_gather(gather_list, data)

@@ -1,3 +1,7 @@
+# work directory
+root_workdir = 'workdir'
+# sample_per_gpu
+samples_per_gpu = 192
 ###############################################################################
 # 1. inference
 size = (32, 100)
@@ -10,11 +14,10 @@ batch_max_length = 25
 fiducial_num = 20
 hidden_dim = 256
 norm_cfg = dict(type='BN')
-num_class = len(character) + 2
+num_class = len(character) + 2 # Attention based need two more characters: '[G0]' and '[S]'
 num_steps = batch_max_length + 1
 
 inference = dict(
-    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive),
         dict(type='Filter', need_character=character),
@@ -213,10 +216,6 @@ data_root = './data/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
-batch_size = 192
-assert batch_size % len(inference['gpu_id'].split(',')) == 0, \
-    "batch size cannot envisibly divided by gpu nums."
-samples_per_gpu = int(batch_size / len(inference['gpu_id'].split(',')))
 
 # data
 test_root = data_root + 'evaluation/'
@@ -245,17 +244,11 @@ test = dict(
 
 ###############################################################################
 # 4. train
-
-# work directory
-root_workdir = 'workdir'
-
-# data
-train_root = data_root + 'training/'
-# MJ dataset
-train_root_mj = train_root + 'MJ/'
-mj_folder_names = ['/MJ_test', 'MJ_valid', 'MJ_train']
-# ST dataset
-train_root_st = train_root + 'ST/'
+## MJ dataset
+train_root_mj = data_root + 'training/MJ/'
+mj_folder_names = ['MJ_test', 'MJ_valid', 'MJ_train']
+## ST dataset
+train_root_st = data_root + 'training/ST/'
 
 train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name)
                     for folder_name in mj_folder_names]
@@ -288,7 +281,7 @@ train = dict(
             ),
             sampler=dict(
                 type='BalanceSampler',
-                batch_size=batch_size,
+                samples_per_gpu=samples_per_gpu,
                 shuffle=True,
                 oversample=True,
                 seed=common['seed'],
@@ -303,7 +296,7 @@ train = dict(
                     dict(
                         type='ConcatDatasets',
                         datasets=train_dataset_st,
-                    )
+                    ),
                 ],
                 batch_ratio=[0.5, 0.5],
                 **dataset_params,
@@ -322,7 +315,7 @@ train = dict(
         ),
     ),
     optimizer=dict(type='Adadelta', lr=1.0, rho=0.95, eps=1e-8),
-    criterion=dict(type='CrossEntropyLoss', ignore_index=0),
+    criterion=dict(type='CrossEntropyLoss'),
     lr_scheduler=dict(type='StepLR',
                       milestones=milestones,
                       ),

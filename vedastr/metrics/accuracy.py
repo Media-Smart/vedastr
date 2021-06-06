@@ -1,10 +1,11 @@
 # modify from clovaai
 import random
+
 import torch
 from nltk.metrics.distance import edit_distance
 
-from ..utils import gather_tensor, get_dist_info
 from .registry import METRICS
+from ..utils import gather_tensor, get_dist_info
 
 
 @METRICS.register_module

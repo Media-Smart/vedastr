@@ -1,6 +1,6 @@
-import numpy as np
-import os
 import random
+
+import numpy as np
 import torch
 from torch.backends import cudnn
 
@@ -22,12 +22,14 @@ class Common(object):
         logger_cfg = cfg.get('logger')
         if logger_cfg is None:
             logger_cfg = dict(
-                handlers=(dict(type='StreamHandler', level='INFO'), ))
+                handlers=(dict(type='StreamHandler', level='INFO'),
+                          ),
+            )
         self.workdir = cfg.get('workdir')
         self.distribute = cfg.get('distribute', False)
 
         # set gpu devices
-        self.use_gpu = self._set_device(cfg.get('gpu_id', ''))
+        self.use_gpu = self._set_device()
 
         # set distribute setting
         if self.distribute and self.use_gpu:
@@ -49,6 +51,8 @@ class Common(object):
         if 'metric' in cfg:
             self.metric = self._build_metric(cfg['metric'])
             self.backup_metric = self._build_metric(cfg['metric'])
+        else:
+            raise KeyError('Please set metric in config file.')
 
         # set need_text
         self.need_text = False
@@ -56,8 +60,7 @@ class Common(object):
     def _build_logger(self, cfg):
         return build_logger(cfg, dict(workdir=self.workdir))
 
-    def _set_device(self, gpu_id):
-        os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
+    def _set_device(self):
         self.gpu_num = torch.cuda.device_count()
         if torch.cuda.is_available():
             use_gpu = True
@@ -67,7 +70,7 @@ class Common(object):
         return use_gpu
 
     def _set_seed(self, seed):
-        if seed:
+        if seed is not None:
             self.logger.info('Set seed {}'.format(seed))
             random.seed(seed)
             np.random.seed(seed)
@@ -101,12 +104,14 @@ class Common(object):
                                   dict(dataset=d)) for d in dataset
                 ]
             else:
-                sampler = build_sampler(self.distribute, cfg['sampler'],
+                sampler = build_sampler(self.distribute,
+                                        cfg['sampler'],
                                         dict(dataset=dataset))
         dataloader = build_dataloader(
             self.distribute,
             self.gpu_num,
             cfg['dataloader'],
             dict(dataset=dataset, sampler=sampler),
-            seed=self.seed)
+            seed=self.seed,
+        )
         return dataloader

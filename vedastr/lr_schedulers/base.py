@@ -1,7 +1,8 @@
-import numpy as np
 import warnings
 import weakref
 from functools import wraps
+
+import numpy as np
 from torch.optim import Optimizer
 
 

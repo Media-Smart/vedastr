@@ -2,9 +2,10 @@
 
 import functools
 import itertools
-import six
 import subprocess
 from importlib import import_module
+
+import six
 
 # ABCs from collections will be deprecated in python 3.8+,
 # while collections.abc is not available in python 2.7

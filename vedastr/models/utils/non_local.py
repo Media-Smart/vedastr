@@ -1,12 +1,13 @@
 # modify from mmcv
 
-import torch
-import torch.nn as nn
 from abc import ABCMeta
 
-from ..weight_init import constant_init, normal_init
+import torch
+import torch.nn as nn
+
 from .conv_module import ConvModule
 from .registry import UTILS
+from ..weight_init import constant_init, normal_init
 
 
 class _NonLocalNd(nn.Module, metaclass=ABCMeta):

@@ -1,12 +1,13 @@
 import os.path as osp
+
 import torch
 import torch.utils.data as tud
 
+from .inference_runner import InferenceRunner
 from ..criteria import build_criterion
 from ..lr_schedulers import build_lr_scheduler
 from ..optimizers import build_optimizer
-from ..utils import save_checkpoint
-from .inference_runner import InferenceRunner
+from ..utils import save_checkpoint, gather_tensor
 
 
 class TrainRunner(InferenceRunner):
@@ -63,6 +64,11 @@ class TrainRunner(InferenceRunner):
         return build_optimizer(cfg, dict(params=self.model.parameters()))
 
     def _build_criterion(self, cfg):
+        if self.converter.ignore_index is not None:
+            if cfg['type'] in ['CrossEntropyLoss', 'LabelSmoothingCrossEntropy']:
+                self.logger.info(f'Set ignore index as {self.converter.ignore_index}')
+                cfg.update(ignore_index=self.converter.ignore_index)
+
         return build_criterion(cfg)
 
     def _build_lr_scheduler(self, cfg, last_iter=-1):
@@ -114,7 +120,8 @@ class TrainRunner(InferenceRunner):
         else:
             pred = self.model((img,))
         loss = self.criterion(pred, label_target, label_len, img.shape[0])
-
+        all_loss = gather_tensor(loss.detach())
+        gather_loss = torch.mean(all_loss)
         loss.backward()
         if self.grad_clip != 0:
             torch.nn.utils.clip_grad_norm_(self.model.parameters(),
@@ -129,7 +136,7 @@ class TrainRunner(InferenceRunner):
             self.logger.info(
                 'Train, Epoch %d, Iter %d, LR %s, Loss %.4f, '
                 'acc %.4f, edit_distance %s'
-                % (self.epoch, self.iter, self.lr, loss.item(),
+                % (self.epoch, self.iter, self.lr, gather_loss.item(),
                    self.metric.avg['acc']['true'], self.metric.avg['edit']))
 
             self.logger.info(f'\n{self.metric.predict_example_log}')
