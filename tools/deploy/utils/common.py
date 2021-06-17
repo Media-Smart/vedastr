@@ -2,8 +2,9 @@ import os
 
 import numpy as np
 from PIL import Image
-from volksdep.calibrators import EntropyCalibrator, EntropyCalibrator2, \
-    MinMaxCalibrator
+from volksdep.calibrators import (
+    EntropyCalibrator, EntropyCalibrator2, MinMaxCalibrator
+)
 from volksdep.datasets import Dataset
 from volksdep.metrics import Metric as BaseMetric
 
@@ -52,9 +53,9 @@ class MetricDataset(Dataset):
         _, _, label_target = self.converter.train_encode([label])
 
         if self.need_text:
-            return (image, label_input[0]), label
+            return (image, label_input[0]), label_target
         else:
-            return image, label
+            return image, label_target
 
     def __len__(self):
         return len(self.dataset)
@@ -74,6 +75,7 @@ class Metric(BaseMetric):
     def __call__(self, preds, targets):
         self.metric.reset()
         pred_str = self.decode(preds)
+        targets = self.converter.decode(targets[:, 0, :])
 
         self.metric.measure(pred_str, None, targets)
         res = self.metric.result
