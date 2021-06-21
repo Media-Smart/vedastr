@@ -14,7 +14,6 @@ num_class = len(character) + 2
 num_steps = batch_max_length + 1
 
 deploy = dict(
-    gpu_id='0',
     transform=[
         dict(type='Sensitive', sensitive=sensitive, need_character=character),
         dict(type='ToGray'),

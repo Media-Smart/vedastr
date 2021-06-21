@@ -133,33 +133,36 @@ data
 
 1. Config
 
-Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py`
+Modify configuration files in [configs/](configs) according to your needs(e.g. [configs/tps_resnet_bilstm_attn.py](configs/tps_resnet_bilstm_attn.py)). 
 
 2. Run
 
 ```shell
-python tools/train.py configs/tps_resnet_bilstm_attn.py 
+# train using GPUs with gpu_id 0, 1, 2, 3
+python tools/train.py configs/tps_resnet_bilstm_attn.py "0, 1, 2, 3" 
 ```
 
-Snapshots and logs will be generated at `vedastr/workdir` by default.
+Snapshots and logs by default will be generated at `${vedastr_root}/workdir/name_of_config_file`(you can specify workdir in config files).
 
 ## Test
 
 1. Config
 
-Modify some configuration accordingly in the config file like `configs/tps_resnet_bilstm_attn.py `
+Modify configuration as you wish(e.g. [configs/tps_resnet_bilstm_attn.py](configs/tps_resnet_bilstm_attn.py)).
 
 2. Run
 
 ```shell
-python tools/test.py configs/tps_resnet_bilstm_attn.py checkpoint_path
+# test using GPUs with gpu_id 0, 1
+./tools/dist_test.sh configs/tps_resnet_bilstm_attn.py path/to/checkpoint.pth "0, 1" 
 ```
 
 ## Inference
 1. Run
 
 ```shell
-python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_path
+# inference using GPUs with gpu_id 0
+python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_path "0"
 ```
 
 ## Deploy
@@ -168,7 +171,8 @@ python tools/inference.py configs/tps_resnet_bilstm_attn.py checkpoint_path img_
 
 2. Benchmark (optional)
 ```python
-python tools/deploy/benchmark.py configs/resnet_ctc.py checkpoint_path image_file_path --calibration_images image_folder_path
+# Benchmark model using GPU with gpu_id 0
+CUDA_VISIBLE_DEVICES="0" python tools/benchmark.py configs/resnet_ctc.py checkpoint_path out_path --dummy_input_shape "3,32,100"
 ```
 
 More available arguments are detailed in [tools/deploy/benchmark.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/benchmark.py).
@@ -176,7 +180,7 @@ More available arguments are detailed in [tools/deploy/benchmark.py](https://git
 The result of resnet_ctc is as follows(test device: Jetson AGX Xavier, CUDA:10.2):
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
-|    :-:     |    :-:     |         :-:          |            :-:            |         :-:          |       :-:       |
+|   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |
 |  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp32            |          64          |      15.81      |
 |  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp32            |         109          |      9.66       |
 |  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp16            |         113          |      10.75      |
@@ -185,13 +189,14 @@ The result of resnet_ctc is as follows(test device: Jetson AGX Xavier, CUDA:10.2
 
 
 
-3. Export model as ONNX or TensorRT engine format
+3. Export model to ONNX format
 
 ```python
-python tools/deploy/export.py configs/resnet_ctc.py checkpoint_path image_file_path out_model_path
+# export model to onnx using GPU with gpu_id 0
+CUDA_VISIBLE_DEVICES="0" python tools/torch2onnx.py configs/resnet_ctc.py checkpoint_path --dummy_input_shape "3,32,100" --dynamic_shape
 ```
 
-  More available arguments are detailed in [tools/deploy/export.py](https://github.com/Media-Smart/vedastr/blob/master/tools/deploy/export.py).
+  More available arguments are detailed in [tools/torch2onnx.py](https://github.com/Media-Smart/vedastr/blob/master/tools/torch2onnx.py).
 
 4. Inference SDK
 
