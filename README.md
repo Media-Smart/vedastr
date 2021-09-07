@@ -68,7 +68,7 @@ We have tested the following versions of OS and softwares:
 - OS: Ubuntu 16.04.6 LTS
 - CUDA: 10.2
 - Python 3.6.9
-- Pytorch: 1.5.1
+- PyTorch: 1.5.1
 
 ### Install vedastr
 
