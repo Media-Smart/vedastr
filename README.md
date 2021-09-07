@@ -181,11 +181,11 @@ The result of resnet_ctc is as follows(test device: Jetson AGX Xavier, CUDA:10.2
 
 | framework  |  version   |     input shape      |         data type         |   throughput(FPS)    |   latency(ms)   |
 |   :---:    |   :---:    |        :---:         |           :---:           |        :---:         |      :---:      |
-|  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp32            |          64          |      15.81      |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp32            |         109          |      9.66       |
-|  pytorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp16            |         113          |      10.75      |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp16            |         308          |      3.55       |
-|  tensorrt  |  7.1.0.16  |   (1, 1, 32, 100)    |      int8(entropy_2)      |         449          |      2.38       |
+|  PyTorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp32            |          64          |      15.81      |
+|  TensorRT  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp32            |         109          |      9.66       |
+|  PyTorch   |   1.5.0    |   (1, 1, 32, 100)    |           fp16            |         113          |      10.75      |
+|  TensorRT  |  7.1.0.16  |   (1, 1, 32, 100)    |           fp16            |         308          |      3.55       |
+|  TensorRT  |  7.1.0.16  |   (1, 1, 32, 100)    |      int8(entropy_2)      |         449          |      2.38       |
 
 
 
